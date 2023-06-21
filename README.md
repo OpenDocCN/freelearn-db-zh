@@ -4,22 +4,22 @@
 > 
 > 人最大的痛苦就是说一些自己都不相信的话。——燕京学堂鹿会
 
-* [在线阅读](https://db.apachecn.org)
+* [在线阅读](https://db.flygon.net)
 ## 下载
 
 ### Docker
 
 ```
-docker pull apachecn0/apachecn-db-zh
-docker run -tid -p <port>:80 apachecn0/apachecn-db-zh
+docker pull apachecn0/flygon-db-zh
+docker run -tid -p <port>:80 apachecn0/flygon-db-zh
 # 访问 http://localhost:{port} 查看文档
 ```
 
 ### NPM
 
 ```
-npm install -g apachecn-db-zh
-apachecn-db-zh <port>
+npm install -g flygon-db-zh
+flygon-db-zh <port>
 # 访问 http://localhost:{port} 查看文档
 ```
 
