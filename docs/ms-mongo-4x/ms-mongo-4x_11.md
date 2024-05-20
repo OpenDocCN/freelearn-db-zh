@@ -58,7 +58,7 @@ MongoDB 进程也会使用底层操作系统的文件系统缓存，就像在 MM
 
 我们可以通过 mongo shell 查看 WiredTiger 缓存的设置，如下所示：
 
-```go
+```sql
 > db.serverStatus().wiredTiger.cache
 ```
 
@@ -74,7 +74,7 @@ MongoDB 进程也会使用底层操作系统的文件系统缓存，就像在 MM
 
 查看页面错误的另一种方法是通过 shell，查看`serverStatus`输出的`extra_info`字段：
 
-```go
+```sql
 > db.adminCommand({"serverStatus" : 1})['extra_info']
 { "note" : "fields vary by platform", "page_faults" : 3465 }
 ```
@@ -143,7 +143,7 @@ MongoDB 进程也会使用底层操作系统的文件系统缓存，就像在 MM
 
 直接地，我们可以从 shell 中调用`serverStatus`中的`workingSet`标志，如下所示：
 
-```go
+```sql
 > db.adminCommand({"serverStatus" : 1, "workingSet" : 1})
 ```
 
@@ -227,7 +227,7 @@ EBS on EC2 和 Linux 上的**逻辑卷管理器**（**LVM**）支持时间点快
 
 首先，我们需要通过 mongo shell 连接到我们的 mongos 来禁用平衡器：
 
-```go
+```sql
 > use config
 > sh.stopBalancer()
 ```
@@ -238,7 +238,7 @@ EBS on EC2 和 Linux 上的**逻辑卷管理器**（**LVM**）支持时间点快
 
 假设我们不需要锁定我们的辅助副本，下一步是备份配置服务器。在 Linux（使用 LVM），这类似于执行以下操作：
 
-```go
+```sql
 $ lvcreate --size 100M --snapshot --name snap-14082017 /dev/vg0/mongodb
 ```
 
@@ -246,7 +246,7 @@ $ lvcreate --size 100M --snapshot --name snap-14082017 /dev/vg0/mongodb
 
 最后，我们需要使用相同的 mongo shell 重新启动平衡器，该 shell 用于停止它：
 
-```go
+```sql
 > sh.setBalancerState(true)
 ```
 
@@ -314,7 +314,7 @@ Ops Manager 和 Cloud Manager 都支持增量备份，如果我们达到这个�
 
 1.  在 oplog 中的最新条目之后导出条目：
 
-```go
+```sql
 > mongodump --host <secondary> -d local -c oplog.rs -o /mnt/mongo-oldway_backup
  --query '{ "ts" : { $gt :  Timestamp(1467999203, 391) } }'
 ```
@@ -323,7 +323,7 @@ Ops Manager 和 Cloud Manager 都支持增量备份，如果我们达到这个�
 
 要恢复，我们可以使用刚刚导出的`oplog.rs`文件，并使用`mongorestore`选项`--oplogReplay`：
 
-```go
+```sql
 > mongorestore -h <primary> --port <port> --oplogReplay <data_file_position>
 ```
 
@@ -341,13 +341,13 @@ Ops Manager 和 Cloud Manager 都支持增量备份，如果我们达到这个�
 
 最简单的认证方式是使用`username`和`password`对。可以通过两种方式之一在 shell 中完成，第一种方式如下：
 
-```go
+```sql
 > db.auth( <username>, <password> )
 ```
 
 传递逗号分隔的`username`和`password`将假定其余字段的默认值：
 
-```go
+```sql
 > db.auth( {
  user: <username>,
  pwd: <password>,
@@ -366,13 +366,13 @@ MONGODB-x.509 用于 TLS/SSL 认证。用户和内部副本集服务器可以通
 
 以下是配置文件的内容：
 
-```go
+```sql
 security.clusterAuthMode / net.ssl.clusterFile
 ```
 
 以下是在命令行上使用的：
 
-```go
+```sql
 --clusterAuthMode and --sslClusterFile
 > mongod --replSet <name> --sslMode requireSSL --clusterAuthMode x509 --sslClusterFile <path to membership certificate and key PEM file> --sslPEMKeyFile <path to SSL certificate and key PEM file> --sslCAFile <path to root CA PEM file>
 ```
@@ -395,13 +395,13 @@ MongoDB 企业版是 MongoDB，Inc.提供的付费产品，增加了两个认证
 
 命令的格式如下：
 
-```go
+```sql
 { db: <database>, collection: <collection> }
 ```
 
 如果我们为`db`或`collection`指定了`""`（空字符串），这意味着任何`db`或`collection`。例如：
 
-```go
+```sql
 { db: "mongo_books", collection: "" }
 ```
 
@@ -411,7 +411,7 @@ MongoDB 企业版是 MongoDB，Inc.提供的付费产品，增加了两个认证
 
 与前面的选项类似，我们可以定义以下内容：
 
-```go
+```sql
 { db: "", collection: "" }
 ```
 
@@ -419,7 +419,7 @@ MongoDB 企业版是 MongoDB，Inc.提供的付费产品，增加了两个认证
 
 我们还可以应用规则到整个集群，如下：
 
-```go
+```sql
 { resource: { cluster : true }, actions: [ "addShard" ] }
 ```
 

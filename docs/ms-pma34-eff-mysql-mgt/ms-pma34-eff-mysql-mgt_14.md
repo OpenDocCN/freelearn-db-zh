@@ -96,7 +96,7 @@
 
 为了实现这一目标，我们存储了一个包含这些查询的书签（在发送执行之前）：
 
-```go
+```sql
 update author set phone = replace(phone,'(123)', '(456)');
 select * from author;
 
@@ -144,7 +144,7 @@ select * from author;
 
 假设我们想要找到给定作者的所有书，但不知道作者的`id`。我们首先输入以下查询：
 
-```go
+```sql
 SELECT author.name, author.id, book.title
 FROM book, author
 WHERE book.author_id = author.id

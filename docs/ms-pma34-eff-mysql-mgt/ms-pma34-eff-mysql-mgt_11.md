@@ -6,7 +6,7 @@
 
 phpMyAdmin 允许我们通过其图形界面执行许多数据库操作。然而，有时我们必须依靠 SQL 查询输入来实现界面不直接支持的操作。以下是两个这样的查询示例：
 
-```go
+```sql
 SELECT department, AVG(salary) FROM employees GROUP BY department HAVING years_experience > 10;
 SELECT FROM_DAYS(TO_DAYS(CURDATE()) +30);
 
@@ -32,7 +32,7 @@ SELECT FROM_DAYS(TO_DAYS(CURDATE()) +30);
 
 该框已经有一个默认查询，如前一个截图所示。这个默认查询是从`$cfg['DefaultQueryTable']`配置指令生成的，其中包含`SELECT * FROM @TABLE@ WHERE 1`。这里，`@TABLE@`会被当前表名替换。`$cfg['DefaultQueryTable']`中的另一个占位符是`@FIELDS@`。这个占位符将被该表的完整列列表替换，从而生成以下查询：
 
-```go
+```sql
 SELECT `isbn`, `title`, `page_count`, `author_id`, `language`, `description`, `cover_photo`, `genre`, `date_published`, `stamp`, `some_bits` FROM `book` WHERE 1.
 
 ```
@@ -99,7 +99,7 @@ SELECT `isbn`, `title`, `page_count`, `author_id`, `language`, `description`, `c
 
 单击**编辑**会打开查询窗口的**SQL**选项卡，并准备修改此查询。这是因为该参数的默认设置如下：
 
-```go
+```sql
 $cfg['EditInWindow'] = TRUE;
 
 ```
@@ -112,7 +112,7 @@ $cfg['EditInWindow'] = TRUE;
 
 在 PHP 和 MySQL 编程中，我们可以使用`mysql_query()`函数调用一次只发送一个查询。phpMyAdmin 允许我们使用分号作为分隔符，在一次传输中发送多个查询。假设我们在查询框中输入以下查询：
 
-```go
+```sql
 INSERT INTO author VALUES (100,'Paul Smith','111-2222');
 INSERT INTO author VALUES (101,'Melanie Smith','222-3333');
 UPDATE author SET phone='444-5555' WHERE name LIKE '%Smith%';
@@ -153,14 +153,14 @@ UPDATE author SET phone='444-5555' WHERE name LIKE '%Smith%';
 
 此验证器作为 SOAP 服务提供。我们的 PHP 服务器必须具有 XML、PCRE 和 SOAP 支持。SOAP 支持由 PHP 扩展或 PEAR 模块提供。如果选择 PEAR 方式，系统管理员在服务器上执行以下命令安装我们需要的模块：
 
-```go
+```sql
 pear install Net_Socket Net_URL HTTP_Request Mail_Mime Net_DIME SOAP 
 
 ```
 
 如果由于某些模块处于测试阶段而导致该命令出现问题，我们可以执行以下命令，安装 SOAP 和其他依赖模块：
 
-```go
+```sql
 pear -d preferred_state=beta install -a SOAP 
 
 ```
@@ -173,7 +173,7 @@ pear -d preferred_state=beta install -a SOAP
 
 验证器默认使用匿名验证器帐户访问，配置如下命令：
 
-```go
+```sql
 $cfg['SQLValidator']['username'] = '';
 $cfg['SQLValidator']['password'] = '';
 

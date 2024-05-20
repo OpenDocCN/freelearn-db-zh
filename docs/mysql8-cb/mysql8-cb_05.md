@@ -16,20 +16,20 @@
 
 银行将从`A`扣除 100 美元，并使用以下 SQL 代码将其添加到`B`（仅供说明）：
 
-```go
+```sql
 mysql> SELECT balance INTO @a.bal FROM account WHERE account_number='A';
 ```
 
 以编程方式检查`@a.bal`是否大于或等于 100：
 
-```go
+```sql
 mysql> UPDATE account SET balance=@a.bal-100 WHERE account_number='A';
 mysql> SELECT balance INTO @b.bal FROM account WHERE account_number='B';
 ```
 
 以编程方式检查`@b.bal`是否`NOT NULL`：
 
-```go
+```sql
 mysql> UPDATE account SET balance=@b.bal+100 WHERE account_number='B';
 ```
 
@@ -49,7 +49,7 @@ mysql> UPDATE account SET balance=@b.bal+100 WHERE account_number='B';
 
 创建虚拟表和示例数据以理解这个示例：
 
-```go
+```sql
 mysql> CREATE DATABASE bank;
 mysql> USE bank;
 mysql> CREATE TABLE account(account_number varchar(10) PRIMARY KEY, balance int);
@@ -60,7 +60,7 @@ mysql> INSERT INTO account VALUES('A',600),('B',400);
 
 要开始一个事务（一组 SQL），执行`START TRANSACTION`或`BEGIN`语句：
 
-```go
+```sql
 mysql> START TRANSACTION;
 or 
 mysql> BEGIN;
@@ -68,7 +68,7 @@ mysql> BEGIN;
 
 然后执行所有希望在事务内部的语句，比如从`A`转账 100 到`B`：
 
-```go
+```sql
 mysql> SELECT balance INTO @a.bal FROM account WHERE account_number='A';
 
 Programmatically check if @a.bal is greater than or equal to 100 
@@ -81,7 +81,7 @@ mysql> UPDATE account SET balance=@b.bal+100 WHERE account_number='B';
 
 确保所有 SQL 都成功执行后，执行`COMMIT`语句，完成事务并提交数据：
 
-```go
+```sql
 mysql> COMMIT;
 ```
 
@@ -89,7 +89,7 @@ mysql> COMMIT;
 
 例如，如果`A`想要转账到一个不存在的账户而不是发送给`B`，你应该中止事务并将金额退还给`A`：
 
-```go
+```sql
 mysql> BEGIN;
 
 mysql> SELECT balance INTO @a.bal FROM account WHERE account_number='A';
@@ -123,7 +123,7 @@ Query OK, 0 rows affected (0.01 sec)
 
 默认情况下，自动提交是`ON`，这意味着所有单独的语句在执行时都会被提交，除非它们在`BEGIN...COMMIT`块中。如果自动提交是`OFF`，你需要显式地发出`COMMIT`语句来提交一个事务。要禁用它，执行：
 
-```go
+```sql
 mysql> SET autocommit=0;
 ```
 
@@ -139,7 +139,7 @@ DDL 语句，比如数据库的`CREATE`或`DROP`，以及表或存储过程的`C
 
 假设`A`想要转账给多个账户；即使向一个账户的转账失败，其他账户也不应该被回滚：
 
-```go
+```sql
 mysql> BEGIN;
 Query OK, 0 rows affected (0.00 sec)
 
@@ -210,13 +210,13 @@ mysql> SELECT balance FROM account WHERE account_number='B';
 
 |
 
-```go
+```sql
 BEGIN;
 ```
 
 |
 
-```go
+```sql
 BEGIN;
 ```
 
@@ -224,7 +224,7 @@ BEGIN;
 
 |
 
-```go
+```sql
 UPDATE account
  SET balance=balance+500
  WHERE account_number='A';
@@ -234,7 +234,7 @@ UPDATE account
 | --- |
 |  -- |
 
-```go
+```sql
 SELECT balance INTO @a.bal
  FROM account
  WHERE account_number='A';
@@ -245,7 +245,7 @@ SELECT balance INTO @a.bal
 
 |
 
-```go
+```sql
 ROLLBACK;
  # Assume due to some reason the
  transaction got rolled back
@@ -255,7 +255,7 @@ ROLLBACK;
 | --- |
 | -- |
 
-```go
+```sql
 # A transfers 900 to B since
  A has 900 in previous SELECT
  UPDATE account
@@ -268,7 +268,7 @@ ROLLBACK;
 |  -- |
 | --- |
 
-```go
+```sql
 # B receives the amount UPDATE account
  SET balance=balance+900
  WHERE account_number='B';
@@ -279,7 +279,7 @@ ROLLBACK;
 |  -- |
 | --- |
 
-```go
+```sql
 # Transaction 2 completes successfully
 COMMIT;
 ```
@@ -299,13 +299,13 @@ COMMIT;
 
 |
 
-```go
+```sql
 BEGIN;
 ```
 
 |
 
-```go
+```sql
 BEGIN;
 ```
 
@@ -313,7 +313,7 @@ BEGIN;
 
 |
 
-```go
+```sql
 UPDATE account SET balance=balance+500
 WHERE account_number='A';
 ```
@@ -322,7 +322,7 @@ WHERE account_number='A';
 | --- |
 | -- |
 
-```go
+```sql
 SELECT balance INTO @a.bal
 FROM account
 WHERE account_number='A';
@@ -333,7 +333,7 @@ WHERE account_number='A';
 
 |
 
-```go
+```sql
 COMMIT;
 ```
 
@@ -341,7 +341,7 @@ COMMIT;
 | --- |
 | -- |
 
-```go
+```sql
 SELECT balance INTO @a.bal
 FROM account
 WHERE account_number='A';
@@ -365,13 +365,13 @@ WHERE account_number='A';
 
 |
 
-```go
+```sql
 BEGIN;
 ```
 
 |
 
-```go
+```sql
 BEGIN;
 ```
 
@@ -380,7 +380,7 @@ BEGIN;
 |  -- |
 | --- |
 
-```go
+```sql
 SELECT balance INTO @a.bal
 FROM account
 WHERE account_number='A';
@@ -391,7 +391,7 @@ WHERE account_number='A';
 
 |
 
-```go
+```sql
 UPDATE account
 SET balance=balance+500
 WHERE account_number='A';
@@ -401,7 +401,7 @@ WHERE account_number='A';
 | --- |
 | -- |
 
-```go
+```sql
 SELECT balance INTO @a.bal
 FROM account
 WHERE account_number='A';
@@ -412,7 +412,7 @@ WHERE account_number='A';
 
 |
 
-```go
+```sql
 COMMIT;
 ```
 
@@ -420,7 +420,7 @@ COMMIT;
 | --- |
 |  -- |
 
-```go
+```sql
 COMMIT;
 ```
 
@@ -429,7 +429,7 @@ COMMIT;
 |  -- |
 | --- |
 
-```go
+```sql
 SELECT balance INTO @a.bal
 FROM account
 WHERE account_number='A';
@@ -447,13 +447,13 @@ WHERE account_number='A';
 
 |
 
-```go
+```sql
 BEGIN;
 ```
 
 |
 
-```go
+```sql
 BEGIN;
 ```
 
@@ -461,7 +461,7 @@ BEGIN;
 
 |
 
-```go
+```sql
 SELECT * FROM account;
 # 2 rows are returned
 ```
@@ -470,7 +470,7 @@ SELECT * FROM account;
 | --- |
 |  -- |
 
-```go
+```sql
 INSERT INTO account VALUES('C',1000);
 # New account is created
 ```
@@ -480,7 +480,7 @@ INSERT INTO account VALUES('C',1000);
 |   -- |
 | --- |
 
-```go
+```sql
 COMMIT;
 ```
 
@@ -488,7 +488,7 @@ COMMIT;
 
 |
 
-```go
+```sql
 SELECT * FROM account WHERE account_number='C';
 # no rows are returned because of MVCC
 ```
@@ -498,7 +498,7 @@ SELECT * FROM account WHERE account_number='C';
 
 |
 
-```go
+```sql
 DELETE FROM account WHERE account_number='C';
 # Surprisingly account C gets deleted
 ```
@@ -507,7 +507,7 @@ DELETE FROM account WHERE account_number='C';
 | --- |
 |  -- |
 
-```go
+```sql
 SELECT * FROM account;
 # 3 rows are returned because transaction 1 is not yet committed
 ```
@@ -516,7 +516,7 @@ SELECT * FROM account;
 
 |
 
-```go
+```sql
 COMMIT;
 ```
 
@@ -524,7 +524,7 @@ COMMIT;
 | --- |
 |  -- |
 
-```go
+```sql
 SELECT * FROM account;
 # 2 rows are returned because transaction 1 is committed
 ```
@@ -538,13 +538,13 @@ SELECT * FROM account;
 
 |
 
-```go
+```sql
 BEGIN;
 ```
 
 |
 
-```go
+```sql
 BEGIN;
 ```
 
@@ -552,7 +552,7 @@ BEGIN;
 
 |
 
-```go
+```sql
 SELECT * FROM account;
 # 2 rows are returned
 ```
@@ -561,7 +561,7 @@ SELECT * FROM account;
 | --- |
 | -- |
 
-```go
+```sql
 INSERT INTO account VALUES('D',1000);
 ```
 
@@ -570,7 +570,7 @@ INSERT INTO account VALUES('D',1000);
 | -- |
 | --- |
 
-```go
+```sql
 COMMIT;
 ```
 
@@ -578,7 +578,7 @@ COMMIT;
 
 |
 
-```go
+```sql
 SELECT * FROM account;
 # 3 rows are returned because of MVCC
 ```
@@ -588,7 +588,7 @@ SELECT * FROM account;
 
 |
 
-```go
+```sql
 UPDATE account SET balance=1000 WHERE account_number='D';
 # Surprisingly account D gets updated
 ```
@@ -598,7 +598,7 @@ UPDATE account SET balance=1000 WHERE account_number='D';
 
 |
 
-```go
+```sql
 SELECT * FROM account;
 # Surprisingly 4 rows are returned
 ```
@@ -617,13 +617,13 @@ SELECT * FROM account;
 
 |
 
-```go
+```sql
 BEGIN;
 ```
 
 |
 
-```go
+```sql
 BEGIN;
 ```
 
@@ -631,7 +631,7 @@ BEGIN;
 
 |
 
-```go
+```sql
 SELECT * FROM account WHERE account_number='A';
 ```
 
@@ -639,7 +639,7 @@ SELECT * FROM account WHERE account_number='A';
 | --- |
 |  -- |
 
-```go
+```sql
 UPDATE account SET balance=1000 WHERE account_number='A';
  # This will wait until the lock held by transaction 1
  on row A is released
@@ -649,7 +649,7 @@ UPDATE account SET balance=1000 WHERE account_number='A';
 
 |
 
-```go
+```sql
 COMMIT;
 ```
 
@@ -657,7 +657,7 @@ COMMIT;
 | --- |
 |  -- |
 
-```go
+```sql
 # UPDATE will be successful now
 ```
 
@@ -670,13 +670,13 @@ COMMIT;
 
 |
 
-```go
+```sql
 BEGIN;
 ```
 
 |
 
-```go
+```sql
 BEGIN;
 ```
 
@@ -684,7 +684,7 @@ BEGIN;
 
 |
 
-```go
+```sql
 SELECT * FROM account WHERE account_number='A';
 # Selects values of A
 ```
@@ -693,7 +693,7 @@ SELECT * FROM account WHERE account_number='A';
 | --- |
 |  -- |
 
-```go
+```sql
 INSERT INTO account VALUES('D',2000);
 # Inserts D
 ```
@@ -702,7 +702,7 @@ INSERT INTO account VALUES('D',2000);
 
 |
 
-```go
+```sql
 SELECT * FROM account WHERE account_number='D';
  # This will wait until the transaction 2 completes
 ```
@@ -711,7 +711,7 @@ SELECT * FROM account WHERE account_number='D';
 | --- |
 |  -- |
 
-```go
+```sql
 COMMIT;
 ```
 
@@ -719,7 +719,7 @@ COMMIT;
 
 |
 
-```go
+```sql
 # Now the preceding select statement returns values of D
 ```
 
@@ -758,19 +758,19 @@ COMMIT;
 
 语法如下：
 
-```go
+```sql
 mysql> LOCK TABLES table_name [READ | WRITE]
 ```
 
 要解锁表，请使用：
 
-```go
+```sql
 mysql> UNLOCK TABLES;
 ```
 
 要锁定所有数据库中的所有表，请执行以下语句。在对数据库进行一致快照时使用。它会冻结对数据库的所有写入：
 
-```go
+```sql
 mysql> FLUSH TABLES WITH READ LOCK;
 ```
 
@@ -782,7 +782,7 @@ mysql> FLUSH TABLES WITH READ LOCK;
 
 **事务 1：**
 
-```go
+```sql
 mysql> BEGIN;
 Query OK, 0 rows affected (0.00 sec)
 
@@ -808,7 +808,7 @@ mysql> SELECT * FROM employees LIMIT 10;
 
 **事务 2：**
 
-```go
+```sql
 mysql> LOCK TABLE employees WRITE;
 ```
 
@@ -816,7 +816,7 @@ mysql> LOCK TABLE employees WRITE;
 
 **事务 3：**
 
-```go
+```sql
 mysql> SELECT * FROM employees LIMIT 10;
 ```
 
@@ -824,7 +824,7 @@ mysql> SELECT * FROM employees LIMIT 10;
 
 您可以通过从另一个会话中检查`SHOW PROCESSLIST`来检查这一点：
 
-```go
+```sql
 mysql> SHOW PROCESSLIST;
 +----+------+-----------+-----------+---------+------+---------------------------------+----------------------------------+
 | Id | User | Host      | db        | Command | Time | State                           | Info                             |
@@ -843,7 +843,7 @@ mysql> SHOW PROCESSLIST;
 
 **事务 1：**
 
-```go
+```sql
 mysql> BEGIN;
 Query OK, 0 rows affected (0.00 sec)
 
@@ -869,13 +869,13 @@ mysql> SELECT * FROM employees LIMIT 10;
 
 **事务 2：**
 
-```go
+```sql
 mysql> FLUSH TABLES WITH READ LOCK;
 ```
 
 **事务 3：**
 
-```go
+```sql
 mysql> SELECT * FROM employees LIMIT 10;
 ```
 
@@ -883,7 +883,7 @@ mysql> SELECT * FROM employees LIMIT 10;
 
 您可以通过从另一个会话中检查`SHOW PROCESSLIST`来检查这一点。
 
-```go
+```sql
 mysql> SHOW PROCESSLIST;
 +----+------+-----------+-----------+---------+------+-------------------------+--------------------------------------------------+
 | Id | User | Host      | db        | Command | Time | State                   | Info                                             |

@@ -36,7 +36,7 @@
 
 您还可以简单地将`log_bin`变量放在`my.cnf`中，而不设置任何值。在这种情况下，二进制日志将在`data directory`目录中创建，并使用`hostname`作为其名称。
 
-```go
+```sql
 shell> sudo vi /etc/my.cnf
 [mysqld]
 log_bin = /data/mysql/binlogs/server1
@@ -45,13 +45,13 @@ server_id = 100
 
 1.  重新启动 MySQL 服务器：
 
-```go
+```sql
 shell> sudo systemctl restart mysql
 ```
 
 1.  验证是否创建了二进制日志：
 
-```go
+```sql
 mysql> SHOW VARIABLES LIKE 'log_bin%';
 +---------------------------------+-----------------------------------+
 | Variable_name                   | Value                             |
@@ -65,7 +65,7 @@ mysql> SHOW VARIABLES LIKE 'log_bin%';
 5 rows in set (0.00 sec)
 ```
 
-```go
+```sql
 mysql> SHOW MASTER LOGS;
 +----------------+-----------+
 | Log_name       | File_size |
@@ -75,7 +75,7 @@ mysql> SHOW MASTER LOGS;
 1 row in set (0.00 sec)
 ```
 
-```go
+```sql
 shell> sudo ls -lhtr /data/mysql/binlogs
 total 8.0K
 -rw-r----- 1 mysql mysql 34 Aug 15 05:01 server1.index
@@ -86,7 +86,7 @@ total 8.0K
 
 1.  执行`SHOW MASTER STATUS;`命令以获取当前二进制日志位置：
 
-```go
+```sql
 mysql> SHOW MASTER STATUS;
 +----------------+----------+--------------+------------------+------------------+++++++++++++++++++++++++++++++++++++-+
 | File           | Position | Binlog_Do_DB | Binlog_Ignore_DB | Executed_Gtid_Set |
@@ -102,7 +102,7 @@ mysql> SHOW MASTER STATUS;
 
 可能存在不希望将语句复制到其他服务器的情况。为此，可以使用以下命令禁用该会话的二进制日志记录：
 
-```go
+```sql
 mysql> SET SQL_LOG_BIN = 0;
 ```
 
@@ -110,7 +110,7 @@ mysql> SET SQL_LOG_BIN = 0;
 
 要启用，可以执行以下操作：
 
-```go
+```sql
 mysql> SET SQL_LOG_BIN = 1;
 ```
 
@@ -118,7 +118,7 @@ mysql> SET SQL_LOG_BIN = 1;
 
 您可以使用`FLUSH LOGS`命令关闭当前的二进制日志并打开一个新的：
 
-```go
+```sql
 mysql> SHOW BINARY LOGS;
 +----------------+-----------+
 | Log_name       | File_size |
@@ -155,7 +155,7 @@ mysql> SHOW BINARY LOGS;
 
 1.  要手动清除日志，请执行`PURGE BINARY LOGS TO '<file_name>'`。例如，如果有文件如`server1.000001`，`server1.000002`，`server1.000003`和`server1.000004`，如果您执行`PURGE BINARY LOGS TO 'server1.000004'`，则所有文件直到`server1.000003`将被删除，`server1.000004`不会被触及：
 
-```go
+```sql
 mysql> SHOW BINARY LOGS;
 +----------------+-----------+
 | Log_name      | File_size |
@@ -168,13 +168,13 @@ mysql> SHOW BINARY LOGS;
 4 rows in set (0.00 sec)
 ```
 
-```go
+```sql
 mysql> PURGE BINARY LOGS TO 'server1.000004';
 Query OK, 0 rows affected (0.00 sec)
 
 ```
 
-```go
+```sql
 mysql> SHOW BINARY LOGS;
 +----------------+-----------+
 | Log_name       | File_size |
@@ -191,7 +191,7 @@ mysql> SHOW BINARY LOGS;
 
 1.  要删除所有二进制日志并重新开始，请执行`RESET MASTER`：
 
-```go
+```sql
 mysql> SHOW BINARY LOGS;
 +----------------+-----------+
 | Log_name       | File_size |
@@ -201,12 +201,12 @@ mysql> SHOW BINARY LOGS;
 1 row in set (0.00 sec)
 ```
 
-```go
+```sql
 mysql> RESET MASTER;
 Query OK, 0 rows affected (0.01 sec)
 ```
 
-```go
+```sql
 mysql> SHOW BINARY LOGS;
 +----------------+-----------+
 | Log_name       | File_size |
@@ -238,13 +238,13 @@ mysql> SHOW BINARY LOGS;
 
 您可以使用动态变量`binlog_format`来设置格式，该变量具有全局和会话范围。在全局级别设置它会使所有客户端使用指定的格式：
 
-```go
+```sql
 mysql> SET GLOBAL binlog_format = 'STATEMENT';
 ```
 
 或者：
 
-```go
+```sql
 mysql> SET GLOBAL binlog_format = 'ROW'; 
 ```
 
@@ -252,13 +252,13 @@ mysql> SET GLOBAL binlog_format = 'ROW';
 
 1.  MySQL 8.0 使用版本 2 的二进制日志行事件，这些事件不能被 MySQL 5.6.6 之前的版本读取。将`log-bin-use-v1-row-events`设置为`1`以使用版本 1，以便可以被 MySQL 5.6.6 之前的版本读取。默认值为`0`。
 
-```go
+```sql
 mysql> SET @@GLOBAL.log_bin_use_v1_row_events=0;
 ```
 
 1.  当您创建存储函数时，必须声明它是确定性的或者不修改数据。否则，它可能对二进制日志记录不安全。默认情况下，要接受`CREATE FUNCTION`语句，必须显式指定`DETERMINISTIC`，`NO SQL`或`READS SQL DATA`中的至少一个。否则会发生错误：
 
-```go
+```sql
 ERROR 1418 (HY000): This function has none of DETERMINISTIC, NO SQL, or READS SQL DATA in its declaration and binary logging is enabled (you *might* want to use the less safe log_bin_trust_function_creators variable)
 ```
 
@@ -280,14 +280,14 @@ ERROR 1418 (HY000): This function has none of DETERMINISTIC, NO SQL, or READS SQ
 
 切换到**基于语句的复制**（**SBR**）：
 
-```go
+```sql
 mysql> SET @@GLOBAL.BINLOG_FORMAT='STATEMENT';
 Query OK, 0 rows affected (0.00 sec)
 ```
 
 更新几行：
 
-```go
+```sql
 mysql> BEGIN;
 Query OK, 0 rows affected (0.00 sec)
 
@@ -301,14 +301,14 @@ Query OK, 0 rows affected (0.00 sec)
 
 切换到**基于行的复制**（**RBR**）：
 
-```go
+```sql
 mysql> SET @@GLOBAL.BINLOG_FORMAT='ROW';
 Query OK, 0 rows affected (0.00 sec)
 ```
 
 更新几行：
 
-```go
+```sql
 mysql> BEGIN;Query OK, 0 rows affected (0.00 sec)
 
 mysql> UPDATE salaries SET salary=salary/2 WHERE emp_no<10002;Query OK, 18 rows affected (0.00 sec)
@@ -319,14 +319,14 @@ mysql> COMMIT;Query OK, 0 rows affected (0.00 sec)
 
 切换到`MIXED`格式：
 
-```go
+```sql
 mysql> SET @@GLOBAL.BINLOG_FORMAT='MIXED';
 Query OK, 0 rows affected (0.00 sec)
 ```
 
 更新几行：
 
-```go
+```sql
 mysql> BEGIN;Query OK, 0 rows affected (0.00 sec)
 
 mysql> UPDATE salaries SET salary=salary*2 WHERE emp_no<10002;Query OK, 18 rows affected (0.00 sec)
@@ -341,13 +341,13 @@ mysql> COMMIT;Query OK, 0 rows affected (0.00 sec)
 
 要显示`server1.000001`的内容，请执行以下操作：
 
-```go
+```sql
 shell> sudo mysqlbinlog /data/mysql/binlogs/server1.000001
 ```
 
 您将获得类似以下内容的输出：
 
-```go
+```sql
 # at 226
 #170815 12:49:24 server id 200  end_log_pos 312 CRC32 0x9197bf88  Query thread_id=5 exec_time=0 error_code=0
 BINLOG '
@@ -371,7 +371,7 @@ BINLOG '
 
 1.  您在基于语句的复制中执行了`UPDATE`语句，并且相同的语句记录在二进制日志中。除了服务器外，会话变量也保存在二进制日志中，以在从服务器上复制相同的行为：
 
-```go
+```sql
 # at 226
 #170815 13:28:38 server id 200  end_log_pos 324 CRC32 0x9d27fc78  Query thread_id=8 exec_time=0 error_code=0
 SET TIMESTAMP=1502803718/*!*/;
@@ -387,7 +387,7 @@ SET @@session.collation_database=DEFAULT/*!*/;
 
 ```
 
-```go
+```sql
 BEGIN
 /*!*/;
 # at 324
@@ -403,7 +403,7 @@ COMMIT/*!*/;
 
 1.  当使用基于行的复制时，保存的不是语句，而是以二进制格式保存的`ROW`，您无法阅读。此外，您可以观察到，单个更新语句生成了如此多的数据。查看*提取行事件显示*部分，该部分解释了如何查看二进制格式。
 
-```go
+```sql
 BEGIN
 /*!*/;
 # at 660
@@ -420,7 +420,7 @@ COMMIT/*!*/;
 
 1.  当使用`MIXED`格式时，`UPDATE`语句被记录为 SQL，而`INSERT`语句以基于行的格式记录，因为`INSERT`具有不确定性的`UUID()`函数：
 
-```go
+```sql
 BEGIN
 /*!*/;
 # at 1499
@@ -439,13 +439,13 @@ COMMIT/*!*/;
 
 提取的日志可以通过管道传输到 MySQL 以重放事件。在重放二进制日志时最好使用 force 选项，因为如果它卡在某一点，它不会停止执行。稍后，您可以找出错误并手动修复数据。
 
-```go
+```sql
 shell> sudo mysqlbinlog /data/mysql/binlogs/server1.000001 | mysql -f -h <remote_host> -u <username> -p
 ```
 
 或者您可以保存到文件中，以后执行：
 
-```go
+```sql
 shell> sudo mysqlbinlog /data/mysql/binlogs/server1.000001 > server1.binlog_extract
 shell> cat server1.binlog_extract | mysql -h <remote_host> -u <username> -p
 ```
@@ -456,7 +456,7 @@ shell> cat server1.binlog_extract | mysql -h <remote_host> -u <username> -p
 
 您可以通过`--start-datetime`和`--stop-datatime`选项指定时间窗口来提取数据。
 
-```go
+```sql
 shell> sudo mysqlbinlog /data/mysql/binlogs/server1.000001 --start-datetime="2017-08-19 00:00:01"  --stop-datetime="2017-08-19 12:17:00" > binlog_extract
 ```
 
@@ -466,7 +466,7 @@ shell> sudo mysqlbinlog /data/mysql/binlogs/server1.000001 --start-datetime="201
 
 假设备份给出了偏移量`471`，并且`DROP DATABASE`命令在偏移量`1793`处执行。您可以使用`--start-position`和`--stop-position`选项在偏移量之间提取日志：
 
-```go
+```sql
 shell> sudo mysqlbinlog /data/mysql/binlogs/server1.000001 --start-position=471  --stop-position=1793 > binlog_extract
 ```
 
@@ -478,13 +478,13 @@ shell> sudo mysqlbinlog /data/mysql/binlogs/server1.000001 --start-position=471 
 
 以下命令从 employees 数据库中提取事件：
 
-```go
+```sql
 shell> sudo mysqlbinlog /data/mysql/binlogs/server1.000001 --database=employees > binlog_extract
 ```
 
 如 MySQL 8 参考手册中所述，假设二进制日志是通过使用基于语句的日志记录执行这些语句创建的：
 
-```go
+```sql
 mysql>
 INSERT INTO test.t1 (i) VALUES(100);
 INSERT INTO db2.t2 (j)  VALUES(200);
@@ -512,7 +512,7 @@ INSERT INTO t2 (j) VALUES(203);
 
 在基于行的复制中，默认情况下显示二进制格式。要查看`ROW`信息，您必须将`--verbose`或`-v`选项传递给`mysqlbinlog`。行事件的二进制格式显示为以`###`开头的行形式的伪 SQL 语句的注释。您可以看到单个`UPDATE`语句被重写为每行的`UPDATE`语句：
 
-```go
+```sql
 shell>  mysqlbinlog /data/mysql/binlogs/server1.000001 --start-position=660 --stop-position=1298 --verbose
 ~
 ~
@@ -560,7 +560,7 @@ DELIMITER ;
 
 如果您只想看到伪 SQL 而不包含二进制行信息，请指定`--base64-output="decode-rows"`以及`--verbose`：
 
-```go
+```sql
 shell>  sudo mysqlbinlog /data/mysql/binlogs/server1.000001 --start-position=660 --stop-position=1298 --verbose --base64-output="decode-rows"
 /*!50530 SET @@SESSION.PSEUDO_SLAVE_MODE=1*/;
 /*!50003 SET @OLD_COMPLETION_TYPE=@@COMPLETION_TYPE,COMPLETION_TYPE=0*/;
@@ -589,7 +589,7 @@ DELIMITER /*!*/;
 
 要转换多个数据库，请多次指定该选项：
 
-```go
+```sql
 shell> sudo mysqlbinlog /data/mysql/binlogs/server1.000001 --start-position=1499 --stop-position=1646 --rewrite-db='employees->employees_dev'
 ~
 # at 1499
@@ -617,7 +617,7 @@ DELIMITER ;
 
 在还原二进制日志时，如果您不希望`mysqlbinlog`进程创建二进制日志，您可以使用`--disable-log-bin`选项，以便不写入二进制日志：
 
-```go
+```sql
 shell> sudo mysqlbinlog /data/mysql/binlogs/server1.000001 --start-position=660 --stop-position=1298 --disable-log-bin > binlog_restore
 ```
 
@@ -631,7 +631,7 @@ shell> sudo mysqlbinlog /data/mysql/binlogs/server1.000001 --start-position=660 
 
 以下命令将显示`server1.000008`二进制日志中的事件。如果未指定`LIMIT`，则显示所有事件：
 
-```go
+```sql
 mysql> SHOW BINLOG EVENTS IN 'server1.000008' LIMIT 10; +----------------+-----+----------------+-----------+-------------+------------------------------------------+
 | Log_name       | Pos | Event_type     | Server_id | End_log_pos | Info                                     |
 +----------------+-----+----------------+-----------+-------------+------------------------------------------+
@@ -652,7 +652,7 @@ mysql> SHOW BINLOG EVENTS IN 'server1.000008' LIMIT 10; +----------------+-----+
 
 您还可以指定位置和偏移量：
 
-```go
+```sql
 mysql> SHOW BINLOG EVENTS IN 'server1.000008' FROM 123 LIMIT 2,1; +----------------+-----+------------+-----------+-------------+--------------------------------------+
 | Log_name       | Pos | Event_type | Server_id | End_log_pos | Info                                 |
 +----------------+-----+------------+-----------+-------------+--------------------------------------+
@@ -669,7 +669,7 @@ mysql> SHOW BINLOG EVENTS IN 'server1.000008' FROM 123 LIMIT 2,1; +-------------
 
 打开`my.cnf`并添加以下行：
 
-```go
+```sql
 shell> sudo vi /etc/my.cnf
 [mysqld]
 binlog_do_db=db1
@@ -684,7 +684,7 @@ binlog_do_db=db2
 
 如果服务器是使用`--binlog-do-db=sales`启动的，并且您发出以下语句，则`UPDATE`语句不会被记录：
 
-```go
+```sql
 mysql> USE prices;
 mysql> UPDATE sales.january SET amount=amount+1000;
 ```
@@ -695,7 +695,7 @@ mysql> UPDATE sales.january SET amount=amount+1000;
 
 如果服务器是使用`--binlog-do-db=sales`启动的，则即使在设置`--binlog-do-db`时未包括价格，以下`UPDATE`语句也会被记录：
 
-```go
+```sql
 mysql> USE sales;
 mysql> UPDATE prices.discounts SET percentage = percentage + 10;
 ```
@@ -706,7 +706,7 @@ mysql> UPDATE prices.discounts SET percentage = percentage + 10;
 
 `--binlog-do-db`在基于语句的日志记录中处理的另一个重要区别与基于行的日志记录有关，这涉及到引用多个数据库的语句。假设服务器是使用`--binlog-do-db=db1`启动的，并且执行了以下语句：
 
-```go
+```sql
 mysql> USE db1;
 mysql> UPDATE db1.table1 SET col1 = 10, db2.table2 SET col2 = 20;
 ```
@@ -727,13 +727,13 @@ mysql> UPDATE db1.table1 SET col1 = 10, db2.table2 SET col2 = 20;
 
 1.  停止 MySQL 服务器：
 
-```go
+```sql
 shell> sudo systemctl stop mysql
 ```
 
 1.  启动`mysqlbinlogmove`实用程序。如果要将二进制日志从`/data/mysql/binlogs`更改为`/binlogs`，则应使用以下命令。如果您的基本名称不是默认值，则必须通过`--bin-log-base name`选项提及您的基本名称：
 
-```go
+```sql
 shell> sudo mysqlbinlogmove --bin-log-base name=server1  --binlog-dir=/data/mysql/binlogs /binlogs
 #
 # Moving bin-log files...
@@ -749,7 +749,7 @@ shell> sudo mysqlbinlogmove --bin-log-base name=server1  --binlog-dir=/data/mysq
 
 1.  编辑`my.cnf`文件并更新`log_bin`的新位置：
 
-```go
+```sql
 shell> sudo vi /etc/my.cnf
 [mysqld]
 log_bin=/binlogs
@@ -757,7 +757,7 @@ log_bin=/binlogs
 
 1.  启动 MySQL 服务器：
 
-```go
+```sql
 shell> sudo systemctl start mysql
 ```
 
@@ -767,6 +767,6 @@ shell> sudo systemctl start mysql
 
 例如：
 
-```go
+```sql
 shell> sudo mysqlbinlogmove --server=root:pass@host1:3306 /new/location
 ```

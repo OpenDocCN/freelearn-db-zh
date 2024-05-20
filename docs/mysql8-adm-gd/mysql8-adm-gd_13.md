@@ -234,27 +234,27 @@ MySQL 提供了两种插件和组件的服务类型，如下所示：
 
 +   `my_key_generate()`: 正如其名称所示，它生成给定类型和长度的新随机密钥，并存储在密钥环中。该函数由参数`key_id`、`user_id`、`key_type`和`key_len`组成，以及以下函数语法：
 
-```go
+```sql
  bool my_key_generate(const char *key_id, const char*key_type, 
           const char *user_id, size_t key_len)
 ```
 
 +   `my_key_fetch()`: 对参数值进行解密并从密钥环中检索密钥及其类型。该函数由参数`key_id`、`user_id`、`key_type`、`key`和`key_len`组成，以及以下函数语法：
 
-```go
+```sql
  bool my_key_fetch(const char *key_id, const char **key_type, 
           const char* user_id, void **key, size_t *key_len)
 ```
 
 +   `my_key_remove()`: 从密钥环中删除关联的密钥。该函数由参数`key_id`和`user_id`组成，以及以下函数语法：
 
-```go
+```sql
  bool my_key_remove(const char *key_id, const char* user_id)
 ```
 
 +   `my_key_store()`: 对参数值进行混淆并将密钥存储在密钥环中。该函数包括参数`key_id`、`user_id`、`key_type`、`key`和`key_len`，以及以下函数语法：
 
-```go
+```sql
  bool my_key_store(const char *key_id, const char *key_type, 
           const char* user_id, void *key, size_t key_len)
 ```
@@ -367,7 +367,7 @@ UDF 中包含的典型代码在运行服务器中执行，因此在编写 UDF �
 
 1.  根据您的函数在`item_func.cc`文件中定义为字符串还是数字函数，需要添加以下声明之一：
 
-```go
+```sql
  double Item_func_newname::val()
  longlong Item_func_newname::val_int() 
         String *Item_func_newname::Str(String *str)
@@ -441,7 +441,7 @@ MySQL 源代码包括使用`Doxygen`编写的内部文档，这对于理解 MySQ
 
 在运行 MySQL 客户端之前，您应该设置环境变量`MYSQL_DEBUG`如下：
 
-```go
+```sql
 shell> MYSQL_DEBUG=d:t:O,/tmp/client.trace 
 shell> export MYSQL_DEBUG
 
@@ -451,7 +451,7 @@ shell> export MYSQL_DEBUG
 
 在您自己的客户端代码出现问题的情况下，您可以尝试使用已知可用的客户端运行您的查询来连接服务器。为此，您应该以调试模式运行`mysqld`：
 
-```go
+```sql
 shell> mysql --debug=d:t:O,/tmp/client.trace
 ```
 
@@ -479,7 +479,7 @@ Fred Fish 最初创建了 MySQL 服务器和大多数 MySQL 客户端的`DBUG`�
 
 以下是一些在 shell 命令行上指定的调试控制字符串的示例：
 
-```go
+```sql
 --debug=d:t 
 --debug=d:f,main,subr1:F:L:t,20 
 --debug=d,input,output,files:n 

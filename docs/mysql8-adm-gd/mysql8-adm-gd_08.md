@@ -36,13 +36,13 @@ MySQL 8 提供了不同的数据库复制方法。MySQL 8 有一个二进制日�
 
 MySQL 8 还支持基于二进制日志文件的数据库复制方法以及新的方法。在 MySQL 8 数据库服务器上提交的每个事务都被视为唯一的。每个在主数据库服务器上提交的事务都与唯一的全局事务标识符（GTID）相关联。正如其名称所示，全局标识符不仅仅是在创建它的主数据库服务器上唯一的，而且在参与 MySQL 8 复制的所有数据库中都是唯一的。因此，每个提交的事务和全局事务标识符之间存在一对一的映射。MySQL 复制的新方法基于 GTID。它极大地简化了复制过程，因为它不依赖于二进制日志文件及其位置的事件。GTID 表示为一对冒号（“：”）分隔的坐标，如下所示：
 
-```go
+```sql
 GTID = source_id:transaction_id
 ```
 
 `source_id`是源自 GTID 的数据库服务器的标识符。通常，数据库服务器的`server_uuid`用作`source_id`。 `transaction_id`是事务在数据库服务器上提交的顺序号。例如，以下示例显示了第一个提交事务的 GTID：
 
-```go
+```sql
 1A22AF74-17AC-E111-393E-80C49AB653A2:1
 ```
 
@@ -94,7 +94,7 @@ MySQL 中提供了多种设置数据库复制的方法。 复制的确切方法�
 
 要设置主数据库服务器，请在主数据库服务器上打开 MySQL 配置文件：
 
-```go
+```sql
 sudo vim /etc/mysql/my.cnf
 ```
 
@@ -102,19 +102,19 @@ sudo vim /etc/mysql/my.cnf
 
 首先，找到将服务器绑定到 localhost 的部分：
 
-```go
+```sql
 bind-address = 127.0.0.1
 ```
 
 用实际数据库服务器 IP 地址替换本地 IP 地址。 这一步很重要，因为从服务器可以使用主数据库服务器的公共 IP 地址访问主数据库服务器：
 
-```go
+```sql
 bind-address = 175.100.170.1
 ```
 
 需要对主数据库服务器进行配置以配置唯一 ID。 还包括设置主二进制日志文件所需的配置：
 
-```go
+```sql
 [mysqld]
 log-bin=/var/log/mysql/mysql-bin.log
 server-id=1
@@ -122,20 +122,20 @@ server-id=1
 
 现在，让我们配置数据库在从数据库服务器上进行复制。 如果需要在从数据库服务器上复制多个数据库，则多次重复以下行：
 
-```go
+```sql
 binlog_do_db = database_master_one
 binlog_do_db = database_master_two
 ```
 
 完成这些更改后，使用以下命令重新启动数据库服务器：
 
-```go
+```sql
 sudo service mysql restart
 ```
 
 现在，我们已经设置好了主数据库服务器。 下一步是授予从用户权限如下：
 
-```go
+```sql
 mysql> mysql -u root -p
 mysql> CREATE USER 'slaveone'@'%' IDENTIFIED BY 'password';
 mysql> GRANT REPLICATION SLAVE ON *.* TO 'slaveone'@'%' IDENTIFIED BY 'password';
@@ -145,7 +145,7 @@ mysql> GRANT REPLICATION SLAVE ON *.* TO 'slaveone'@'%' IDENTIFIED BY 'password'
 
 现在，我们必须备份要复制的数据库。 我们将使用`mysqldump`命令备份数据库。 此数据库将用于创建`slave`数据库。 主状态输出显示要复制的二进制日志文件名、当前位置和数据库名称：
 
-```go
+```sql
 mysql> USE database_master_one;
 mysql> FLUSH TABLES WITH READ LOCK;
 mysql> SHOW MASTER STATUS;
@@ -163,7 +163,7 @@ mysqldump -u root -p database_master_one > database_master_one_dump.sql
 
 数据库转储完成后，应使用以下命令解锁数据库：
 
-```go
+```sql
 mysql> UNLOCK TABLES;
 mysql> QUIT;
 ```
@@ -180,7 +180,7 @@ mysql> QUIT;
 
 与主数据库服务器类似，每个从数据库服务器必须有一个唯一的 ID。设置完成后，这将需要数据库服务器重启：
 
-```go
+```sql
 [mysqld]
 server-id=2
 ```
@@ -189,7 +189,7 @@ server-id=2
 
 现在，创建一个新的数据库，它将成为主数据库的副本，并从主数据库的数据库转储中导入数据库如下：
 
-```go
+```sql
 mysql> CREATE DATABASE database_slave_one;
 mysql> QUIT;
 
@@ -198,7 +198,7 @@ mysql> QUIT;
 
 现在，我们必须在`my.cnf`文件中配置其他一些选项。与二进制日志类似，中继日志由带有数据库更改事件的编号文件组成。它还包含一个索引文件，其中包含所有已使用的中继日志文件的名称。以下配置设置了中继日志文件、二进制日志文件和从服务器数据库的名称，该名称是主数据库的副本，如下所示：
 
-```go
+```sql
 relay-log = /var/log/mysql/mysql-relay-bin.log
 log_bin = /var/log/mysql/mysql-bin.log
 binlog_do_db = database_slave_one
@@ -206,19 +206,19 @@ binlog_do_db = database_slave_one
 
 在进行此配置更改后，需要重新启动数据库服务器。下一步是在 MySQL shell 提示符中启用从服务器复制。执行以下命令设置`slave`数据库服务器所需的`master`数据库信息：
 
-```go
+```sql
 mysql> CHANGE MASTER TO MASTER_HOST='12.34.56.789', MASTER_USER='slaveone', MASTER_PASSWORD='password', MASTER_LOG_FILE='mysql-bin.000001', MASTER_LOG_POS= 103;
 ```
 
 作为最后一步，激活从服务器：
 
-```go
+```sql
 mysql> START SLAVE;
 ```
 
 如果在`slave`数据库服务器上启用了二进制日志记录，从服务器可以参与复杂的复制策略。在这样的复制设置中，数据库服务器`A`充当数据库服务器`B`的主服务器。`B`充当`A`的`master`数据库服务器的从服务器。现在，`B`反过来可以充当`C`的`slave`数据库服务器的主数据库服务器。类似的情况如下所示：
 
-```go
+```sql
 A -> B -> C
 ```
 
@@ -228,7 +228,7 @@ A -> B -> C
 
 以下说明设置了一个新的从数据库服务器到现有的复制配置。首先，应该关闭现有的从数据库服务器如下：
 
-```go
+```sql
 mysql> mysqladmin shutdown
 ```
 
@@ -246,7 +246,7 @@ mysql> mysqladmin shutdown
 
 使用基于 GTID 的复制，每个事务在提交到原始数据库服务器时都被分配一个唯一的事务 ID，称为**GTID**。这个唯一标识符是全局的，这意味着它在参与复制的所有数据库服务器中是唯一的。使用 GTID，更容易跟踪和处理每个事务在提交到`master`数据库服务器时。使用这种复制方法，不需要依赖日志文件来同步`master`和`slave`数据库。也更容易确定`master`和`slave`数据库是否一致，因为这种复制方法是基于事务的。只要在`master`数据库上提交的所有事务也在从服务器上应用，`master`和`slave`数据库之间的一致性就是有保证的。可以使用基于语句或基于行的复制与 GTID。如前所述，GTID 用由冒号(`:`)分隔的一对坐标表示，如下例所示：
 
-```go
+```sql
 GTID = source_id:transaction_id
 ```
 
@@ -260,7 +260,7 @@ GTID = source_id:transaction_id
 
 `gtid_set`是一组全局事务标识符。它在以下示例中表示：
 
-```go
+```sql
 gtid_set:
  uuid_set [, uuid_set] ...
  | ''
@@ -293,7 +293,7 @@ GTID 集的使用方式有几种。系统变量`gtid_executed`和`gtid_purged`�
 
 现在，让我们转到基于 GTID 的 MySQL 复制的主配置。首先，打开`my.cnf`文件并进行以下更改：
 
-```go
+```sql
 [mysqld]
 server-id = 1
 log-bin = mysql-bin 
@@ -307,7 +307,7 @@ log_slave_updates
 
 1.  现在，在从服务器上为访问主数据库创建一个用户。同时，使用`mysqldump`命令进行数据库备份。数据库备份将用于设置从服务器。
 
-```go
+```sql
  > CREATE USER 'slaveuser'@'%' IDENTIFIED BY 'password'; 
  > GRANT REPLICATION SLAVE ON *.* TO 'slaveuser'@'%' IDENTIFIED 
           BY 'password';
@@ -318,13 +318,13 @@ log_slave_updates
 
 1.  在`slave`数据库服务器的 shell 提示符上，按照以下步骤从`master`数据库服务器备份中导入数据库：
 
-```go
+```sql
  > mysql -u root -p databaseName &lt; /path/to/databaseName.sql
 ```
 
 1.  现在，在从服务器的`my.cnf`文件中添加以下配置：
 
-```go
+```sql
  [mysqld]
  server_id = 2
  log_bin = mysql-bin
@@ -337,20 +337,20 @@ log_slave_updates
 
 1.  完成这些配置后，使用以下命令重新启动数据库服务器：
 
-```go
+```sql
  sudo service mysql restart
 ```
 
 1.  下一步是在`slave`数据库服务器上使用`CHANGE MASTER TO`命令设置主数据库服务器信息：
 
-```go
+```sql
  > CHANGE MASTER TO MASTER_HOST='170.110.117.12', MASTER_PORT=3306, 
  MASTER_USER='slaveuser', MASTER_PASSWORD='password', MASTER_AUTO_POSITION=1;
 ```
 
 1.  现在，启动`slave`服务器：
 
-```go
+```sql
  START SLAVE;
 ```
 
@@ -358,7 +358,7 @@ log_slave_updates
 
 1.  这是通过设置`GTID_PURGED`系统变量来完成的：
 
-```go
+```sql
  -- -- GTID state at the beginning of the backup -- 
  mysql> SET @@GLOBAL.GTID_PURGED='b9b4712a-df64-11e3-b391-60672090eb04:1-7';
 ```
@@ -371,13 +371,13 @@ log_slave_updates
 
 一种是使用以下选项启动`mysqld`：
 
-```go
+```sql
 mysqld —master-info-repostiory=TABLE && –relay-log-info-repository=TABLE
 ```
 
 另一种做法是修改`my.cnf`文件如下：
 
-```go
+```sql
 [mysqld] 
 master-info-repository = TABLE 
 relay-log-info-repository = TABLE
@@ -385,7 +385,7 @@ relay-log-info-repository = TABLE
 
 可以修改正在使用`FILE`存储库的现有`REPLICATION SLAVE`以使用`TABLE`存储库。以下命令动态转换现有存储库：
 
-```go
+```sql
 STOP SLAVE; 
 SET GLOBAL master_info_repository = 'TABLE'; 
 SET GLOBAL relay_log_info_repository = 'TABLE';
@@ -393,19 +393,19 @@ SET GLOBAL relay_log_info_repository = 'TABLE';
 
 以下命令可用于将基于 GTID 的新复制主服务器添加到现有的多源`REPLICATION SLAVE`。它将主服务器添加到现有的从服务器通道：
 
-```go
+```sql
 CHANGE MASTER TO MASTER_HOST='newmaster', MASTER_USER='masteruser', MASTER_PORT=3451, MASTER_PASSWORD='password', MASTER_AUTO_POSITION = 1 FOR CHANNEL 'master-1';
 ```
 
 以下命令可用于将基于二进制日志文件位置的新复制主服务器添加到现有的多源`REPLICATION SLAVE`。它将主服务器添加到现有的从服务器通道：
 
-```go
+```sql
 CHANGE MASTER TO MASTER_HOST='newmaster', MASTER_USER='masteruser', MASTER_PORT=3451, MASTER_PASSWORD='password' MASTER_LOG_FILE='master1-bin.000006', MASTER_LOG_POS=628 FOR CHANNEL 'master-1';
 ```
 
 以下命令`START`/`STOP`/`RESET`所有配置的复制通道：
 
-```go
+```sql
 START SLAVE thread_types; -- To start all channels
 STOP SLAVE thread_types; -- To stop all channels
 RESET SLAVE thread_types; -- To reset all channels
@@ -413,7 +413,7 @@ RESET SLAVE thread_types; -- To reset all channels
 
 以下命令使用`FOR CHANNEL`子句`START`/`STOP`/`RESET`命名通道：
 
-```go
+```sql
 START SLAVE thread_types FOR CHANNEL channel;
 STOP SLAVE thread_types FOR CHANNEL channel;
 RESET SLAVE thread_types FOR CHANNEL channel;
@@ -426,7 +426,7 @@ RESET SLAVE thread_types FOR CHANNEL channel;
 
 最常见的任务之一是确保主数据库服务器和从数据库服务器之间的复制没有错误。使用`SHOW SLAVE STATUS` MySQL 语句进行如下检查：
 
-```go
+```sql
 mysql> SHOW SLAVE STATUS\G
 *************************** 1\. row ***************************
  Slave_IO_State: Waiting for master to send event
@@ -484,7 +484,7 @@ Master_SSL_Verify_Server_Cert: No
 
 我们可以使用`SHOW_PROCESSLIST`语句来检查连接的从服务器的状态：
 
-```go
+```sql
 mysql> SHOW PROCESSLIST \G;
 *************************** 4\. row ***************************
  Id: 10
@@ -499,7 +499,7 @@ Command: Binlog Dump
 
 当在主服务器上执行`SHOW_SLAVE_HOSTS`语句时，提供关于从服务器的信息如下：
 
-```go
+```sql
 mysql> SHOW SLAVE HOSTS;
 +-----------+--------+------+-------------------+-----------+
 | Server_id |  Host  | Port | Rpl_recovery_rank | Master_id |
@@ -511,14 +511,14 @@ mysql> SHOW SLAVE HOSTS;
 
 另一个重要的复制管理任务是能够在`slave`数据库服务器上启动或停止复制。以下命令用于执行此操作：
 
-```go
+```sql
 mysql> STOP SLAVE;
 mysql> START SLAVE;
 ```
 
 还可以通过指定线程的类型来停止和启动单个线程，如下所示：
 
-```go
+```sql
 mysql> STOP SLAVE IO_THREAD; 
 mysql> STOP SLAVE SQL_THREAD;
 
@@ -589,7 +589,7 @@ MySQL 支持配置以混合基于语句和基于行的日志记录。使用日�
 
 `SHOW PROCESSLIST`语句提供了关于`master`或`slave`数据库服务器上发生的情况的信息。在`master`数据库服务器上执行该语句时的输出如下所示：
 
-```go
+```sql
 mysql> SHOW PROCESSLIST\G
 *************************** 1\. row ***************************
  Id: 2
@@ -606,7 +606,7 @@ Command: Binlog Dump
 
 当在从属数据库服务器上执行`SHOW PROCESSLIST`语句时，输出如下所示：
 
-```go
+```sql
 mysql> SHOW PROCESSLIST\G
 *************************** 1\. row ***************************
  Id: 10
@@ -752,7 +752,7 @@ MySQL 还支持半同步复制，其中**主服务器**等待至少一个从服�
 
 首先，打开`my.cnf`配置文件，并在`mysqld`部分中添加以下条目：
 
-```go
+```sql
 [mysqld] 
 gtid_mode = ON 
 enforce_gtid_consistency = ON 
@@ -773,7 +773,7 @@ loose-group_replication_recovery_use_ssl = 1
 
 接下来的步骤是设置组复制配置。这些配置包括组 UUID、组成员白名单和指示种子成员：
 
-```go
+```sql
 # Shared replication group configuration 
 loose-group_replication_group_name = "929ce641-538d-415d-8164-ca00181be227" 
 loose-group_replication_ip_whitelist = "177.110.117.1,177.110.117.2,177.110.117.3"
@@ -787,7 +787,7 @@ loose-group_replication_group_seeds = "177.110.117.1:33061,177.110.117.2:33061,1
 
 `loose-group_replication_enforce_update_everywhere_checks`指令。它将设置多主或多主组：
 
-```go
+```sql
 . . . 
 # Single or Multi-primary mode? Uncomment these two lines 
 # for multi-primary mode, where any host can accept writes
@@ -799,7 +799,7 @@ loose-group_replication_enforce_update_everywhere_checks = ON
 
 以下配置在组中的每台服务器上都不同：
 
-```go
+```sql
 . . . 
 # Host specific replication configuration 
 server_id = 1 
@@ -812,14 +812,14 @@ loose-group_replication_local_address = "177.110.117.1:33061"
 
 如果尚未完成，我们必须使用以下命令允许访问这些端口：
 
-```go
+```sql
 sudo ufw allow 33061 
 sudo ufw allow 3306
 ```
 
 下一步是创建复制用户并启用复制插件。每个服务器都需要复制用户来建立组复制。在复制用户创建过程中，我们需要关闭二进制日志记录，因为每个服务器的用户都不同，如下所示：
 
-```go
+```sql
 SET SQL_LOG_BIN=0; 
 CREATE USER 'mysql_user'@'%' IDENTIFIED BY 'password' REQUIRE SSL;
 GRANT REPLICATION SLAVE ON *.* TO 'mysql_user'@'%'; 
@@ -829,25 +829,25 @@ SET SQL_LOG_BIN=1;
 
 现在，使用`CHANGE MASTER TO`来配置服务器使用`group_replication_recovery`通道的凭据：
 
-```go
+```sql
 CHANGE MASTER TO MASTER_USER='mysql_user', MASTER_PASSWORD='password' FOR CHANNEL 'group_replication_recovery';
 ```
 
 现在，我们已经准备好安装插件了。连接到服务器并执行以下命令：
 
-```go
+```sql
 INSTALL PLUGIN group_replication SONAME 'group_replication.so';
 ```
 
 使用以下语句验证插件是否已激活：
 
-```go
+```sql
 SHOW PLUGINS;
 ```
 
 下一步是启动组。在组的一个成员上执行以下语句：
 
-```go
+```sql
 SET GLOBAL group_replication_bootstrap_group=ON; 
 START GROUP_REPLICATION; 
 SET GLOBAL group_replication_bootstrap_group=OFF;
@@ -855,13 +855,13 @@ SET GLOBAL group_replication_bootstrap_group=OFF;
 
 现在，我们可以在另一台服务器上启动组复制：
 
-```go
+```sql
 START GROUP_REPLICATION;
 ```
 
 我们可以使用以下 SQL 查询检查组成员列表：
 
-```go
+```sql
 mysql> SELECT * FROM performance_schema.replication_group_members; 
 +---------------------------+--------------------------------------+
 |        CHANNEL_NAME       |                MEMBER_ID             |
@@ -904,7 +904,7 @@ MySQL 复制在许多不同的场景中都很有用，以满足各种目的。�
 
 在基于行的复制中，可以通过性能模式工具阶段来监视从服务器的 SQL 线程的当前进度。要跟踪所有三种基于行的复制事件类型的进度，使用以下语句启用三个性能模式阶段：
 
-```go
+```sql
 mysql> UPDATE performance_schema.setup_instruments SET ENABLED = 'YES' WHERE NAME LIKE 'stage/sql/Applying batch of row changes%';
 ```
 

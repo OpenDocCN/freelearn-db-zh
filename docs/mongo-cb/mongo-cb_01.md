@@ -44,7 +44,7 @@
 
 1.  我们将从控制台启动服务器，数据目录为`/data/mongo/db`，如下所示：
 
-```go
+```sql
 > mongod --dbpath  /data/mongo/db
 
 ```
@@ -53,7 +53,7 @@
 
 如果您在控制台上看到以下行，则已成功启动服务器：
 
-```go
+```sql
 [initandlisten] waiting for connections on port 27017
 
 ```
@@ -86,7 +86,7 @@
 
 1.  执行以下命令：
 
-```go
+```sql
 > mongod --port 27000 --dbpath /data/mongo/db –logpath /logs/mongo.log --smallfiles
 
 ```
@@ -139,7 +139,7 @@
 
 1.  创建一个可以有任意名称的配置文件。在我们的情况下，假设我们在`/conf/mongo.conf`中创建了这个文件。然后编辑文件并添加以下行：
 
-```go
+```sql
 port = 27000
 dbpath = /data/mongo/db
 logpath = /logs/mongo.log
@@ -148,7 +148,7 @@ smallfiles = true
 
 1.  使用以下命令启动 mongo 服务器：
 
-```go
+```sql
 > mongod --config  /config/mongo.conf
 
 ```
@@ -169,7 +169,7 @@ smallfiles = true
 
 1.  首先，我们创建一个简单的 JavaScript 文件并将其命名为`hello.js`。在`hello.js`文件中输入以下内容：
 
-```go
+```sql
 function sayHello(name) {
   print('Hello ' + name + ', how are you?')
 }
@@ -179,14 +179,14 @@ function sayHello(name) {
 
 1.  在命令提示符上执行以下操作：
 
-```go
+```sql
 > mongo --shell /mongo/scripts/hello.js
 
 ```
 
 1.  执行此命令时，我们应该在控制台上看到以下内容打印出来：
 
-```go
+```sql
 MongoDB shell version: 3.0.2
 connecting to: test
 >
@@ -195,7 +195,7 @@ connecting to: test
 
 1.  通过输入以下命令来测试 shell 连接的数据库：
 
-```go
+```sql
 > db
 
 ```
@@ -204,14 +204,14 @@ connecting to: test
 
 1.  现在，在 shell 中输入以下命令：
 
-```go
+```sql
 > sayHello('Fred')
 
 ```
 
 1.  您应该收到以下响应：
 
-```go
+```sql
 Hello Fred, how are you?
 
 ```
@@ -226,7 +226,7 @@ Hello Fred, how are you?
 
 在没有任何参数的情况下执行`mongo`命令时，我们连接到在本地主机上运行的 MongoDB 服务器，并在默认端口`27017`上监听新连接。一般来说，命令的格式如下：
 
-```go
+```sql
 mongo <options> <db address> <.js files>
 
 ```
@@ -282,14 +282,14 @@ mongo <options> <db address> <.js files>
 
 1.  现在我们只需要在命令提示符上输入`mvn -version`，如果看到以下开头的输出，我们就成功设置了 maven：
 
-```go
+```sql
 > mvn -version
 
 ```
 
 1.  在这个阶段，我们已经安装了 maven，现在准备创建我们的简单项目，在 Java 中编写我们的第一个 Mongo 客户端。我们首先创建一个`project`文件夹。假设我们创建一个名为`Mongo Java`的文件夹。然后在这个`project`文件夹中创建一个文件夹结构`src/main/java`。`project`文件夹的根目录包含一个名为`pom.xml`的文件。一旦这个文件夹创建完成，文件夹结构应该如下所示：
 
-```go
+```sql
       Mongo Java      
       +--src  
       |     +main
@@ -299,7 +299,7 @@ mongo <options> <db address> <.js files>
 
 1.  我们现在只有项目的框架。我们将在`pom.xml`文件中添加一些内容。这并不需要太多。以下内容是我们在`pom.xml`文件中所需要的全部内容：
 
-```go
+```sql
 <project>
   <modelVersion>4.0.0</modelVersion>
   <name>Mongo Java</name>
@@ -318,7 +318,7 @@ mongo <options> <db address> <.js files>
 
 1.  最后，我们编写一个 Java 客户端，用于连接到 Mongo 服务器并执行一些非常基本的操作。以下是`com.packtpub.mongo.cookbook`包中`src/main/java`位置中的 Java 类，类名为`FirstMongoClient`：
 
-```go
+```sql
 package com.packtpub.mongo.cookbook;
 
 import com.mongodb.BasicDBObject;
@@ -372,7 +372,7 @@ new BasicDBObject("name", "Fred").append("age", 30);
 
 1.  现在是执行前面的 Java 代码的时候了。我们将使用 maven 从 shell 中执行它。您应该在项目的`pom.xml`所在的同一目录中：
 
-```go
+```sql
 mvn compile exec:java -Dexec.mainClass=com.packtpub.mongo.cookbook.FirstMongoClient
 
 ```
@@ -385,7 +385,7 @@ mvn compile exec:java -Dexec.mainClass=com.packtpub.mongo.cookbook.FirstMongoCli
 
 对于 Java 类，`org.mongodb.MongoClient`类是主干。我们首先使用其重载的构造函数实例化它，给出服务器的主机和端口。在这种情况下，主机名和端口实际上并不是必需的，因为提供的值已经是默认值，而且无参数的构造函数也可以很好地工作。以下代码片段实例化了这个客户端：
 
-```go
+```sql
 MongoClient client = new MongoClient("localhost", 27017);
 ```
 
@@ -393,14 +393,14 @@ MongoClient client = new MongoClient("localhost", 27017);
 
 我们的类中以下两个代码片段向您展示了如何获取`DB`和`DBCollection`的实例：
 
-```go
+```sql
 DB testDB = client.getDB("test");
 DBCollection collection = testDB.getCollection("person");
 ```
 
 在插入文档之前，我们将删除集合，以便即使在程序的多次执行中，person 集合中也只有一个文档。使用`DBCollection`对象的`drop()`方法来删除集合。接下来，我们创建一个`com.mongodb.DBObject`的实例。这是一个表示要插入到集合中的文档的对象。这里使用的具体类是`BasicDBObject`，它是`java.util.LinkedHashMap`类型，其中键是 String，值是 Object。值也可以是另一个`DBObject`，在这种情况下，它是嵌套在另一个文档中的文档。在我们的例子中，我们有两个键，name 和 age，它们是要插入的文档中的字段名，值分别是 String 和 Integer 类型。`BasicDBObject`的`append`方法将一个新的键值对添加到`BasicDBObject`实例中，并返回相同的实例，这使我们可以链接`append`方法调用以添加多个键值对。然后使用 insert 方法将创建的`DBObject`插入到集合中。这就是我们为 person 集合实例化`DBObject`并将其插入到集合中的方式：
 
-```go
+```sql
 DBObject person = new BasicDBObject("name", "Fred").append("age", 30);
 collection.insert(person);
 ```
@@ -409,7 +409,7 @@ collection.insert(person);
 
 最后，我们只需调用`getDatabaseNames`来获取服务器中数据库名称的列表。此时，我们应该至少在返回的结果中有`test`和`local`数据库。完成所有操作后，我们关闭客户端。`MongoClient`类是线程安全的，通常一个应用程序使用一个实例。要执行该程序，我们使用 maven 的 exec 插件。在执行第 9 步时，我们应该在控制台的最后看到以下行：
 
-```go
+```sql
 [INFO] [exec:java {execution: default-cli}]
 --snip--
 Dropping person collection in test database
@@ -450,21 +450,21 @@ INFO: Closed connection [connectionId{localValue:2, serverValue:2}] to localhost
 
 1.  根据您的操作系统，在 Ubuntu/Debian 系统上安装 pip 实用程序。您可以使用以下命令安装 pip：
 
-```go
+```sql
 > apt-get install python-pip
 
 ```
 
 1.  使用 pip 安装最新的 PyMongo 驱动程序：
 
-```go
+```sql
 > pip install pymongo
 
 ```
 
 1.  最后，创建一个名为`my_client.py`的新文件，并输入以下代码：
 
-```go
+```sql
 from __future__ import print_function
 import pymongo
 
@@ -500,7 +500,7 @@ client.close()
 
 1.  使用以下命令运行脚本：
 
-```go
+```sql
 > python my_client.py
 
 ```
@@ -545,7 +545,7 @@ client.close()
 
 1.  按照以下方式启动三个服务器。在 Windows 平台上，用户需要跳过`--fork`选项，因为它不受支持：
 
-```go
+```sql
 $ mongod --replSet repSetTest --dbpath /data/n1 --logpath /logs/n1.log --port 27000 --smallfiles --oplogSize 128 --fork
 $ mongod --replSet repSetTest --dbpath /data/n2 --logpath /logs/n2.log --port 27001 --smallfiles --oplogSize 128 --fork
 $ mongod --replSet repSetTest --dbpath /data/n3 --logpath /logs/n3.log --port 27002 --smallfiles --oplogSize 128 –fork
@@ -554,14 +554,14 @@ $ mongod --replSet repSetTest --dbpath /data/n3 --logpath /logs/n3.log --port 27
 
 1.  启动 mongo shell 并连接到正在运行的任何 mongo 服务器。在这种情况下，我们连接到第一个（监听端口`27000`）。执行以下命令：
 
-```go
+```sql
 $ mongo localhost:27000
 
 ```
 
 1.  连接到 mongo shell 后，尝试执行一个插入操作：
 
-```go
+```sql
 > db.person.insert({name:'Fred', age:35})
 
 ```
@@ -570,7 +570,7 @@ $ mongo localhost:27000
 
 1.  下一步是开始配置副本集。我们首先在 shell 中准备一个 JSON 配置，如下所示：
 
-```go
+```sql
 cfg = {
   '_id':'repSetTest', 'members':[ {'_id':0, 'host': 'localhost:27000'}, {'_id':1, 'host': 'localhost:27001'}, {'_id':2, 'host': 'localhost:27002'} ]
 }
@@ -578,7 +578,7 @@ cfg = {
 
 1.  最后一步是使用上述配置初始化副本集。
 
-```go
+```sql
 > rs.initiate(cfg)
 
 ```
@@ -595,7 +595,7 @@ cfg = {
 
 如果我们查看日志目录中生成的日志，我们应该看到其中的以下行：
 
-```go
+```sql
 [rsStart] replSet can't get local.system.replset config from self or any seed (EMPTYCONFIG)
 [rsStart] replSet info you may need to run replSetInitiate -- rs.initiate() in the shell -- if that is not already done
 
@@ -605,7 +605,7 @@ cfg = {
 
 现在剩下的就是通过将我们启动的三个进程分组来配置副本集。首先定义一个 JSON 对象如下：
 
-```go
+```sql
 cfg = {
   '_id':'repSetTest', 'members':[ {'_id':0, 'host': 'localhost:27000'}, {'_id':1, 'host': 'localhost:27001'}, {'_id':2, 'host': 'localhost:27002'} ]
 }
@@ -613,14 +613,14 @@ cfg = {
 
 有两个字段，`_id`和`members`，分别用于副本集的唯一 ID 和该副本集中 mongod 服务器进程的主机名和端口号数组。在这种情况下，使用 localhost 来引用主机并不是一个很好的主意，通常是不鼓励的；然而，在这种情况下，因为我们在同一台机器上启动了所有进程，所以可以接受。最好是通过主机名来引用主机，即使它们在 localhost 上运行。请注意，您不能在同一配置中混合使用 localhost 和主机名来引用实例。要么是主机名，要么是 localhost。然后，我们连接到三个运行中的 mongod 进程中的任何一个来配置副本集；在这种情况下，我们连接到第一个，然后从 shell 中执行以下操作：
 
-```go
+```sql
 > rs.initiate(cfg)
 
 ```
 
 传递的`cfg`对象中的`_id`字段的值与我们在启动服务器进程时给`--replSet`选项的值相同。如果不给出相同的值，将会抛出以下错误：
 
-```go
+```sql
 {
  "ok" : 0,
  "errmsg" : "couldn't initiate : set name does not match the set name host Amol-PC:27000 expects"
@@ -630,14 +630,14 @@ cfg = {
 
 如果一切顺利，初始化调用成功，我们应该在 shell 上看到类似以下 JSON 响应：
 
-```go
+```sql
 {"ok" : 1}
 
 ```
 
 几秒钟后，我们应该看到从我们执行此命令的 shell 的不同提示。它现在应该成为主服务器或辅助服务器。以下是连接到副本集的主成员的 shell 的示例：
 
-```go
+```sql
 repSetTest:PRIMARY>
 
 ```
@@ -666,7 +666,7 @@ repSetTest:PRIMARY>
 
 1.  我们将在这里启动两个 shell，一个用于`PRIMARY`，一个用于`SECONDARY`。在命令提示符上执行以下命令：
 
-```go
+```sql
 > mongo localhost:27000
 
 ```
@@ -679,7 +679,7 @@ repSetTest:PRIMARY>
 
 1.  在连接到主节点的 shell 中，执行以下插入：
 
-```go
+```sql
 repSetTest:PRIMARY> db.replTest.insert({_id:1, value:'abc'})
 
 ```
@@ -688,7 +688,7 @@ repSetTest:PRIMARY> db.replTest.insert({_id:1, value:'abc'})
 
 1.  通过在主服务器上执行以下查询，我们应该得到以下结果：
 
-```go
+```sql
 repSetTest:PRIMARY> db.replTest.findOne()
 { "_id" : 1, "value" : "abc" }
 
@@ -696,28 +696,28 @@ repSetTest:PRIMARY> db.replTest.findOne()
 
 1.  到目前为止，一切顺利。现在，我们将转到连接到`SECONDARY`节点的 shell，并执行以下操作：
 
-```go
+```sql
 repSetTest:SECONDARY> db.replTest.findOne()
 
 ```
 
 这样做后，我们应该在控制台上看到以下错误：
 
-```go
+```sql
  { "$err" : "not master and slaveOk=false", "code" : 13435 }
 
 ```
 
 1.  现在在控制台上执行以下操作：
 
-```go
+```sql
 repSetTest:SECONDARY>  rs.slaveOk(true)
 
 ```
 
 1.  在 shell 上再次执行我们在步骤 7 中执行的查询。现在应该得到以下结果：
 
-```go
+```sql
 repSetTest:SECONDARY>db.replTest.findOne()
 { "_id" : 1, "value" : "abc" }
 
@@ -725,7 +725,7 @@ repSetTest:SECONDARY>db.replTest.findOne()
 
 1.  在辅助节点上执行以下插入；它不应该成功，并显示以下消息：
 
-```go
+```sql
 repSetTest:SECONDARY> db.replTest.insert({_id:1, value:'abc'})
 not master
 
@@ -757,7 +757,7 @@ not master
 
 1.  编写/复制以下代码片段：（此 Java 类也可从 Packt 网站下载。）
 
-```go
+```sql
 package com.packtpub.mongo.cookbook;
 
 import com.mongodb.BasicDBObject;
@@ -820,21 +820,21 @@ public class ReplicaSetMongoClient {
 
 1.  连接到副本集中的任何节点，比如`localhost:27000`，并从 shell 中执行`rs.status()`。记录副本集中的主实例，并从 shell 连接到它，如果`localhost:27000`不是主实例。在这里，切换到管理员数据库如下：
 
-```go
+```sql
 repSetTest:PRIMARY>use admin
 
 ```
 
 1.  现在我们从操作系统 shell 中执行前面的程序：
 
-```go
+```sql
 $ mvn compile exec:java -Dexec.mainClass=com.packtpub.mongo.cookbook.ReplicaSetMongoClient
 
 ```
 
 1.  通过在连接到主实例的 mongo shell 上执行以下操作来关闭主实例：
 
-```go
+```sql
 repSetTest:PRIMARY> db.shutdownServer()
 
 ```
@@ -845,7 +845,7 @@ repSetTest:PRIMARY> db.shutdownServer()
 
 一个有趣的事情是观察我们如何实例化`MongoClient`实例。它是这样做的：
 
-```go
+```sql
   MongoClient client = new MongoClient(Arrays.asList(new ServerAddress("localhost", 27000), new ServerAddress("localhost", 27001), new ServerAddress("localhost", 27002)));
 ```
 
@@ -853,7 +853,7 @@ repSetTest:PRIMARY> db.shutdownServer()
 
 接下来，我们使用 maven 从命令提示符启动客户端。一旦客户端在循环中运行，我们关闭主实例以找到一个文档。我们应该在控制台上看到以下输出：
 
-```go
+```sql
 _id: 1, value is abc
 Now Retrieving documents in a loop from the collection.
 Stop the primary instance manually after few iterations
@@ -884,7 +884,7 @@ _id: 1, value is abc
 
 1.  将以下代码写入/复制到`replicaset_client.py`中：（此脚本也可从 Packt 网站下载。）
 
-```go
+```sql
 from __future__ import print_function
 import pymongo
 import time
@@ -909,21 +909,21 @@ for x in range(5):
 
 1.  连接到副本集中的任何节点，比如`localhost:27000`，并从 shell 中执行`rs.status()`。记下副本集中的主实例，并从 shell 中连接到它，如果`localhost:27000`不是主节点。在这里，切换到管理员数据库如下：
 
-```go
+```sql
 > repSetTest:PRIMARY>use admin
 
 ```
 
 1.  现在，我们从操作系统 shell 中执行上述脚本如下：
 
-```go
+```sql
 $ python replicaset_client.py
 
 ```
 
 1.  通过在连接到主节点的 mongo shell 上执行以下操作关闭主实例：
 
-```go
+```sql
 > repSetTest:PRIMARY> db.shutdownServer()
 
 ```
@@ -938,7 +938,7 @@ $ python replicaset_client.py
 
 接下来，我们进入一个条件循环，循环五次。每次，我们获取记录，显示它，并休眠三秒。在脚本处于此循环时，我们关闭副本集中的主节点，如步骤 4 中所述。我们应该看到类似于以下的输出：
 
-```go
+```sql
 Fetching record: {u'age': u'30', u'_id': ObjectId('5558bfaa0640fd1923fce1a1'), u'name': u'Foo'}
 Fetching record: {u'age': u'30', u'_id': ObjectId('5558bfaa0640fd1923fce1a1'), u'name': u'Foo'}
 Fetching record: {u'age': u'30', u'_id': ObjectId('5558bfaa0640fd1923fce1a1'), u'name': u'Foo'}
@@ -969,7 +969,7 @@ Fetching record: {u'age': u'30', u'_id': ObjectId('5558bfaa0640fd1923fce1a1'), u
 
 1.  启动以下 mongod 进程，一个用于两个分片中的每一个，一个用于配置数据库，一个用于 mongos 进程。对于 Windows 平台，跳过`--fork`参数，因为它不受支持。
 
-```go
+```sql
 $ mongod --shardsvr --dbpath  /data/s1/db --port 27000 --logpath /logs/s1.log --smallfiles --oplogSize 128 --fork
 $ mongod --shardsvr --dbpath  /data/s2/db --port 27001 --logpath /logs/s2.log --smallfiles --oplogSize 128 --fork
 $ mongod --configsvr --dbpath  /data/con1/db --port 25000 --logpath  /logs/config.log --fork
@@ -979,7 +979,7 @@ $ mongos --configdb localhost:25000 --logpath  /logs/mongos.log --fork
 
 1.  从命令提示符中执行以下命令。这应该显示一个 mongos 提示，如下所示：
 
-```go
+```sql
 $ mongo
 MongoDB shell version: 3.0.2
 connecting to: test
@@ -989,7 +989,7 @@ mongos>
 
 1.  最后，我们设置分片。从 mongos shell 中，执行以下两个命令：
 
-```go
+```sql
 mongos> sh.addShard("localhost:27000")
 mongos> sh.addShard("localhost:27001")
 
@@ -997,7 +997,7 @@ mongos> sh.addShard("localhost:27001")
 
 1.  在每次添加分片时，我们应该收到一个 ok 回复。应该看到以下 JSON 消息，为每个添加的分片提供唯一 ID：
 
-```go
+```sql
 { "shardAdded" : "shard0000", "ok" : 1 }
 
 ```
@@ -1042,7 +1042,7 @@ mongos> sh.addShard("localhost:27001")
 
 显然，我们需要一个运行中的分片化 mongo 服务器设置。有关如何设置简单碎片的更多详细信息，请参阅上一个示例，*启动由两个碎片组成的简单分片环境*。mongos 进程，如上一个示例中所述，应该监听端口号 `27017`。我们在一个名为 `names.js` 的 JavaScript 文件中得到了一些名称。这个文件需要从 Packt 网站下载并保存在本地文件系统上。该文件包含一个名为 `names` 的变量，其值是一个包含一些 JSON 文档的数组，每个文档代表一个人。内容如下：
 
-```go
+```sql
 names = [
   {name:'James Smith', age:30},
   {name:'Robert Johnson', age:22},
@@ -1054,7 +1054,7 @@ names = [
 
 1.  启动 mongo shell 并连接到本地主机上的默认端口，如下所示。这将确保名称在当前 shell 中可用：
 
-```go
+```sql
 mongo --shell names.js
 MongoDB shell version: 3.0.2
 connecting to: test
@@ -1064,28 +1064,28 @@ mongos>
 
 1.  切换到将用于测试分片的数据库；我们称之为 `shardDB`：
 
-```go
+```sql
 mongos> use shardDB
 
 ```
 
 1.  在数据库级别启用分片如下：
 
-```go
+```sql
 mongos> sh.enableSharding("shardDB")
 
 ```
 
 1.  如下所示为一个名为 `person` 的集合分片：
 
-```go
+```sql
 mongos>sh.shardCollection("shardDB.person", {name: "hashed"}, false)
 
 ```
 
 1.  将测试数据添加到分片集合中：
 
-```go
+```sql
 mongos> for(i = 1; i <= 300000 ; i++) {
 ... person = names[Math.round(Math.random() * 100) % 20]
 ... doc = {_id:i, name:person.name, age:person.age}
@@ -1096,7 +1096,7 @@ mongos> for(i = 1; i <= 300000 ; i++) {
 
 1.  执行以下操作以获取查询计划和每个碎片上的文档数量：
 
-```go
+```sql
 mongos> db.person.getShardDistribution()
 
 ```
@@ -1119,7 +1119,7 @@ mongos> db.person.getShardDistribution()
 
 最后一步是查看查找所有数据的执行计划。此操作的目的是查看数据如何分布在两个分片上。对于 30 万个文档，我们期望每个分片大约有 15 万个文档。然而，从分布统计数据中，我们可以观察到`shard0000`有`1,49,715`个文档，而`shard0001`有`150285`个文档：
 
-```go
+```sql
 Shard shard0000 at localhost:27000
  data : 15.99MiB docs : 149715 chunks : 2
  estimated data per chunk : 7.99MiB

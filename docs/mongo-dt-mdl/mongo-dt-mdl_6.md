@@ -66,7 +66,7 @@ MongoDB 为我们提供了一系列功能，允许我们通过功能或地理分
 
 以下文件显示了在`rs1`的 mongod shell 上执行`rs.conf()`命令后，读操作的标签集示例，这是我们副本集的主节点。
 
-```go
+```sql
 rs1:PRIMARY> rs.conf()
 { // This is the replica set configuration document
 
@@ -94,7 +94,7 @@ rs1:PRIMARY> rs.conf()
 
 首先，我们将获取副本集配置文档并将其存储在`cfg`变量中：
 
-```go
+```sql
 rs1:PRIMARY> cfg = rs.conf()
 {
  "_id" : "rs1",
@@ -119,7 +119,7 @@ rs1:PRIMARY> cfg = rs.conf()
 
 然后，通过使用`cfg`变量，我们将为我们的三个副本集成员中的每一个设置一个文档作为`members[n].tags`字段的新值：
 
-```go
+```sql
 rs1:PRIMARY> cfg.members[0].tags = {"media": "ssd", "application": "main"}
 rs1:PRIMARY> cfg.members[1].tags = {"media": "ssd", "application": "main"}
 rs1:PRIMARY> cfg.members[2].tags = {"media": "ssd", "application": "report"}
@@ -128,21 +128,21 @@ rs1:PRIMARY> cfg.members[2].tags = {"media": "ssd", "application": "report"}
 
 最后，我们调用`reconfig()`方法，传入存储在`cfg`变量中的新配置文档以重新配置我们的副本集：
 
-```go
+```sql
 rs1:PRIMARY> rs.reconfig(cfg)
 
 ```
 
 如果一切正确，我们必须在 mongod shell 中看到这个输出：
 
-```go
+```sql
 { "ok" : 1 }
 
 ```
 
 要检查配置，我们可以重新执行命令`rs.conf()`。这将返回以下内容：
 
-```go
+```sql
 rs1:PRIMARY> cfg = rs.conf()
 {
  "_id" : "rs1",
@@ -179,7 +179,7 @@ rs1:PRIMARY> cfg = rs.conf()
 
 现在，考虑以下`customer`集合：
 
-```go
+```sql
 {
  "_id": ObjectId("54bf0d719a5bc523007bb78f"),
  "username": "customer1",
@@ -235,7 +235,7 @@ rs1:PRIMARY> cfg = rs.conf()
 
 接下来的读操作将使用我们副本集实例中创建的标签：
 
-```go
+```sql
 db.customers.find(
  {username: "customer5"}
 ).readPref(
@@ -257,14 +257,14 @@ db.customers.find(
 
 正如我们之前所看到的，当我们需要在地理上分离我们的应用时，标签集非常有用。假设我们在两个不同的数据中心中有 MongoDB 应用程序和副本集的实例。让我们通过在副本集主节点 mongod shell 上运行以下序列来创建标签，这些标签将指示我们的实例位于哪个数据中心。首先，我们将获取副本集配置文档并将其存储在`cfg`变量中：
 
-```go
+```sql
 rs1:PRIMARY> cfg = rs.conf()
 
 ```
 
 然后，通过使用`cfg`变量，我们将为我们的三个副本集成员中的每一个设置一个文档作为`members[n].tags`字段的新值：
 
-```go
+```sql
 rs1:PRIMARY> cfg.members[0].tags = {"media": "ssd", "application": "main", "datacenter": "A"}
 rs1:PRIMARY> cfg.members[1].tags = {"media": "ssd", "application": "main", "datacenter": "B"}
 rs1:PRIMARY> cfg.members[2].tags = {"media": "ssd", "application": "report", "datacenter": "A"}
@@ -273,21 +273,21 @@ rs1:PRIMARY> cfg.members[2].tags = {"media": "ssd", "application": "report", "da
 
 最后，我们调用`reconfig()`方法，传入存储在`cfg`变量中的新配置文档以重新配置我们的副本集：
 
-```go
+```sql
 rs1:PRIMARY> rs.reconfig(cfg)
 
 ```
 
 如果一切正确，我们将在 mongod shell 中看到这个输出：
 
-```go
+```sql
 { "ok" : 1 }
 
 ```
 
 我们的配置结果可以通过执行命令`rs.conf()`来检查：
 
-```go
+```sql
 rs1:PRIMARY> rs.conf()
 {
  "_id" : "rs1",
@@ -327,7 +327,7 @@ rs1:PRIMARY> rs.conf()
 
 为了将读操作定位到特定的数据中心，我们必须在查询中指定一个新的标签。以下查询将使用标签，并且每个查询将在自己的数据中心中执行：
 
-```go
+```sql
 db.customers.find(
  {username: "customer5"}
 ).readPref(
@@ -350,7 +350,7 @@ db.customers.find(
 
 让我们回到本节开头提出的要求。我们如何确保写操作将分布在地理区域的至少两个实例上？通过在副本集主节点 mongod shell 上运行以下命令序列，我们将配置一个具有五个实例的副本集：
 
-```go
+```sql
 rs1:PRIMARY> cfg = rs.conf()
 rs1:PRIMARY> cfg.members[0].tags = {"riodc": "rack1"}
 rs1:PRIMARY> cfg.members[1].tags = {"riodc": "rack2"}
@@ -367,7 +367,7 @@ rs1:PRIMARY> rs.reconfig(cfg)
 
 为此，我们将执行前面的序列，其中我们在副本集配置文档的`settings`字段上设置了一个代表我们自定义写关注的文档：
 
-```go
+```sql
 rs1:PRIMARY> cfg = rs.conf()
 rs1:PRIMARY> cfg.settings = {getLastErrorModes: {MultipleDC: {"riodc": 1, "spdc":1}}}
 
@@ -375,7 +375,7 @@ rs1:PRIMARY> cfg.settings = {getLastErrorModes: {MultipleDC: {"riodc": 1, "spdc"
 
 mongod shell 中的输出应该是这样的：
 
-```go
+```sql
 {
  "getLastErrorModes" : {
  "MultipleDC" : {
@@ -389,21 +389,21 @@ mongod shell 中的输出应该是这样的：
 
 然后我们调用`reconfig()`方法，传入新的配置：
 
-```go
+```sql
 rs1:PRIMARY> rs.reconfig(cfg)
 
 ```
 
 如果执行成功，在 mongod shell 中的输出将是这样的文档：
 
-```go
+```sql
 { "ok" : 1 }
 
 ```
 
 从这一刻起，我们可以使用`writeConcern` MultipleDC 来确保写操作将在每个显示的数据中心的至少一个节点中执行，如下所示：
 
-```go
+```sql
 db.customers.insert(
  {
  username: "customer6", 
@@ -420,7 +420,7 @@ db.customers.insert(
 
 回到我们的要求，如果我们希望写操作至少在每个数据中心的两个实例中执行，我们必须按以下方式配置：
 
-```go
+```sql
 rs1:PRIMARY> cfg = rs.conf()
 rs1:PRIMARY> cfg.settings = {getLastErrorModes: {MultipleDC: {"riodc": 2, "spdc":2}}}
 rs1:PRIMARY> rs.reconfig(cfg)
@@ -429,7 +429,7 @@ rs1:PRIMARY> rs.reconfig(cfg)
 
 并且，满足我们的要求，我们可以创建一个名为`ssd`的`writeConcern` MultipleDC。这将确保写操作将发生在至少一个具有这种类型磁盘的实例中：
 
-```go
+```sql
 rs1:PRIMARY> cfg = rs.conf()
 rs1:PRIMARY> cfg.members[0].tags = {"riodc": "rack1", "ssd": "ok"}
 rs1:PRIMARY> cfg.members[3].tags = {"spdc": "rack1", "ssd": "ok"}
@@ -441,7 +441,7 @@ rs1:PRIMARY> rs.reconfig(cfg)
 
 在下面的查询中，我们看到使用`writeConcern` MultipleDC 需要写操作至少出现在具有`ssd`的一个实例中：
 
-```go
+```sql
 db.customers.insert(
  {
  username: "customer6", 
@@ -478,7 +478,7 @@ MongoDB 的另一个非常常见的用途是作为发布者/订阅者系统，�
 
 以下命令创建`ordersQueue`集合：
 
-```go
+```sql
 db.createCollection("ordersQueue",{capped: true, size: 10000})
 
 ```
@@ -487,7 +487,7 @@ db.createCollection("ordersQueue",{capped: true, size: 10000})
 
 可选地，我们可以使用`max`属性设置集合可以拥有的最大文档数量：
 
-```go
+```sql
 db.createCollection(
  "ordersQueue",
  {capped: true, size: 10000, max: 5000}
@@ -499,7 +499,7 @@ db.createCollection(
 
 如果我们需要将集合转换为固定大小集合，应该使用`convertToCapped`方法如下：
 
-```go
+```sql
 db.runCommand(
  {"convertToCapped": " ordersQueue ", size: 100000}
 )
@@ -508,7 +508,7 @@ db.runCommand(
 
 正如我们已经看到的，MongoDB 按自然顺序保留文档，换句话说，按照它们插入 MongoDB 的顺序。考虑以下文档，如`ordersQueue`集合中所示插入：
 
-```go
+```sql
 {
  "_id" : ObjectId("54d97db16840a9a7c089fa30"), 
  "orderId" : "order_1", 
@@ -539,7 +539,7 @@ db.runCommand(
 
 查询`db.ordersQueue.find()`产生以下结果：
 
-```go
+```sql
 { 
  "_id" : ObjectId("54d97db16840a9a7c089fa30"), 
  "orderId" : "order_1", 
@@ -570,14 +570,14 @@ db.runCommand(
 
 如果我们像以下查询中所示使用`$natural`操作符，将得到与前面输出中相同的结果：
 
-```go
+```sql
 db.ordersQueue.find().sort({$natural: 1})
 
 ```
 
 但是，如果我们需要最后插入的文档先返回，我们必须在`$natural`操作符上执行带有`-1`值的命令：
 
-```go
+```sql
 db.ordersQueue.find().sort({$natural: -1})
 
 ```
@@ -602,7 +602,7 @@ db.ordersQueue.find().sort({$natural: -1})
 
 考虑一个名为`customers`的集合，其中包含以下文档：
 
-```go
+```sql
 { 
  "_id" : ObjectId("5498da405d0ffdd8a07a87ba"), 
  "username" : "customer1", 
@@ -614,7 +614,7 @@ db.ordersQueue.find().sort({$natural: -1})
 
 为了在 360 秒后使该集合中的文档过期，我们应该创建以下索引：
 
-```go
+```sql
 db.customers.createIndex(
  {accountConfirmationExpireAt: 1}, 
  {expireAfterSeconds: 3600}
@@ -624,7 +624,7 @@ db.customers.createIndex(
 
 为了在 2015-01-11 20:27:02 准确地使文档过期，我们应该创建以下索引：
 
-```go
+```sql
 db.customers.createIndex(
  {accountConfirmationExpireAt: 1}, 
  {expireAfterSeconds: 0}

@@ -28,7 +28,7 @@
 
 创建分区表时，使用默认存储引擎，与创建表时相同，并且可以通过指定`STORAGE ENGINE`选项来覆盖，就像我们对任何表所做的那样。以下示例演示了创建一个分为四个分区的哈希表，所有分区都使用`InnoDB`存储引擎：
 
-```go
+```sql
 CREATE TABLE tp (tp_id INT, amt DECIMAL(5,2), trx_date DATE)
  ENGINE=INNODB
  PARTITION BY HASH ( MONTH (trx_date) )
@@ -123,7 +123,7 @@ MIN_ROWS 和 MAX_ROWS 可用于配置分区表中存储的最大和最小行数�
 
 在接下来的几个示例中，假设我们正在创建一个表，用于保存 25 家食品店的员工个人记录。这些商店的编号从 1 到 25，是一家拥有 25 家食品店的连锁店，如下所示：
 
-```go
+```sql
 CREATE TABLE employee (
  employee_id INT NOT NULL,
  first_name VARCHAR(30),
@@ -137,7 +137,7 @@ CREATE TABLE employee (
 
 现在让我们对表进行分区，这样您就可以根据需要按范围对表进行分区。假设您考虑使用除法将数据分为五部分，以`store_id`范围进行分区。为此，表创建定义将如下所示：
 
-```go
+```sql
 CREATE TABLE employee (
  employee_id INT NOT NULL,
     first_name VARCHAR(30),
@@ -168,7 +168,7 @@ PARTITION BY RANGE (store_id) (
 
 与`store_id`类似，您还可以根据作业代码对表进行分区-基于列值的范围。假设管理职位使用 5 位代码，办公室和支持人员使用 4 位代码，普通工人使用 3 位代码，那么分区表创建定义将如下所示：
 
-```go
+```sql
 CREATE TABLE employee (
  employee_id INT NOT NULL,
     first_name VARCHAR(30),
@@ -187,7 +187,7 @@ PARTITION BY RANGE (job_code) (
 
 您还可以根据员工加入的年份进行分区，例如根据`YEAR(hired_date)`的值进行分区。现在表定义将如下所示：
 
-```go
+```sql
 CREATE TABLE employee (
  employee_id INT NOT NULL,
     first_name VARCHAR(30),
@@ -223,7 +223,7 @@ PARTITION BY RANGE (YEAR(hired_date)) (
 
 考虑员工表作为一个例子，使用创建表语法的基本定义如下：
 
-```go
+```sql
 CREATE TABLE employee (
  employee_id INT NOT NULL,
  first_name VARCHAR(30),
@@ -239,7 +239,7 @@ CREATE TABLE employee (
 
 使用区域列表对表进行分区将为表分区提供以下定义：
 
-```go
+```sql
 CREATE TABLE employee (
  employee_id INT NOT NULL,
  first_name VARCHAR(30),
@@ -264,7 +264,7 @@ PARTITION BY LIST (store_id) (
 
 在`LIST`分区中，没有像`MAXVALUE`这样可以包含所有可能值的捕获机制。相反，您必须在`values_list`中管理预期的值列表，否则`INSERT`语句将导致错误，例如在以下示例中，表中没有值为 9 的分区：
 
-```go
+```sql
 CREATE TABLE tpl (
  cl1 INT,
  cl2 INT
@@ -279,7 +279,7 @@ INSERT INTO tpl VALUES (9,5) ;
 
 如前面的`INSERT`语句所示，值 9 不是在分区模式中给定的列表的一部分，因此会出现错误。如果使用多个值插入语句，同样的错误可能导致所有插入失败，不会插入任何记录；而是使用`IGNORE`关键字来避免这样的错误，如以下`INSERT`语句示例：
 
-```go
+```sql
 INSERT IGNORE INTO tpl VALUES (1,2), (3,4), (5,6), (7,8), (9,11);
 ```
 
@@ -309,7 +309,7 @@ INSERT IGNORE INTO tpl VALUES (1,2), (3,4), (5,6), (7,8), (9,11);
 
 通过`RANGE COLUMNS`对表进行分区具有以下基本语法：
 
-```go
+```sql
 CREATE TABLE table_name
 PARTITION BY RANGE COLUMNS (column_list) (
  PARTITION partition_name VALUES LESS THAN (value_list) [,
@@ -326,7 +326,7 @@ value_list :
 
 以下示例清楚地说明了它是什么以及如何与表定义一起使用：
 
-```go
+```sql
 CREATE TABLE trc (
  p INT,
     q INT,
@@ -343,7 +343,7 @@ PARTITION BY RANGE COLUMNS (p,s,r) (
 
 现在，您可以使用以下语句将记录插入到表`trc`中：
 
-```go
+```sql
 INSERT INTO trc VALUES (5,9,'aaa',2) , (5,10,'bbb',4) , (5,12,'ccc',6) ;
 ```
 
@@ -363,7 +363,7 @@ INSERT INTO trc VALUES (5,9,'aaa',2) , (5,10,'bbb',4) , (5,12,'ccc',6) ;
 
 现在，为客户数据创建一个表，该表有四个对应区域的分区，并用客户所居住的城市的名称列出它们。表分区定义如下：
 
-```go
+```sql
 CREATE TABLE customer_z (
  first_name VARCHAR(30),
     last_name VARCHAR(30),
@@ -391,7 +391,7 @@ PARTITION BY LIST COLUMNS (city) (
 
 以下定义创建了一个在`store_id`列上使用`HASH`分区的表，分成了五个分区：
 
-```go
+```sql
 CREATE TABLE employee (
  employee_id INT NOT NULL,
  first_name VARCHAR(30),
@@ -411,7 +411,7 @@ PARTITIONS 4;
 
 MySQL 8 支持线性哈希，它基于线性二次幂算法，而不是基于哈希函数值的模数的常规哈希。`LINEAR HASH`分区需要在`PARTITION BY`子句中使用`LINEAR`关键字，如下所示：
 
-```go
+```sql
 CREATE TABLE employee (
  employee_id INT NOT NULL,
  first_name VARCHAR(30),
@@ -435,7 +435,7 @@ PARTITIONS 4;
 
 在`KEY()`中取一个或多个列名列表，如果在`KEY`中没有定义列，但表具有定义的主键或带有`NOT NULL`约束的唯一键，该列将自动作为`KEY`的分区列：
 
-```go
+```sql
 CREATE TABLE tk1 (
  tk1_id INT NOT NULL PRIMARY KEY,
     note VARCHAR(50)
@@ -446,7 +446,7 @@ PARTITIONS 2;
 
 与其他分区类型不同，列类型不仅限于`NULL`或整数值：
 
-```go
+```sql
 CREATE TABLE tk2 (
  cl1 INT NOT NULL,
  cl2 CHAR(10),
@@ -462,7 +462,7 @@ PARTITIONS 3;
 
 子分区也被称为复合分区，正如其名称所示，它只是将每个分区分成一个分区表本身。请参阅以下语句：
 
-```go
+```sql
 CREATE TABLE trs (trs_id INT, sold DATE)
 PARTITION BY RANGE ( YEAR(sold) )
     SUBPARTITION BY HASH ( TO_DAYS(sold) )
@@ -517,7 +517,7 @@ MySQL 8 没有特定于禁止`NULL`作为分区的列值、分区表达式或用
 
 以下示例说明了`ALTER TABLE`语句的`DROP PARTITION`选项：
 
-```go
+```sql
 SET @@SQL_MODE = '';
 CREATE TABLE employee (
  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -558,7 +558,7 @@ ALTER TABLE employee DROP PARTITION p2;
 
 假设您有一个客户表数据，通过`HASH`分区分割，分为十二个分区如下：
 
-```go
+```sql
 CREATE TABLE client (
  client_id INT,
  first_name VARCHAR(25),
@@ -571,7 +571,7 @@ PARTITIONS 12;
 
 在上述表分区模式中，如果您想将分区数量从十二个减少到八个，可以使用以下`ALTER TABLE`语句：
 
-```go
+```sql
 ALTER TABLE client COALESCE PARTITION 8;
 ```
 
@@ -585,13 +585,13 @@ ALTER TABLE client COALESCE PARTITION 8;
 
 +   **重建分区**：此选项会删除分区中的所有记录并重新插入，因此在碎片整理过程中很有帮助。以下是一个示例：
 
-```go
+```sql
  ALTER TABLE trp REBUILD  PARTITION p0, p1, p2;
 ```
 
 +   **优化分区**：如果从表的一个或多个分区中删除了许多行，或者在可变长度列类型（如`VARCHAR`、`BLOB`、`TEXT`等）的大量数据中有许多行更改，可以执行`OPTIMIZE PARTITION`来回收分区数据文件中未使用的空间。以下是一个例子：
 
-```go
+```sql
  ALTER TABLE top OPTIMIZE PARTITION p0, p1, p2;
 ```
 
@@ -599,19 +599,19 @@ ALTER TABLE client COALESCE PARTITION 8;
 
 +   **分析分区**：在此选项中，读取并存储分区的关键分布。以下是一个例子：
 
-```go
+```sql
  ALTER TABLE tap ANALYZE  PARTITION p1, p2;
 ```
 
 +   **修复分区**：仅在发现损坏的分区需要修复时使用。以下是一个例子：
 
-```go
+```sql
  ALTER TABLE trp REPAIR PARTITION p3;
 ```
 
 +   **检查分区**：此选项用于检查分区中的任何错误，例如在非分区表中使用的`CHECK TABLE`选项。以下是一个例子：
 
-```go
+```sql
  ALTER TABLE tcp CHECK PARTITION p0;
 ```
 
@@ -631,7 +631,7 @@ ALTER TABLE client COALESCE PARTITION 8;
 
 以下是使用`SHOW CREATE TABLE`语句选项查看分区信息的示例：
 
-```go
+```sql
 SHOW CREATE TABLE employee;
 ```
 
@@ -653,7 +653,7 @@ SHOW CREATE TABLE employee;
 
 假设有一个分区表`tp1`，使用以下语句创建：
 
-```go
+```sql
 CREATE TABLE tp1 (
  first_name VARCHAR (30) NOT NULL,
  last_name VARCHAR (30) NOT NULL,
@@ -670,7 +670,7 @@ PARTITION BY RANGE (zone_code) (
 
 在前面的示例表`tp1`中，假设您想从以下`SELECT`语句中检索结果：
 
-```go
+```sql
 SELECT first_name, last_name , doj from tp1 where zone_code > 126 AND zone_code < 131;
 ```
 
@@ -696,7 +696,7 @@ SELECT first_name, last_name , doj from tp1 where zone_code > 126 AND zone_code 
 
 假设您有一个表`tp2`，如下语句所示：
 
-```go
+```sql
 CREATE TABLE tp2 (
  first_name VARCHAR (30) NOT NULL,
  last_name VARCHAR (30) NOT NULL,
@@ -718,7 +718,7 @@ PARTITION BY RANGE (YEAR(doj)) (
 
 现在，在前面的语句中，以下语句可以从分区修剪中受益：
 
-```go
+```sql
 SELECT * FROM tp2  WHERE doj = '1982-06-24';
 UPDATE tp2  SET region_code = 8 WHERE doj BETWEEN '1991-02-16' AND '1997-04-26';
 DELETE FROM tp2  WHERE doj >= '1984-06-22' AND doj <= '1999-06-22';
@@ -736,7 +736,7 @@ DELETE FROM tp2  WHERE doj >= '1984-06-22' AND doj <= '1999-06-22';
 
 前面的示例使用了`RANGE`分区，但分区修剪也适用于其他类型的分区。假设您有表`tp3`的模式如下语句所示：
 
-```go
+```sql
 CREATE TABLE tp3 (
  first_name VARCHAR (30) NOT NULL,
  last_name VARCHAR (30) NOT NULL,
@@ -756,7 +756,7 @@ PARTITION BY LIST(zone_code) (
 
 具有常量的列值可以被修剪，如以下示例语句：
 
-```go
+```sql
 UPDATE tp3 set description = 'This is description for Zone 5' WHERE zone_code = 5;
 ```
 
@@ -788,7 +788,7 @@ UPDATE tp3 set description = 'This is description for Zone 5' WHERE zone_code = 
 
 用于显式分区选择的`PARTITION`选项的以下语法：
 
-```go
+```sql
 PARTITION (partition_names)
 partition_names :
  partition_name, ...
@@ -800,7 +800,7 @@ partition_names :
 
 假设你使用以下语句创建了表`employee`：
 
-```go
+```sql
 SET @@SQL_MODE = '';
 CREATE TABLE employee (
  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -829,7 +829,7 @@ INSERT INTO employee VALUES
 
 现在，如果你检查分区`p1`，你会看到以下输出，因为行添加到分区`p1`中：
 
-```go
+```sql
 mysql> SELECT * FROM employee PARTITION (p1);
 +----+-----------+------------+----------+---------------+
 | id | last_name | last_name | store_id | department_id |
@@ -861,7 +861,7 @@ mysql> SELECT * FROM employee PARTITION (p1);
 
 分区键与主键和唯一键之间的关系对于分区模式结构设计非常重要。简而言之，规则是分区表中用于分区的所有列必须包括表的每个唯一键。因此，包括表上的主键列在内的每个唯一键都必须是分区表达式的一部分。看一下以下使用不符合规则的唯一键的`CREATE TABLE`语句的例子：
 
-```go
+```sql
 CREATE TABLE tk1 (
  cl1 INT NOT NULL,
  cl2 DATE NOT NULL,
@@ -888,7 +888,7 @@ PARTITIONS 4;
 
 现在看一下以下修改后的表创建语句，这些语句已经可以工作，并且从无效变为有效：
 
-```go
+```sql
 CREATE TABLE tk1 (
  cl1 INT NOT NULL,
  cl2 DATE NOT NULL,
@@ -912,7 +912,7 @@ PARTITIONS 4;
 
 如果你看一下以下表结构，它根本无法分区，因为没有办法包含可以成为分区键列的唯一键列：
 
-```go
+```sql
 CREATE TABLE tk4 (
  cl1 INT NOT NULL,
  cl2 INT NOT NULL,
@@ -925,7 +925,7 @@ CREATE TABLE tk4 (
 
 根据定义，每个主键都是唯一键。这个限制也适用于表的主键。以下是表`tk5`和`tk6`的两个无效语句的例子：
 
-```go
+```sql
 CREATE TABLE tk5 (
  cl1 INT NOT NULL,
  cl2 DATE NOT NULL,
@@ -950,7 +950,7 @@ PARTITIONS 4;
 
 在上述两个语句中，所有引用的列都不包括相应的主键在分区表达式中。以下语句是有效的：
 
-```go
+```sql
 CREATE TABLE tk7 (
  cl1 INT NOT NULL,
  cl2 DATE NOT NULL,

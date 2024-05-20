@@ -58,7 +58,7 @@ MongoDB 就是其中之一。诞生于 21 世纪初，它成为了世界上最�
 
 代码块设置如下：
 
-```go
+```sql
   collection.update({resource: resource, date: today},
     {$inc : {daily: 1}}, {upsert: true},
     function(error, result){
@@ -71,7 +71,7 @@ MongoDB 就是其中之一。诞生于 21 世纪初，它成为了世界上最�
 
 当我们希望引起您对代码块的特定部分的注意时，相关的行或项目将以粗体显示：
 
-```go
+```sql
 var logMinuteHit = function(db, resource, callback) {
  // Get the events collection
   var collection = db.collection('events');
@@ -86,7 +86,7 @@ var logMinuteHit = function(db, resource, callback) {
 
 任何命令行输入或输出都以以下方式编写：
 
-```go
+```sql
 db.customers.find(
 {"username": "johnclay"},
 {_id: 1, username: 1, details: 1}

@@ -116,7 +116,7 @@
 
 可以监视 MySQL 性能模式和内存使用情况的 sys 模式。在执行此操作之前，我们必须在 MySQL 性能模式上启用内存工具。可以通过更新性能模式`setup_instruments`表的`ENABLED`列来完成。以下是查询 MySQL 中可用内存工具的查询：
 
-```go
+```sql
 mysql> SELECT * FROM performance_schema.setup_instruments WHERE NAME LIKE '%memory%';
 ```
 
@@ -124,7 +124,7 @@ mysql> SELECT * FROM performance_schema.setup_instruments WHERE NAME LIKE '%memo
 
 此查询将返回数百个内存工具。我们可以通过指定代码区域来缩小范围。以下是将结果限制为`InnoDB`内存工具的示例：
 
-```go
+```sql
 mysql> SELECT * FROM performance_schema.setup_instruments WHERE NAME LIKE '%memory/innodb%'; 
 +-------------------------------------------+---------+-------+ 
 |                    NAME                   | ENABLED | TIMED | 
@@ -144,13 +144,13 @@ mysql> SELECT * FROM performance_schema.setup_instruments WHERE NAME LIKE '%memo
 
 以下是启用内存工具的配置：
 
-```go
+```sql
 performance-schema-instrument='memory/%=COUNTED'
 ```
 
 以下是在性能模式中的`memory_summary_global_by_event_name`表中查询内存工具数据的示例：
 
-```go
+```sql
 mysql> SELECT * FROM performance_schema.memory_summary_global_by_event_name WHERE EVENT_NAME LIKE 'memory/innodb/buf_buf_pool'\G;
 
 EVENT_NAME: memory/innodb/buf_buf_pool
@@ -170,7 +170,7 @@ HIGH_NUMBER_OF_BYTES_USED: 137428992
 
 以下是查询 sys 模式以按代码区域聚合当前分配的内存的示例：
 
-```go
+```sql
 mysql> SELECT SUBSTRING_INDEX(event_name,'/',2) AS        
   code_area, sys.format_bytes(SUM(current_alloc))        
   AS current_alloc        
@@ -207,7 +207,7 @@ MySQL 数据库服务器打开网络接口以与客户端连接，并开始监�
 
 设置线程缓存大小后，监视其影响变得至关重要。`Threads_cached`和`Threads_created`是用于查找线程缓存中的线程数以及因无法从缓存中获取而创建的线程数的状态变量。以下是查找服务器状态变量值的示例命令：
 
-```go
+```sql
 mysql> show global status;
 +-----------------------------+--------+
 | Variable_name               |  Value |
@@ -230,7 +230,7 @@ mysql> show global status;
 
 下面是过滤`status`变量的示例：
 
-```go
+```sql
 mysql> show status like '%Thread%';
 +------------------------------------------+-------+
 | Variable_name                            | Value |
@@ -298,7 +298,7 @@ MySQL 授予表读锁的策略如下：
 
 以下是分析表锁争用的示例：
 
-```go
+```sql
 mysql> SHOW STATUS LIKE 'Table_locks%';
 +-----------------------+-------+
 | Variable_name         | Value |
@@ -312,7 +312,7 @@ mysql> SHOW STATUS LIKE 'Table_locks%';
 
 如果无法进行并发插入，并且我们想在表`tab1`上执行多个`INSERT`和`SELECT`操作，可以使用临时表`temp_tab1`来保存`tab1`表数据，并使用`temp_tab1`表中的行更新`tab1`表。以下是演示此场景的示例：
 
-```go
+```sql
 mysql> LOCK TABLES tab1 WRITE, temp_tab1 WRITE;
 mysql> INSERT INTO tab1 SELECT * FROM temp_tab1;
 mysql> DELETE FROM temp_tab1;
@@ -331,13 +331,13 @@ mysql> UNLOCK TABLES;
 
 MySQL 8 支持衡量单个语句的性能。如果要衡量任何 SQL 表达式或函数的速度，则使用`BENCHMARK()`函数。以下是该函数的语法：
 
-```go
+```sql
 BENCHMARK(loop_count, expression)
 ```
 
 `BENCHMARK`函数的输出始终为零。速度可以通过 MySQL 在输出中打印的行来衡量。以下是一个例子：
 
-```go
+```sql
 mysql> select benchmark(1000000, 1+1);
 +-------------------------+
 | benchmark(1000000, 1+1) |
@@ -357,7 +357,7 @@ mysql> select benchmark(1000000, 1+1);
 
 +   `SHOW [FULL] PROCESSLIST`语句。以下是进程列表信息的示例：
 
-```go
+```sql
 mysql> show processlist;
 +----+-----------------+-----------------+------+---------+--------+
 | Id |       User      |       Host      |   db | Command |  Time  |
@@ -381,7 +381,7 @@ mysql> show processlist;
 
 +   `INFORMATION_SCHEMA PROCESSLIST`表：
 
-```go
+```sql
 mysql> select * from information_schema.processlist;
 +----+-----------------+-----------------+------+---------+--------+
 | ID |       USER      |       HOST      |  DB  | COMMAND |  TIME  |
@@ -590,7 +590,7 @@ mysql> select * from information_schema.processlist;
 
 在本节中，我们将看到 MySQL 如何打开和关闭表。以下显示了如何在 MySQL 服务器上发现打开的文件：
 
-```go
+```sql
 > mysqladmin status
 Uptime: 262200 Threads: 2 Questions: 16 Slow queries: 0 Opens: 111 Flush tables: 2 Open tables: 87 Queries per second avg: 0.000
 ```
@@ -615,7 +615,7 @@ MySQL 8 服务器在表缓存已满时使用以下过程来定位缓存条目：
 
 以下是查找打开表数量的示例：
 
-```go
+```sql
 mysql> SHOW GLOBAL STATUS LIKE '%Opened_Tables%';
 +---------------+-------+
 | Variable_name | Value |
@@ -706,21 +706,21 @@ SQL 语句用于执行任何数据库应用程序的核心逻辑。无论语句�
 
 +   不必要的括号应该被移除。以下是一个括号移除的例子：
 
-```go
+```sql
  ((a AND b) AND c OR (((a AND b) AND (c AND d)))) 
         -> (a AND b AND c) OR (a AND b AND c AND d)
 ```
 
 +   常量折叠是在编译时而不是运行时评估值的过程。如果我们已经将一个常量值赋给一个变量，然后在表达式中使用该变量，我们应该使用常量值。以下是一个常量折叠的例子：
 
-```go
+```sql
  (a<b AND b=c) AND a=5 
         -> b>5 AND b=c AND a=5
 ```
 
 +   由于常量折叠，我们应该移除常量条件。以下是一个常量条件移除的例子：
 
-```go
+```sql
  (B>=5 AND B=5) OR (B=6 AND 5=5) OR (B=7 AND 5=6) 
         -> B=5 OR B=6
 ```

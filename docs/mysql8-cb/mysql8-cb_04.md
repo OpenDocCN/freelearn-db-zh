@@ -36,7 +36,7 @@ MySQL 有两种类型的参数：
 
 配置文件由`section_name`指定的部分。所有与部分相关的参数都可以放在它们下面，例如：
 
-```go
+```sql
 [mysqld] <---section name <parameter_name> = <value> <---parameter values
 [client] <parameter_name> = <value>
 [mysqldump] <parameter_name> = <value>
@@ -59,7 +59,7 @@ MySQL 有两种类型的参数：
 
 例如，`mysqld_safe`进程从`mysqld`部分读取`pid-file`选项。
 
-```go
+```sql
 shell> sudo vi /etc/my.cnf
 [mysqld]
 pid-file = /var/lib/mysql/mysqld.pid
@@ -69,7 +69,7 @@ pid-file = /var/lib/mysql/mysqld.pid
 
 例如：
 
-```go
+```sql
 [Service]
 LimitNOFILE=max_open_files
 PIDFile=/path/to/pid/file
@@ -92,20 +92,20 @@ Environment="TZ=time_zone_setting"
 
 例如，如果您想记录所有慢于一秒的查询，可以执行：
 
-```go
+```sql
 mysql> SET GLOBAL long_query_time = 1;
 ```
 
 要使更改在重新启动时持久，请使用：
 
-```go
+```sql
 mysql> SET PERSIST long_query_time = 1;
 Query OK, 0 rows affected (0.01 sec)
 ```
 
 或：
 
-```go
+```sql
 mysql> SET @@persist.long_query_time = 1;
 Query OK, 0 rows affected (0.00 sec)
 ```
@@ -114,7 +114,7 @@ Query OK, 0 rows affected (0.00 sec)
 
 假设您只想记录此会话的查询，而不是所有连接的查询。您可以使用以下命令：
 
-```go
+```sql
 mysql> SET SESSION long_query_time = 1;
 ```
 
@@ -124,7 +124,7 @@ mysql> SET SESSION long_query_time = 1;
 
 # 如何做...
 
-```go
+```sql
 shell> /usr/local/mysql/bin/mysqld --basedir=/usr/local/mysql --datadir=/usr/local/mysql/data --plugin-dir=/usr/local/mysql/lib/plugin --user=mysql --log-error=/usr/local/mysql/data/centos7.err --pid-file=/usr/local/mysql/data/centos7.pid --init-file=/tmp/mysql-init &
 ```
 
@@ -154,7 +154,7 @@ shell> /usr/local/mysql/bin/mysqld --basedir=/usr/local/mysql --datadir=/usr/loc
 
 要设置`data directory`的更改/添加`datadir`的值到配置文件。默认值为`/var/lib/mysql`：
 
-```go
+```sql
 shell> sudo vi /etc/my.cnf
 [mysqld]
 datadir = /data/mysql
@@ -205,7 +205,7 @@ datadir = /data/mysql
 
 1.  检查当前的`data directory`。默认情况下，`data directory`是`/var/lib/mysql`：
 
-```go
+```sql
 mysql> show variables like '%datadir%';
 +---------------+-----------------+
 | Variable_name | Value           |
@@ -217,13 +217,13 @@ mysql> show variables like '%datadir%';
 
 1.  停止`mysql`并确保它已成功停止：
 
-```go
+```sql
 shell> sudo systemctl stop mysql
 ```
 
 1.  检查状态：
 
-```go
+```sql
 shell> sudo systemctl status mysql
 ```
 
@@ -231,20 +231,20 @@ shell> sudo systemctl status mysql
 
 1.  在新位置创建目录并将所有权更改为`mysql`：
 
-```go
+```sql
 shell> sudo mkdir -pv /data
 shell> sudo chown -R mysql:mysql /data/
 ```
 
 1.  将文件移动到新的`data 目录`：
 
-```go
+```sql
 shell> sudo rsync -av /var/lib/mysql /data
 ```
 
 1.  在 Ubuntu 中，如果已启用 AppArmor，您需要配置访问控制：
 
-```go
+```sql
 shell> vi /etc/apparmor.d/tunables/alias
 alias /var/lib/mysql/ -> /data/mysql/,
 shell> sudo systemctl restart apparmor
@@ -252,7 +252,7 @@ shell> sudo systemctl restart apparmor
 
 1.  启动 MySQL 服务器并验证`data`目录已更改：
 
-```go
+```sql
 shell> sudo systemctl start mysql
 mysql> show variables like '%datadir%'; 
 +---------------+--------------+
@@ -265,7 +265,7 @@ mysql> show variables like '%datadir%';
 
 1.  验证数据是否完好并删除旧的`data 目录`：
 
-```go
+```sql
 shell> sudo rm -rf /var/lib/mysql
 ```
 

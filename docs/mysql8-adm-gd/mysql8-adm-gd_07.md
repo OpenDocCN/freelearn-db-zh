@@ -44,7 +44,7 @@
 
 +   有时，查询会被优化以获取值而不是引用行。例如，如果查询仅使用包含在索引中的列，MySQL 8 将从索引树中获取所选值：
 
-```go
+```sql
  SELECT key_part3 FROM table_name WHERE key_part1=10;
 ```
 
@@ -52,7 +52,7 @@
 
 +   对于`MIN()`和`MAX()`函数，如果使用了索引列的一部分，优化器将检查索引列的所有其他部分是否在`WHERE`条件中可用。如果提到了，MySQL 8 将执行`MIN()`和`MAX()`函数的单个查找，并用常量替换它们。例如：
 
-```go
+```sql
  SELECT MIN(key_part2), MAX(key_part2) FROM tble_name WHERE 
           key_part1=10;
 ```
@@ -65,7 +65,7 @@ MySQL 8 提供了两个与索引相关的主要命令。我们将在以下部分
 
 以下命令允许用户向现有表中添加索引。此命令也可与`CREATE TABLE`和`ALTER TABLE`一起使用以创建索引：
 
-```go
+```sql
 CREATE [UNIQUE|FULLTEXT|SPATIAL] INDEX index_name
  [index_type]
  ON tbl_name (index_col_name,...)
@@ -137,7 +137,7 @@ MySQL 8 遵循以下规则，用于非空间索引特性：
 
 +   `index_type`：MySQL 8 允许用户在索引创建时定义索引类型。例如：
 
-```go
+```sql
  create table employee (id int(11) not null,name varchar(50));
  CREATE INDEX emp_name_index ON employee (name) USING BTREE;
 ```
@@ -180,7 +180,7 @@ MySQL 8 遵循以下规则，用于非空间索引特性：
 
 +   `COMMENT 'string'`：此属性是可选的，允许在注释中使用最多 1024 个字符。此选项还支持`MERGE_THRESHOLD`参数，其默认值为 50。考虑以下命令来定义`MERGE_THRESHOLD`：
 
-```go
+```sql
  CREATE INDEX name_index ON employee(name) COMMENT 
           'MERGE_THRESHOLD=40'; 
 ```
@@ -195,7 +195,7 @@ MySQL 8 遵循以下规则，用于非空间索引特性：
 
 以下命令从表中删除索引。我们也可以将此语句映射到`ALTER TABLE`以从表中删除索引：
 
-```go
+```sql
 DROP INDEX index_name ON tbl_name
  [algorithm_option | lock_option]...
 algorithm_option:
@@ -206,7 +206,7 @@ lock_option:
 
 在此命令中，只有两个选项可用：算法和锁。这两个选项在索引的并发访问和工作情况下非常有用，类似于`CREATE INDEX`命令。例如，要删除员工表的索引，请执行以下命令：
 
-```go
+```sql
 DROP INDEX name_index ON employee;
 ```
 
@@ -214,7 +214,7 @@ DROP INDEX name_index ON employee;
 
 MySQL 8 允许您在`InnoDB`和`MyISAM`存储引擎上使用与前述主题中提到的相同语法创建空间索引。标准命令中唯一的变化是在创建索引时使用关键字**spatial**。在定义空间索引时，请确保列声明为`NOT NULL`。以下代码演示了在表上创建空间索引的方法：
 
-```go
+```sql
 CREATE TABLE geom_data (data GEOMETRY NOT NULL, SPATIAL INDEX(data));
 ```
 
@@ -232,7 +232,7 @@ CREATE TABLE geom_data (data GEOMETRY NOT NULL, SPATIAL INDEX(data));
 
 1.  使用以下命令检查具有相同`ST_SRID`的列的所有值：
 
-```go
+```sql
 SELECT DISTINCT ST_SRID(column_name) FROM table_name;
 ```
 
@@ -278,7 +278,7 @@ MySQL 8 允许您在单个列上创建索引，也可以在多个列上创建索
 
 此选项允许用户在字符串的情况下指定用于索引的字符数。MySQL 8 在索引创建中提供了`column_name(N)`选项，用于指定字符数。索引优先考虑只指定的字符，这将使索引文件更小。因此，在`BLOB`和`TEXT`列的情况下，您必须为了更好的性能指定前缀长度。考虑以下示例，在`BLOB`类型上创建带有前缀长度的索引：
 
-```go
+```sql
 CREATE TABLE person (personal_data TEXT, INDEX(personal_data (8)));
 ```
 
@@ -308,7 +308,7 @@ MySQL 8 允许您在空间数据类型上创建索引。`InnoDB`和`MyISAM`存�
 
 MySQL 8 允许您在单个索引创建中使用多个列，这也被称为**复合索引**。它允许在复合索引中最多使用 16 列。在使用复合索引时，请确保遵循在索引创建期间提到的相同列的顺序。多列索引包含通过连接索引列的值生成的值。请考虑以下示例以了解多列索引：
 
-```go
+```sql
 CREATE TABLE Employee (
 id INT NOT NULL,
 lastname varchar(50) not null,
@@ -320,7 +320,7 @@ INDEX name (lastname, firstname)
 
 如上所述，我们使用两列`lastname`和`firstname`定义了复合索引。以下查询使用了名称索引：
 
-```go
+```sql
 SELECT * FROM Employee WHERE lastname='Shah';
 SELECT * FROM Employee WHERE lastname ='Shah' AND firstname ='Mona';
 SELECT * FROM Employee WHERE lastname ='Shah' AND (firstname ='Michael' OR firstname ='Mona');
@@ -329,7 +329,7 @@ SELECT * FROM Employee WHERE lastname ='Shah' AND firstname >='M' AND firstname 
 
 在所有前述的查询中，我们可以看到列的顺序在`WHERE`条件中保持不变，类似于索引声明的顺序。当我们仅在`WHERE`子句中定义`lastname`列时，索引也可以起作用，因为它是索引中定义的最左边的列。现在，有一些查询中复合索引将不起作用：
 
-```go
+```sql
 SELECT * FROM Employee WHERE firstname='Mona';
 SELECT * FROM Employee WHERE lastname='Shah' OR firstname='Mona';
 ```
@@ -344,7 +344,7 @@ B-Tree 索引的主要目的是减少物理读取操作的次数。B-Tree 索引
 
 现在，让我们通过考虑以下表格来了解 B-Tree 索引在选择查询中的工作原理：
 
-```go
+```sql
 CREATE TABLE Employee (
  lastname varchar(50) not null,
  firstname varchar(50) not null,
@@ -396,13 +396,13 @@ CREATE TABLE Employee (
 
 索引扩展是 MySQL 8 通过附加主键扩展次要索引的功能。如果需要，`InnoDB`引擎会自动扩展次要索引。为了控制索引扩展的行为，MySQL 8 在`optimizer_switch`系统变量中定义了一个`use_index_extensions`标志。默认情况下，此选项已启用，但用户可以使用以下命令在运行时更改它：
 
-```go
+```sql
 SET optimizer_switch = 'use_index_extensions=off';
 ```
 
 让我们看一个例子，以深入了解索引扩展。让我们创建一个表，并插入以下值：
 
-```go
+```sql
 CREATE TABLE table1 (
  c1 INT NOT NULL DEFAULT 0,
  c2 INT NOT NULL DEFAULT 0,
@@ -430,7 +430,7 @@ INSERT INTO table1 VALUES
 
 这个表在列`c1`、`c2`上有一个主键，以及在列`d1`上有一个次要索引`key_d1`。现在，为了理解扩展效果，首先关闭它，然后执行以下带有解释命令的选择查询：
 
-```go
+```sql
 --Index extension is set as off
 SET optimizer_switch = 'use_index_extensions=off';
 
@@ -453,7 +453,7 @@ possible_keys: PRIMARY,key1
 
 同样，我们现在将打开扩展并再次执行解释计划查询以检查效果，使用以下代码：
 
-```go
+```sql
 --Index extension is set as on
 SET optimizer_switch = 'use_index_extensions=on';
 
@@ -488,19 +488,19 @@ possible_keys: PRIMARY,key1
 
 MySQL 8 允许您在生成列上创建索引。生成列是其值从列定义中包含的表达式计算出来的列。考虑以下示例，我们定义了一个生成列`c2`，并在该列上创建了一个索引：
 
-```go
+```sql
 CREATE TABLE t1 (c1 INT, c2 INT AS (c1 + 1) STORED, INDEX (c2));
 ```
 
 根据表的先前定义，优化器将在执行计划中考虑生成列的索引。此外，如果我们在查询中使用`WHERE`、`GROUP BY`或`ORDER BY`子句中指定相同的表达式，那么优化器将使用生成列的索引。例如，如果我们执行以下查询，则优化器将使用生成列上定义的索引：
 
-```go
+```sql
 SELECT * FROM t1 WHERE c1 + 1 > 100;
 ```
 
 在这里，优化器将识别表达式与列`c2`的定义相同。我们可以使用`EXPLAIN`命令来检查，如下所示：
 
-```go
+```sql
 mysql> explain SELECT * FROM t1 WHERE c1 + 1 > 100;
 *************************** 1\. row ***************************
  id: 1
@@ -523,13 +523,13 @@ mysql> explain SELECT * FROM t1 WHERE c1 + 1 > 100;
 
 +   在生成列定义中使用 JSON 字符串时，使用`JSON_UNQUOTE()`从值中删除额外的引号。例如，不要使用以下列定义：
 
-```go
+```sql
  name TEXTAS(JSON_EXTRACT(emp,'$.name'))STORED
 ```
 
 +   我们将使用以下代码代替前面的代码：
 
-```go
+```sql
  name TEXTAS(JSON_UNQUOTE(JSON_EXTRACT(emp,'$.name')))STORED
 ```
 
@@ -537,7 +537,7 @@ mysql> explain SELECT * FROM t1 WHERE c1 + 1 > 100;
 
 +   在生成列表达式中不要仅使用其他列的引用。也就是说，不要使用以下代码：
 
-```go
+```sql
  c2 INT AS (c1) STORED in column definition.
 ```
 
@@ -557,7 +557,7 @@ mysql> explain SELECT * FROM t1 WHERE c1 + 1 > 100;
 
 在以下示例中，我们将使用`CREATE TABLE`、`CREATE INDEX`或`ALTER TABLE`命令创建一个不可见索引：
 
-```go
+```sql
 CREATE TABLE `employee` (
  `id` int(11) NOT NULL AUTO_INCREMENT,
  `department_id` int(11),
@@ -571,14 +571,14 @@ ALTER TABLE employee ADD INDEX idx2 (salary) INVISIBLE;
 
 要更改索引的可见性，请使用以下命令：
 
-```go
+```sql
  ALTER TABLE employee ALTER INDEX idx1 VISIBLE;
  ALTER TABLE employee ALTER INDEX idx1 INVISIBLE;
 ```
 
 要获取有关索引的信息，请以以下方式执行`INFORMATION_SCHEMA.STATISTICStable`或`SHOW INDEX`命令：
 
-```go
+```sql
 mysql>SELECT * FROM information_schema.statistics WHERE is_visible='NO';
 *************************** 1\. row ***************************
 TABLE_CATALOG: def
@@ -629,7 +629,7 @@ Visible: NO
 
 MySQL 8 在`optimizer_switch`系统变量中提供了一个`use_invisible_indexes`标志，用于控制查询优化器使用的不可见索引。如果此标志打开，则优化器在执行计划构建中使用不可见索引，而如果标志关闭，则优化器将忽略不可见索引。MySQL 8 提供了一个隐式主键的功能，如果您在`NOT NULL`列上定义了一个`UNIQUE`索引。一旦在此字段上定义了索引，MySQL 8 将不允许您将其设置为不可见。为了理解这种情况，让我们以以下表为例。让我们尝试执行以下命令，使`idx1`索引不可见：
 
-```go
+```sql
 CREATE TABLE table2 (
  field1 INT NOT NULL,
  field2 INT NOT NULL,
@@ -639,20 +639,20 @@ CREATE TABLE table2 (
 
 现在，服务器将会给出一个错误，如下所示的命令：
 
-```go
+```sql
 mysql> ALTER TABLE table2 ALTER INDEX idx1 INVISIBLE;
 ERROR 3522 (HY000): A primary key index cannot be invisible
 ```
 
 现在让我们使用以下命令将主键添加到表中：
 
-```go
+```sql
 ALTER TABLE table2 ADD PRIMARY KEY (field2);
 ```
 
 现在，我们将尝试使`idex1`不可见。这次，服务器允许了，如下所示的命令：
 
-```go
+```sql
 mysql> ALTER TABLE table2 ALTER INDEX idx1 INVISIBLE;
 Query OK, 0 rows affected (0.06 sec)
 Records: 0 Duplicates: 0 Warnings: 0
@@ -662,7 +662,7 @@ Records: 0 Duplicates: 0 Warnings: 0
 
 降序索引是按降序顺序存储键值的索引。这个索引按正向顺序扫描，与其他索引相比性能更好。降序索引允许用户定义组合升序和降序顺序的多列索引。实际知识总是比理论知识更容易理解，对吧？所以，让我们看一些例子，以深入了解降序索引。首先，创建一个具有以下定义的表：
 
-```go
+```sql
 CREATE TABLE t1 (
  a INT, b INT,
  INDEX idx1 (a ASC, b ASC),
@@ -674,7 +674,7 @@ CREATE TABLE t1 (
 
 根据表定义，MySQL 8 将创建四个不同的索引，因此优化器对每个`ORDER BY`子句执行前向索引扫描。考虑以下不同版本的`ORDER BY`子句：
 
-```go
+```sql
 ORDER BY a ASC, b ASC -- optimizer can use idx1
 ORDER BY a DESC, b DESC -- optimizer can use idx4
 ORDER BY a ASC, b DESC -- optimizer can use idx2
@@ -683,7 +683,7 @@ ORDER BY a DESC, b ASC -- optimizer can use idx3
 
 现在，让我们看一下相同表定义的第二种情况，它将描述与 MySQL 5.7.14 版本相比，降序索引对性能的影响。考虑以下选择查询以测量性能：
 
-```go
+```sql
 Query 1: SELECT * FROM t1 ORDER BY a DESC;
 Query 2: SELECT * FROM t1 ORDER BY a ASC;
 Query 3: SELECT * FROM t1 ORDER BY a DESC, b ASC;

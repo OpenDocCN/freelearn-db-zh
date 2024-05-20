@@ -34,7 +34,7 @@ MongoDB 将文档作为数据的基本单元。MongoDB 中的文档以**JavaScri
 
 文档的示例是：
 
-```go
+```sql
 {
    "_id": 123456,
    "firstName": "John",
@@ -63,7 +63,7 @@ MongoDB 将文档作为数据的基本单元。MongoDB 中的文档以**JavaScri
 
 例如，在同一个`users`集合中，我们可以有：
 
-```go
+```sql
 {
    "_id": "123456",
    "username": "johnclay",
@@ -79,7 +79,7 @@ MongoDB 将文档作为数据的基本单元。MongoDB 中的文档以**JavaScri
 
 我们还可以有：
 
-```go
+```sql
 {
    "_id": "654321",
    "username": "santymonty",
@@ -122,7 +122,7 @@ JSON 格式也被认为非常友好和易读。JSON 不依赖于所选择的平�
 
 因此，为了澄清任何疑问，让我们谈谈对象。对象是一组非有序的键/值对，由以下模式表示：
 
-```go
+```sql
 {
    "key" : "value"
 }
@@ -130,7 +130,7 @@ JSON 格式也被认为非常友好和易读。JSON 不依赖于所选择的平�
 
 关于值有序列表，集合表示如下：
 
-```go
+```sql
 ["value1", "value2", "value3"]
 ```
 
@@ -154,7 +154,7 @@ JSON 格式也被认为非常友好和易读。JSON 不依赖于所选择的平�
 
 以下是描述一个人的 JSON 代码示例：
 
-```go
+```sql
 {
    "name" : "Han",
    "lastname" : "Solo",
@@ -255,7 +255,7 @@ GridFS 允许我们将大于 BSON 最大大小的文档存储在 MongoDB 中，�
 
 让我们看一个例子：
 
-```go
+```sql
 db.counters.insert(
  {
  _id: "userid",
@@ -287,7 +287,7 @@ db.users.insert(
 
 通过乐观循环生成`_id`字段是通过递增每次迭代，然后尝试将其插入新文档：
 
-```go
+```sql
 function insertDocument(doc, targetCollection) {
     while (1) {
         var cursor = targetCollection.find( {}, { _id: 1 } ).sort( { _id: -1 } ).limit(1);
@@ -345,7 +345,7 @@ MongoDB 也有自己表示这种关系的方式。事实上，有两种方式：
 
 看下面的例子：
 
-```go
+```sql
 {
    id: 1,
    title: "MongoDB Data Modeling Blog post",
@@ -393,7 +393,7 @@ MongoDB 也有自己表示这种关系的方式。事实上，有两种方式：
 
 看下面的例子：
 
-```go
+```sql
 {
    _id: 1,
    name : "Product 1",
@@ -433,7 +433,7 @@ MongoDB 也有自己表示这种关系的方式。事实上，有两种方式：
 
 在前面的例子中，我们有来自`products`集合的文档。我们可以看到，在这三个产品实例中，供应商键的值是相同的。除了这些重复的数据，我们可以有两个集合：`products`和`suppliers`，就像下面的例子中所示：
 
-```go
+```sql
 suppliers
 
 {
@@ -470,7 +470,7 @@ products
 
 在这种特殊情况下，对于供应商的少量产品，基于供应商引用产品是一个不错的选择。然而，如果情况相反，更好的方法是：
 
-```go
+```sql
 suppliers
 
 {
@@ -547,7 +547,7 @@ products
 
 +   引用数据：
 
-```go
+```sql
 customer
 { 
    "_id": 5478329cb9617c750245893b
@@ -567,7 +567,7 @@ customerDetails
 
 +   使用嵌入数据：
 
-```go
+```sql
 customer
 { 
    _id: 1
@@ -591,7 +591,7 @@ customer
 
 让我们看一个`customer`和客户的地址的例子：
 
-```go
+```sql
 customer
 { 
    _id: 1
@@ -635,7 +635,7 @@ address
 
 如果每次您想要显示客户的地址时，还需要显示客户的姓名，那么建议使用嵌入文档：
 
-```go
+```sql
 customer
 { 
    _id: 1
@@ -676,7 +676,7 @@ customer
 
 在以下代码中，我们将看到一个`user`和`group`关系的经典示例：
 
-```go
+```sql
 user
 
 {
@@ -706,7 +706,7 @@ group
 
 现在让我们在`User`文档中存储关系：
 
-```go
+```sql
 user
 
 {
@@ -753,7 +753,7 @@ group
 
 或者我们可以在`group`文档中存储关系：
 
-```go
+```sql
 user
 {
    _id: "5477fdea8ed5881af6541bf1",
@@ -799,7 +799,7 @@ group
 
 最后，让我们在两个文档中存储关系：
 
-```go
+```sql
 user
 {
    _id: "5477fdea8ed5881af6541bf1",

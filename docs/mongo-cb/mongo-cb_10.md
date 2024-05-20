@@ -60,7 +60,7 @@
 
 Java 项目名为`Mongo Java`可在该书的网站上下载。如果设置完成，只需执行以下命令即可测试该项目：
 
-```go
+```sql
 mvn compile exec:java -Dexec.mainClass=com.packtpub.mongo.cookbook.FirstMongoClient
 
 ```
@@ -71,7 +71,7 @@ mvn compile exec:java -Dexec.mainClass=com.packtpub.mongo.cookbook.FirstMongoCli
 
 1.  为副本集准备以下配置文件。这与我们在第一章 *安装和启动服务器*中的*作为副本集的一部分启动多个实例*配方中看到的配置文件相同，我们在那里设置了副本集，只有一个区别，`slaveDelay:5`，`priority:0`：
 
-```go
+```sql
 cfg = {
  _id:'repSetTest',
  members:[
@@ -89,7 +89,7 @@ cfg = {
 
 1.  转到`WriteConcernTest`项目的根目录并执行以下命令：
 
-```go
+```sql
 mvn compile exec:java -Dexec.mainClass=com.packtpub.mongo.cookbook.WriteConcernTests
 
 ```
@@ -100,7 +100,7 @@ mvn compile exec:java -Dexec.mainClass=com.packtpub.mongo.cookbook.WriteConcernT
 
 现在让我们分析前述命令执行的输出。这里不需要查看提供的 Java 类；控制台上的输出就足够了。输出控制台的一些相关部分如下：
 
-```go
+```sql
 [INFO] --- exec-maven-plugin:1.2.1:java (default-cli) @ mongo-cookbook-wctest ---
 Trying to connect to server running on port 20000
 Trying to write data in the collection with write concern {w:-1}
@@ -141,7 +141,7 @@ Caught WriteConcern exception for {w:5}, with following message { "serverUsed" :
 
 最后我们看到了超时异常。超时是使用文档的`wtimeout`字段设置的，以毫秒为单位。在我们的情况下，我们设置了 1000 毫秒的超时，即 1 秒，并且在将响应发送回客户端之前从副本集中获得确认的节点数为 5（四个从实例）。因此，我们的写关注是`{w:5, wtimeout:1000}`。由于我们的最大节点数为三个，所以将`w`设置为`5`的操作将等待很长时间，直到集群中添加了另外两个从实例。设置超时后，客户端返回并向客户端抛出错误，传达一些有趣的细节。以下是作为异常消息发送的 JSON：
 
-```go
+```sql
 { "serverUsed" : "localhost/127.0.0.1:27000" , "n" : 0 , "lastOp" : { "$ts" : 1386015030 , "$inc" : 1} , "connectionId" : 507 , "wtimeout" : true , "waited" : 1000 , "writtenTo" : [ { "_id" : 0 , "host" : "localhost:27000"} , { "_id" : 1 , "host" : "localhost:27001"}] , "err" : "timeout" , "ok" : 1.0}
 
 ```
@@ -184,7 +184,7 @@ Mongo 副本集设置了一个 secondary，它永远不会成为 primary，在�
 
 让我们看一下来自 Java 客户端（用于此目的的驱动程序为 2.11.3）的一些代码片段，并对其进行一些解释。如果我们查看`com.mongodb.TaggableReadPreference.NearestReadPreference.getNode`方法，我们会看到以下实现：
 
-```go
+```sql
 @Override
 ReplicaSetStatus.ReplicaSetNode getNode(ReplicaSetStatus.ReplicaSet set) {
   if (_tags.isEmpty())
@@ -205,7 +205,7 @@ ReplicaSetStatus.ReplicaSetNode getNode(ReplicaSetStatus.ReplicaSet set) {
 
 这个方法的名称告诉我们，有一组副本集成员，我们随机返回其中一个。那么是什么决定了集合是否包含成员？如果我们再深入一点研究这个方法，我们会在`com.mongodb.ReplicaSetStatus.ReplicaSet`类中看到以下代码行：
 
-```go
+```sql
 public ReplicaSetNode getAMember() {
   checkStatus();
   if (acceptableMembers.isEmpty()) {
@@ -219,7 +219,7 @@ public ReplicaSetNode getAMember() {
 
 现在的问题是，`acceptableMembers`列表是如何初始化的？我们看到它是在`com.mongodb.ReplicaSetStatus.ReplicaSet`类的构造函数中完成的，如下所示：
 
-```go
+```sql
 this.acceptableMembers =Collections.unmodifiableList(calculateGoodMembers(all, calculateBestPingTime(all, true),acceptableLatencyMS, true));
 ```
 
@@ -227,7 +227,7 @@ this.acceptableMembers =Collections.unmodifiableList(calculateGoodMembers(all, c
 
 值得一提的另一个参数是`acceptableLatencyMS`。这在`com.mongodb.ReplicaSetStatus.Updater`中初始化（实际上是一个不断更新副本集状态的后台线程），`acceptableLatencyMS`的值初始化如下：
 
-```go
+```sql
 slaveAcceptableLatencyMS = Integer.parseInt(System.getProperty("com.mongodb.slaveAcceptableLatencyMS", "15"));
 ```
 
@@ -235,7 +235,7 @@ slaveAcceptableLatencyMS = Integer.parseInt(System.getProperty("com.mongodb.slav
 
 这个`com.mongodb.ReplicaSetStatus.Updater`类还有一个`run`方法，定期更新副本集的统计信息。不深入研究，我们可以看到它调用`updateAll`，最终到达`com.mongodb.ConnectionStatus.UpdatableNode`中的`update`方法。
 
-```go
+```sql
 long start = System.nanoTime();
 CommandResult res = _port.runCommand(_mongo.getDB("admin"), isMasterCmd);
 long end = System.nanoTime()

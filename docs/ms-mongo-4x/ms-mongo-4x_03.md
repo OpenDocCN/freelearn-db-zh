@@ -72,7 +72,7 @@ MongoDB 使用 BSON，这是一种用于 JSON 文档的二进制编码序列化�
 
 例如，如果我们在 GBP 中有一个 32 位整数和`double`数据类型的`balance`字段，如果`balance`中有便士或没有，我们可以轻松查询所有帐户，这些帐户具有任何以下查询中显示的四舍五入的`balance`：
 
-```go
+```sql
 db.account.find( { "balance" : { $type : 16 } } );
 db.account.find( { "balance" : { $type : "integer" } } );
 ```
@@ -115,7 +115,7 @@ db.account.find( { "balance" : { $type : "integer" } } );
 
 例如，查看以下情景：
 
-```go
+```sql
 > db.types.find()
 { "_id" : ObjectId("5908d58455454e2de6519c49"), "a" : [ 1, 2, 3 ] }
 { "_id" : ObjectId("5908d59d55454e2de6519c4a"), "a" : [ 2, 5 ] }
@@ -123,7 +123,7 @@ db.account.find( { "balance" : { $type : "integer" } } );
 
 按升序排列，如下所示：
 
-```go
+```sql
 > db.types.find().sort({a:1})
 { "_id" : ObjectId("5908d58455454e2de6519c49"), "a" : [ 1, 2, 3 ] }
 { "_id" : ObjectId("5908d59d55454e2de6519c4a"), "a" : [ 2, 5 ] }
@@ -131,7 +131,7 @@ db.account.find( { "balance" : { $type : "integer" } } );
 
 然而，按降序排列，如下所示：
 
-```go
+```sql
 > db.types.find().sort({a:-1})
 { "_id" : ObjectId("5908d59d55454e2de6519c4a"), "a" : [ 2, 5 ] }
 { "_id" : ObjectId("5908d58455454e2de6519c49"), "a" : [ 1, 2, 3 ] }
@@ -139,14 +139,14 @@ db.account.find( { "balance" : { $type : "integer" } } );
 
 当比较数组与单个数字值时，也是如下示例所示。插入一个整数值为`4`的新文档的操作如下：
 
-```go
+```sql
 > db.types.insert({"a":4})
 WriteResult({ "nInserted" : 1 })
 ```
 
 以下示例显示了降序`sort`的代码片段：
 
-```go
+```sql
 > db.types.find().sort({a:-1})
 { "_id" : ObjectId("5908d59d55454e2de6519c4a"), "a" : [ 2, 5 ] }
 { "_id" : ObjectId("5908d73c55454e2de6519c4c"), "a" : 4 }
@@ -155,7 +155,7 @@ WriteResult({ "nInserted" : 1 })
 
 以下示例是升序`sort`的代码片段：
 
-```go
+```sql
 > db.types.find().sort({a:1})
 { "_id" : ObjectId("5908d58455454e2de6519c49"), "a" : [ 1, 2, 3 ] }
 { "_id" : ObjectId("5908d59d55454e2de6519c4a"), "a" : [ 2, 5 ] }
@@ -174,7 +174,7 @@ MongoDB 中的日期存储在 UTC 中。与一些关系数据库中的`timestamp
 
 在 MongoDB shell 中，可以使用以下 JavaScript 格式来完成：
 
-```go
+```sql
 var now = new Date();
 db.page_views.save({date: now,
  offset: now.getTimezoneOffset()});
@@ -182,7 +182,7 @@ db.page_views.save({date: now,
 
 然后您需要应用保存的偏移量来重建原始本地时间，就像以下示例中所示：
 
-```go
+```sql
 var record = db.page_views.findOne();
 var localNow = new Date( record.date.getTime() - ( record.offset * 60000 ) );
 ```
@@ -305,7 +305,7 @@ MongoDB 正在放宽许多在关系型数据库中找到的典型**原子性、�
 
 在 MongoDB 中，完美的类比是两个集合，`Person`和`Address`，如下代码所示：
 
-```go
+```sql
 > db.Person.findOne()
 {
 "_id" : ObjectId("590a530e3e37d79acac26a41"), "name" : "alex"
@@ -320,7 +320,7 @@ MongoDB 正在放宽许多在关系型数据库中找到的典型**原子性、�
 
 现在，我们可以像在关系数据库中一样使用相同的模式从`address`中查找`Person`，如下例所示：
 
-```go
+```sql
 > db.Person.find({"_id": db.Address.findOne({"address":"N29DD"}).person_id})
 {
 "_id" : ObjectId("590a530e3e37d79acac26a41"), "name" : "alex"
@@ -333,13 +333,13 @@ MongoDB 正在放宽许多在关系型数据库中找到的典型**原子性、�
 
 在 MongoDB 中，我们通常会通过嵌入来建模一对一或一对多的关系。如果一个人有两个地址，那么同样的例子将如下所示：
 
-```go
+```sql
 { "_id" : ObjectId("590a55863e37d79acac26a43"), "name" : "alex", "address" : [ "N29DD", "SW1E5ND" ] }
 ```
 
 使用嵌入数组，我们可以访问此用户拥有的每个`address`。嵌入查询丰富而灵活，因此我们可以在每个文档中存储更多信息，如下例所示：
 
-```go
+```sql
 { "_id" : ObjectId("590a56743e37d79acac26a44"),
 "name" : "alex",
 "address" : [ { "description" : "home", "postcode" : "N29DD" },
@@ -362,7 +362,7 @@ MongoDB 正在放宽许多在关系型数据库中找到的典型**原子性、�
 
 1.  从关系的*一*方，存储多边元素的数组，如下例所示：
 
-```go
+```sql
 > db.Person.findOne()
 { "_id" : ObjectId("590a530e3e37d79acac26a41"), "name" : "alex", addresses:
 [ ObjectID('590a56743e37d79acac26a44'),
@@ -372,7 +372,7 @@ ObjectID('590a56743e37d79acac26a54') ] }
 
 1.  这样我们可以从一方获取`addresses`数组，然后使用`in`查询获取多方的所有文档，如下例所示：
 
-```go
+```sql
 > person = db.Person.findOne({"name":"mary"})
 > addresses = db.Addresses.find({_id: {$in: person.addresses} })
 ```
@@ -381,7 +381,7 @@ ObjectID('590a56743e37d79acac26a54') ] }
 
 1.  从关系的多方，存储对一方的引用，如下例所示：
 
-```go
+```sql
 > db.Address.find()
 { "_id" : ObjectId("590a55863e37d79acac26a44"), "person":  ObjectId("590a530e3e37d79acac26a41"), "address" : [ "N29DD" ] }
 { "_id" : ObjectId("590a55863e37d79acac26a46"), "person":  ObjectId("590a530e3e37d79acac26a41"), "address" : [ "SW1E5ND" ] }
@@ -398,7 +398,7 @@ ObjectID('590a56743e37d79acac26a54') ] }
 
 关键字搜索的基本需求是能够搜索整个文档中的关键字。例如，在`products`集合中的文档，如下例所示：
 
-```go
+```sql
 { name : "Macbook Pro late 2016 15in" ,
   manufacturer : "Apple" ,
   price: 2000 ,
@@ -408,7 +408,7 @@ ObjectID('590a56743e37d79acac26a54') ] }
 
 我们可以在`keywords`字段中创建多键索引，如下例所示：
 
-```go
+```sql
 > db.products.createIndex( { keywords: 1 } )
 ```
 
@@ -418,7 +418,7 @@ ObjectID('590a56743e37d79acac26a54') ] }
 
 在三个字段上声明具有自定义`权重`的索引如下例所示：
 
-```go
+```sql
 db.products.createIndex({
  name: "text",
  manufacturer: "text",
@@ -436,7 +436,7 @@ db.products.createIndex({
 
 可以使用通配符声明`text`索引，匹配与模式匹配的所有字段，如下例所示：
 
-```go
+```sql
 db.collection.createIndex( { "$**": "text" } )
 ```
 
@@ -456,7 +456,7 @@ Ruby 是第一批得到 MongoDB 官方驱动程序支持的语言之一。在 Gi
 
 1.  安装就像将其添加到 Gemfile 一样简单，如下例所示：
 
-```go
+```sql
 gem 'mongo', '~> 2.6'
 ```
 
@@ -464,14 +464,14 @@ gem 'mongo', '~> 2.6'
 
 1.  然后，在我们的类中，我们可以连接到数据库，如下例所示：
 
-```go
+```sql
 require 'mongo'
 client = Mongo::Client.new([ '127.0.0.1:27017' ], database: 'test')
 ```
 
 1.  这是可能的最简单的例子：连接到我们的`localhost`中名为`test`的单个数据库实例。在大多数情况下，我们至少会有一个副本集要连接，如下面的代码片段所示：
 
-```go
+```sql
 client_host = ['server1_hostname:server1_ip, server2_hostname:server2_ip']
  client_options = {
   database: 'YOUR_DATABASE_NAME',
@@ -496,13 +496,13 @@ ODM 可以是这些问题的答案。就像 ORM 一样，ODM 弥合了我们的�
 
 安装`gem`类似于 Mongo Ruby 驱动程序，通过在 Gemfile 中添加一个文件，如下面的代码所示：
 
-```go
+```sql
 gem 'mongoid', '~> 7.0'
 ```
 
 根据 Rails 的版本，我们可能还需要将以下内容添加到`application.rb`中：
 
-```go
+```sql
 config.generators do |g|
 g.orm :mongoid
 end
@@ -527,7 +527,7 @@ end
 
 下一步是修改我们的模型以存储在 MongoDB 中。这就像在模型声明中包含一行代码那样简单，如下例所示：
 
-```go
+```sql
 class Person
   include Mongoid::Document
  End
@@ -535,7 +535,7 @@ class Person
 
 我们还可以使用以下代码：
 
-```go
+```sql
 include Mongoid::Timestamps
 ```
 
@@ -579,7 +579,7 @@ include Mongoid::Timestamps
 
 以下代码是使用 Mongoid 模型进行继承的示例：
 
-```go
+```sql
 class Canvas
   include Mongoid::Document
   field :name, type: String
@@ -613,21 +613,21 @@ end
 
 使用 `pip` 或 `easy_install` 安装 PyMongo，如下代码所示：
 
-```go
+```sql
 python -m pip install pymongo
 python -m easy_install pymongo
 ```
 
 然后，在我们的类中，我们可以连接到数据库，如下例所示：
 
-```go
+```sql
 >>> from pymongo import MongoClient
 >>> client = MongoClient()
 ```
 
 连接到副本集需要一组种子服务器，客户端可以找出集合中的主、从或仲裁节点，如下例所示：
 
-```go
+```sql
 client = pymongo.MongoClient('mongodb://user:passwd@node1:p1,node2:p2/?replicaSet=rsname')
 ```
 
@@ -639,13 +639,13 @@ client = pymongo.MongoClient('mongodb://user:passwd@node1:p1,node2:p2/?replicaSe
 
 与 Ruby 的 Mongoid 类似，PyMODM 是 Python 的 ODM，紧随 Django 内置的 ORM。通过 `pip` 安装 `pymodm`，如下代码所示：
 
-```go
+```sql
 pip install pymodm
 ```
 
 然后我们需要编辑 `settings.py`，将数据库 `ENGINE` 替换为 `dummy` 数据库，如下代码所示：
 
-```go
+```sql
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.dummy'
@@ -655,14 +655,14 @@ DATABASES = {
 
 然后我们在 `settings.py` 的任何位置添加我们的连接字符串，如下代码所示：
 
-```go
+```sql
 from pymodm import connect
 connect("mongodb://localhost:27017/myDatabase", alias="MyApplication")
 ```
 
 在这里，我们必须使用具有以下结构的连接字符串：
 
-```go
+```sql
 mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database][?options]]
 ```
 
@@ -682,7 +682,7 @@ mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][
 
 模型类需要继承自`MongoModel`。以下代码显示了一个示例类的样子：
 
-```go
+```sql
 from pymodm import MongoModel, fields
 class User(MongoModel):
     email = fields.EmailField(primary_key=True)
@@ -696,7 +696,7 @@ class User(MongoModel):
 
 在 MongoDB 中处理一对一和一对多关系可以使用引用或嵌入。下面的例子展示了两种方式，即用户模型的引用和评论模型的嵌入：
 
-```go
+```sql
 from pymodm import EmbeddedMongoModel, MongoModel, fields
 
 class Comment(EmbeddedMongoModel):
@@ -723,13 +723,13 @@ class Post(MongoModel):
 
 安装是一个两步过程。首先，我们需要安装 MongoDB 扩展。这个扩展依赖于我们安装的 PHP（或 HHVM）的版本，可以使用 macOS 中的`brew`来完成。以下示例是使用 PHP 7.0：
 
-```go
+```sql
 brew install php70-mongodb
 ```
 
 然后，像下面的例子一样使用`composer`（PHP 中广泛使用的依赖管理器）：
 
-```go
+```sql
 composer require mongodb/mongodb
 ```
 
@@ -737,19 +737,19 @@ composer require mongodb/mongodb
 
 使用连接字符串 URL，我们有以下代码：
 
-```go
+```sql
 $client = new MongoDB\Client($uri = 'mongodb://127.0.0.1/', array $uriOptions = [], array $driverOptions = [])
 ```
 
 例如，要使用 SSL 身份验证连接到副本集，我们使用以下代码：
 
-```go
+```sql
 $client = new MongoDB\Client('mongodb://myUsername:myPassword@rs1.example.com,rs2.example.com/?ssl=true&replicaSet=myReplicaSet&authSource=admin');
 ```
 
 或者我们可以使用`$uriOptions`参数来传递参数，而不使用连接字符串 URL，如下面的代码所示：
 
-```go
+```sql
 $client = new MongoDB\Client(
  'mongodb://rs1.example.com,rs2.example.com/'
  [
@@ -770,7 +770,7 @@ $client = new MongoDB\Client(
 
 Doctrine 实体是**Plain Old PHP Objects**（**POPO**），与**Eloquent**不同，Laravel 的默认 ORM 不需要继承`Model`类。Doctrine 使用**Data Mapper Pattern**，而 Eloquent 使用 Active Record。跳过`get()`和`set()`方法，一个简单的类将如下所示：
 
-```go
+```sql
 use Doctrine\ORM\Mapping AS ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 /**
@@ -828,7 +828,7 @@ class Scientist
 
 可以通过注释、YAML 或 XML 来建模一对一和一对多关系。使用注释，我们可以在我们的文档中定义多个嵌入的子文档，如下例所示：
 
-```go
+```sql
 /** @Document */
 class User
 {
@@ -848,7 +848,7 @@ class Phonenumber
 
 引用与嵌入类似，如下例所示：
 
-```go
+```sql
 /** @Document */
 class User
 {

@@ -48,7 +48,7 @@
 
 让我们以以下`products`集合为例：
 
-```go
+```sql
 {
  "_id": ObjectId("54bee5c49a5bc523007bb779"),
  "name": "Product 1",
@@ -104,14 +104,14 @@
 
 正如我们已经看到的，当集合被创建时，`_id`字段上会自动添加一个索引。为了获取集合中的所有文档，我们将在 mongod shell 中执行以下查询：
 
-```go
+```sql
 db.products.find({price: {$gt: 65}})
 
 ```
 
 查询的结果将是以下内容：
 
-```go
+```sql
 {
  "_id": ObjectId("54bee5c49a5bc523007bb77d"),
  "name": "Product 5",
@@ -132,14 +132,14 @@ db.products.find({price: {$gt: 65}})
 
 为了帮助您理解 MongoDB 是如何得出这个结果的，让我们在通过`find`命令返回的游标上使用`explain`方法：
 
-```go
+```sql
 db.products.find({price: {$gt: 65}}).explain("executionStats")
 
 ```
 
 这个操作的结果是一个包含有关所选查询计划信息的文档：
 
-```go
+```sql
 {
  "queryPlanner" : {
  "plannerVersion" : 1,
@@ -213,14 +213,14 @@ db.products.find({price: {$gt: 65}}).explain("executionStats")
 
 如果我们为我们的集合的`price`字段创建一个索引会发生什么？让我们看看：
 
-```go
+```sql
 db.products.createIndex({price: 1})
 
 ```
 
 显然，查询结果将是在先前执行中返回的相同的三个文档。然而，`explain`命令的结果将是以下内容：
 
-```go
+```sql
 {
  "queryPlanner" : {
  "plannerVersion" : 1,
@@ -283,21 +283,21 @@ db.products.createIndex({price: 1})
 
 在前一节中所示的示例中，我们创建了`products`集合的`price`字段的索引：
 
-```go
+```sql
 db.products.createIndex({price: 1})
 
 ```
 
 当我们执行以下查询时，该查询检索`price`字段的值大于`65`的文档，但投影中排除了结果中的`_id`字段，只包括`price`字段，我们将得到与之前显示的结果不同的结果：
 
-```go
+```sql
 db.products.find({price: {$gt: 65}}, {price: 1, _id: 0})
 
 ```
 
 结果将是：
 
-```go
+```sql
 { "price" : 69 }
 { "price" : 71 }
 { "price" : 89 }
@@ -306,7 +306,7 @@ db.products.find({price: {$gt: 65}}, {price: 1, _id: 0})
 
 然后我们使用`explain`命令分析查询，如下所示：
 
-```go
+```sql
 db.products.explain("executionStats")
 .find({price: {$gt: 65}}, {price: 1, _id: 0})
 
@@ -314,7 +314,7 @@ db.products.explain("executionStats")
 
 通过这样做，我们还得到了与之前示例不同的结果：
 
-```go
+```sql
 {
  "queryPlanner" : {
  "plannerVersion" : 1,
@@ -366,7 +366,7 @@ db.products.explain("executionStats")
 
 考虑以下`customers`集合：
 
-```go
+```sql
 {
  "_id": ObjectId("54bf0d719a5bc523007bb78f"),
  "username": "customer1",
@@ -422,14 +422,14 @@ db.products.explain("executionStats")
 
 并且创建了`followedSellers`字段的索引，执行以下命令在 mongod shell 上：
 
-```go
+```sql
 db.customers.createIndex({followedSellers: 1})
 
 ```
 
 如果我们在 mongod shell 上执行以下查询，该查询应该被索引覆盖，因为我们在查询条件中使用了`followedSellers`：
 
-```go
+```sql
 db.customers.find(
 {
  followedSellers: {
@@ -443,7 +443,7 @@ db.customers.find(
 
 当我们使用 mongod shell 上的`explain`命令分析此查询以查看查询是否被索引覆盖时，我们可以观察到：
 
-```go
+```sql
 db.customers.explain("executionStats").find(
 {
  followedSellers: {
@@ -457,7 +457,7 @@ db.customers.explain("executionStats").find(
 
 我们有以下文档作为结果。我们可以看到，尽管在条件中使用了索引中的字段并将结果限制为此字段，但返回的输出将`FETCH`阶段作为`IXSCAN`阶段的父级。此外，`totalDocsExamined`和`totalKeysExamined`的值是不同的：
 
-```go
+```sql
 {
  "queryPlanner" : {
  "plannerVersion" : 1,
@@ -504,14 +504,14 @@ db.customers.explain("executionStats").find(
 
 让我们使用`supplier.name`字段的索引检查已经在第四章中使用的`products`集合的示例：
 
-```go
+```sql
 db.products.createIndex({"supplier.name": 1})
 
 ```
 
 以下查询将不被索引覆盖：
 
-```go
+```sql
 db.products.find(
  {"supplier.name": "Supplier 1"}, 
  {"supplier.name": 1, _id: 0}
@@ -537,7 +537,7 @@ db.products.find(
 
 在本章前面使用的相同的`products`集合中，以下查询将通过相同的查询计划运行，因为它们具有相同的模式：
 
-```go
+```sql
 db.products.find({name: 'Product 1'})
 db.products.find({name: 'Product 5'})
 
@@ -549,7 +549,7 @@ db.products.find({name: 'Product 5'})
 
 假设我们的先前的`products`集合中有这些索引：
 
-```go
+```sql
 db.products.createIndex({name: 1, price: -1})
 db.products.createIndex({price: -1})
 
@@ -557,21 +557,21 @@ db.products.createIndex({price: -1})
 
 如果我们想检索所有`price`字段值大于 10 的产品，并按`name`字段降序排序，可以使用以下命令来执行：
 
-```go
+```sql
 db.products.find({price: {$gt: 10}}).sort({name: -1})
 
 ```
 
 查询优化器选择的索引将是在`name`和`price`字段上创建的索引，我们可以通过运行`explain()`方法来查看：
 
-```go
+```sql
 db.products.explain("executionStats").find({price: {$gt: 10}}).sort({name: -1})
 
 ```
 
 结果是：
 
-```go
+```sql
 {
  "queryPlanner" : {
  "plannerVersion" : 1,
@@ -612,7 +612,7 @@ db.products.explain("executionStats").find({price: {$gt: 10}}).sort({name: -1})
 
 然而，我们只能强制使用`price`字段的索引，如下所示：
 
-```go
+```sql
 db.products.find(
  {price: {$gt: 10}}
 ).sort({name: -1}).hint({price: -1})
@@ -621,7 +621,7 @@ db.products.find(
 
 为了确定，我们使用`explain`方法：
 
-```go
+```sql
 db.products.explain("executionStats").find(
  {price: {$gt: 10}}).sort({name: -1}
 ).hint({price: -1})
@@ -630,7 +630,7 @@ db.products.explain("executionStats").find(
 
 这产生了以下文档：
 
-```go
+```sql
 {
  "queryPlanner" : {
  "plannerVersion" : 1,
@@ -686,7 +686,7 @@ db.products.explain("executionStats").find(
 
 假设我们有一个包含三个节点的副本集：`rs1s1`、`rs1s2`和`rs1s3`，`rs1s1`是主节点，`rs1s2`和`rs1s3`是辅助节点。要执行一个读操作并强制在辅助节点上进行读取，我们可以这样做：
 
-```go
+```sql
 db.customers.find().readPref({mode: 'secondary'})
 
 ```

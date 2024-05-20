@@ -112,21 +112,21 @@ MongoDB 准备好了进行水平扩展。这是通过分片技术来实现的。
 
 作为第一步，让我们启动一个配置服务器实例。配置服务器只是一个带有初始化参数`--configsvr`的`mongod`实例。如果我们不为参数`--port <port number>`设置一个值，它将默认在端口 27019 上启动：
 
-```go
+```sql
 mongod --fork --configsvr --dbpath /data/configdb --logpath /log/configdb.log
 
 ```
 
 下一步是启动查询路由器。查询路由器是一个`mongos` MongoDB 实例，它使用参数`--configdb <configdb hostname or ip:port>`来将查询和写操作路由到分片，该参数指示配置服务器。默认情况下，MongoDB 在端口 27017 上启动它：
 
-```go
+```sql
 mongos --fork --configdb localhost --logpath /log/router.log
 
 ```
 
 最后，让我们启动分片。在这个例子中，分片将是两个简单的`mongod`实例。与`mongos`类似，`mongod`实例默认在端口 27017 上启动。由于我们已经在这个端口上启动了`mongos`实例，让我们为`mongod`实例设置一个不同的端口：
 
-```go
+```sql
 mongod --fork --dbpath /data/mongod1 --port 27001 --logpath /log/mongod1.log
 mongod --fork --dbpath /data/mongod2 --port 27002 --logpath /log/mongod2.log
 
@@ -134,14 +134,14 @@ mongod --fork --dbpath /data/mongod2 --port 27002 --logpath /log/mongod2.log
 
 完成！现在我们为测试分片集群建立了基本的基础设施。但是，等等！我们还没有一个分片集群。下一步是向集群添加分片。为此，我们必须将已经启动的`mongos`实例连接到查询路由器：
 
-```go
+```sql
 mongo localhost:27017
 
 ```
 
 一旦在`mongos` shell 中，我们必须以以下方式执行`addShard`方法：
 
-```go
+```sql
 mongos> sh.addShard("localhost:27001")
 mongos> sh.addShard("localhost:27002")
 
@@ -149,7 +149,7 @@ mongos> sh.addShard("localhost:27002")
 
 如果我们想要检查前面操作的结果，我们可以执行`status()`命令，并查看关于创建的分片的一些信息：
 
-```go
+```sql
 mongos> sh.status()
 --- Sharding Status --- 
  sharding version: {
@@ -170,14 +170,14 @@ mongos> sh.status()
 
 现在我们有了分片、配置服务器和查询路由器，让我们在数据库中启用分片。在对集合进行相同操作之前，必须先在数据库中启用分片。以下命令在名为`ecommerce`的数据库中启用分片：
 
-```go
+```sql
 mongos> sh.enableSharding("ecommerce")
 
 ```
 
 通过查询分片集群的状态，我们可以注意到我们有关于我们的`ecommerce`数据库的信息：
 
-```go
+```sql
 mongos> sh.status()
 --- Sharding Status --- 
  sharding version: {
@@ -197,7 +197,7 @@ mongos> sh.status()
 
 考虑一下，在`ecommerce`数据库中，我们有一个`customers`集合，其中包含以下文档：
 
-```go
+```sql
 {
  "_id" : ObjectId("54fb7110e7084a229a66eda2"),
  "isActive" : true,
@@ -237,7 +237,7 @@ mongos> sh.status()
 
 通过在`mongos` shell 中执行以下命令来启用`customers`集合中的分片：
 
-```go
+```sql
 mongos> sh.shardCollection("ecommerce.customers", {"address.zip": 1, "registered": 1})
 {
  "proposedKey" : {
@@ -262,7 +262,7 @@ mongos> sh.shardCollection("ecommerce.customers", {"address.zip": 1, "registered
 
 正如你所看到的，命令执行过程中出现了一些问题。MongoDB 警告我们必须有一个索引，并且分片键必须是一个前缀。因此，我们必须在`mongos` shell 上执行以下序列：
 
-```go
+```sql
 mongos> db.customers.createIndex({"address.zip": 1, "registered": 1})
 mongos> sh.shardCollection("ecommerce.customers", {"address.zip": 1, "registered": 1})
 { "collectionsharded" : "ecommerce.customers", "ok" : 1 }
@@ -327,7 +327,7 @@ mongos> sh.shardCollection("ecommerce.customers", {"address.zip": 1, "registered
 
 在下面的文件中，我们可以看到一个从约翰发送给迈克和比莉的消息的示例：
 
-```go
+```sql
 {
 from: "John", 
 to: ["Mike", "Billie"], 
@@ -341,14 +341,14 @@ message: "Hey Mike, Billie"
 
 要在数据库上启用分片，我们的“收件箱”集合位于一个名为`social`的数据库中。为了做到这一点，以及我们在本章中将要做的所有其他事情，我们将使用`mongos` shell。所以，让我们开始吧：
 
-```go
+```sql
 mongos> sh.enableSharding("social")
 
 ```
 
 现在，我们将不得不创建集合的分片键。为了实现这个设计，我们将使用“收件箱”集合的`from`字段创建一个分片键：
 
-```go
+```sql
 mongos> sh.shardCollection("social.inbox", {from: 1})
 
 ```
@@ -359,14 +359,14 @@ mongos> sh.shardCollection("social.inbox", {from: 1})
 
 最后一步是在`to`和`sent`字段上创建一个复合索引，以寻求更好的读操作性能：
 
-```go
+```sql
 mongos> db.inbox.createIndex({to: 1, sent: 1})
 
 ```
 
 我们现在准备好在我们的“收件箱”集合中发送和读取消息了。在`mongos` shell 上，让我们创建一条消息并将其发送给接收者：
 
-```go
+```sql
 mongos> var msg = {
 from: "John", 
 to: ["Mike", "Billie"], 
@@ -379,7 +379,7 @@ mongos> db.inbox.insert(msg); // this command inserts the message on the inbox c
 
 如果我们想读取迈克的收件箱，我们应该使用以下命令：
 
-```go
+```sql
 mongos> db.inbox.find({to: "Mike"}).sort({sent: -1})
 
 ```
@@ -396,14 +396,14 @@ mongos> db.inbox.find({to: "Mike"}).sort({sent: -1})
 
 为了实现扇出写而不是在发送者上进行分片，我们将在消息的接收者上进行分片。以下命令在“收件箱”集合中创建了分片键：
 
-```go
+```sql
 mongos> sh.shardCollection("social.inbox", {recipient: 1, sent: 1})
 
 ```
 
 我们将使用在扇出读设计中使用的相同文档。因此，要将一条消息从约翰发送给迈克和比莉，我们将在`mongos` shell 中执行以下命令：
 
-```go
+```sql
 mongos> var msg = {
  "from": "John",
  "to": ["Mike", "Billie"], // recipients
@@ -422,7 +422,7 @@ db.inbox.insert(msg); // inserts the msg document for every recipient
 
 +   我们应该做的第一件事是创建一个`msg`变量，并在那里存储一个 JSON 消息：
 
-```go
+```sql
 var msg = {
  "from": "John",
  "to": ["Mike", "Billie"], // recipients
@@ -434,7 +434,7 @@ var msg = {
 
 +   要向每个接收者发送消息，我们必须迭代`to`字段中的值，在消息 JSON 中创建一个新字段`msg.recipient`，并存储消息的接收者：
 
-```go
+```sql
 for(recipient in msg.to){
 msg.recipient = msg.to[recipient];
 
@@ -442,7 +442,7 @@ msg.recipient = msg.to[recipient];
 
 +   最后，我们将消息插入“收件箱”集合中：
 
-```go
+```sql
 db.inbox.insert(msg); 
 }
 
@@ -450,7 +450,7 @@ db.inbox.insert(msg);
 
 对于消息的每个接收者，我们将在“收件箱”集合中插入一个新文档。在`mongos` shell 上执行的以下命令显示了迈克的收件箱：
 
-```go
+```sql
 mongos> db.inbox.find ({recipient: "Mike"}).sort({ sent:-1})
 {
  "_id": ObjectId("54fe6319b40b90bd157eb0b8"),
@@ -468,7 +468,7 @@ mongos> db.inbox.find ({recipient: "Mike"}).sort({ sent:-1})
 
 由于消息同时有迈克和比莉作为接收者，我们也可以阅读比莉的收件箱：
 
-```go
+```sql
 mongos> db.inbox.find ({recipient: "Billie"}).sort({ sent:-1})
 {
  "_id": ObjectId("54fe6319b40b90bd157eb0b9"),
@@ -506,7 +506,7 @@ mongos> db.inbox.find ({recipient: "Billie"}).sort({ sent:-1})
 
 在我们的示例中，每个桶将有 50 条消息。以下命令将在社交数据库上启用分片，并在`inbox`集合中创建分片键：
 
-```go
+```sql
 mongos> sh.enableSharding("social")
 mongos> sh.shardCollection("social.inbox", {owner: 1, sequence: 1})
 
@@ -514,14 +514,14 @@ mongos> sh.shardCollection("social.inbox", {owner: 1, sequence: 1})
 
 正如之前提到的，我们还有一个`users`集合。以下命令在`user`集合中创建一个分片键：
 
-```go
+```sql
 mongos> sh.shardCollection("social.users", {user_name: 1})
 
 ```
 
 现在我们已经创建了分片键，让我们从 John 发送一条消息给 Mike 和 Billie。消息文档将与之前的非常相似。它们之间的区别在于`owner`和`sequence`字段。在`mongos` shell 上执行以下代码将从 John 发送一条消息给 Mike 和 Billie：
 
-```go
+```sql
 mongos> var msg = { 
  "from": "John",
  "to": ["Mike", "Billie"], //recipients

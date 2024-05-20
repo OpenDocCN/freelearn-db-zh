@@ -30,14 +30,14 @@ Hadoop 有各种发行版；但是，我们将使用 Apache Hadoop ([`hadoop.apa
 
 1.  我们将首先安装 Java、Hadoop 和所需的软件包。我们将从在操作系统上安装 JDK 开始。在操作系统的命令提示符上键入以下内容：
 
-```go
+```sql
 $ javac –version
 
 ```
 
 1.  如果程序无法执行，并告知您包含 javac 和程序的各种软件包，则需要按照以下方式安装 Java：
 
-```go
+```sql
 $ sudo apt-get install default-jdk
 
 ```
@@ -48,7 +48,7 @@ $ sudo apt-get install default-jdk
 
 1.  在下载`.tar.gz`文件后，在命令提示符上执行以下操作：
 
-```go
+```sql
 $ tar –xvzf <name of the downloaded .tar.gz file>
 $ cd <extracted directory>
 
@@ -58,7 +58,7 @@ $ cd <extracted directory>
 
 现在，我们将在本地文件系统上从 GitHub 获取 mongo-hadoop 连接器代码。请注意，您无需 GitHub 帐户即可克隆存储库。请按照以下操作系统命令提示符中的 Git 项目进行克隆：
 
-```go
+```sql
 $git clone https://github.com/mongodb/mongo-hadoop.git
 $cd mongo-hadoop 
 
@@ -66,14 +66,14 @@ $cd mongo-hadoop
 
 1.  创建软链接- Hadoop 安装目录与我们在第 3 步中提取的目录相同：
 
-```go
+```sql
 $ln –s <hadoop installation directory> ~/hadoop-binaries
 
 ```
 
 例如，如果 Hadoop 在主目录中提取/安装，则应执行以下命令：
 
-```go
+```sql
 $ln –s ~/hadoop-2.4.0 ~/hadoop-binaries
 
 ```
@@ -82,7 +82,7 @@ $ln –s ~/hadoop-2.4.0 ~/hadoop-binaries
 
 1.  现在，我们将从源代码为 Apache Hadoop 版本 2.4.0 构建 mongo-hadoop 连接器。默认情况下，构建最新版本，因此现在可以省略`-Phadoop_version`参数，因为 2.4 是最新版本。
 
-```go
+```sql
 $./gradlew jar –Phadoop_version='2.4'
 
 ```
@@ -93,14 +93,14 @@ $./gradlew jar –Phadoop_version='2.4'
 
 1.  假设`mongod`实例正在运行并监听端口`27017`进行连接，并且当前目录是 mongo-hadoop 连接器代码库的根目录，请执行以下命令：
 
-```go
+```sql
 $ mongoimport -c yield_historical.in -d mongo_hadoop --drop examples/treasury_yield/src/main/resources/yield_historical_in.json
 
 ```
 
 1.  导入操作成功后，我们需要将两个 jar 文件复制到`lib`目录中。在操作系统 shell 中执行以下操作：
 
-```go
+```sql
 $ wget http://repo1.maven.org/maven2/org/mongodb/mongo-java-driver/2.12.0/mongo-java-driver-2.12.0.jar
 $ cp core/build/libs/mongo-hadoop-core-1.2.1-SNAPSHOT-hadoop_2.4.jar ~/hadoop-binaries/hadoop-2.4.0/lib/
 $ mv mongo-java-driver-2.12.0.jar ~/hadoop-binaries/hadoop-2.4.0/lib
@@ -113,21 +113,21 @@ $ mv mongo-java-driver-2.12.0.jar ~/hadoop-binaries/hadoop-2.4.0/lib
 
 1.  现在，在操作系统 shell 的命令提示符上执行以下命令：
 
-```go
+```sql
  ~/hadoop-binaries/hadoop-2.4.0/bin/hadoop     jar     examples/treasury_yield/build/libs/treasury_yield-1.2.1-SNAPSHOT-hadoop_2.4.jar  \com.mongodb.hadoop.examples.treasury.TreasuryYieldXMLConfig  \-Dmongo.input.split_size=8     -Dmongo.job.verbose=true  \-Dmongo.input.uri=mongodb://localhost:27017/mongo_hadoop.yield_historical.in  \-Dmongo.output.uri=mongodb://localhost:27017/mongo_hadoop.yield_historical.out
 
 ```
 
 1.  输出应该打印出很多内容；但是，输出中的以下行告诉我们 MapReduce 作业成功：
 
-```go
+```sql
  14/05/11 21:38:54 INFO mapreduce.Job: Job job_local1226390512_0001 completed successfully
 
 ```
 
 1.  从 mongo 客户端连接运行在本地主机上的`mongod`实例，并对以下集合执行查找：
 
-```go
+```sql
 $ mongo
 > use mongo_hadoop
 switched to db mongo_hadoop
@@ -147,7 +147,7 @@ switched to db mongo_hadoop
 
 有一个静态块，从两个 XML 文件`hadoop-local.xml`和`mongo-defaults.xml`中加载一些配置。这些文件（或任何 XML 文件）的格式如下。文件的根节点是具有多个属性节点的配置节点：
 
-```go
+```sql
 <configuration>
   <property>
     <name>{property name}</name> 
@@ -161,7 +161,7 @@ switched to db mongo_hadoop
 
 现在我们将看一下`mapper`和`reducer`类的实现。我们将在这里复制类的重要部分以进行分析。有关整个实现，请参考克隆的项目：
 
-```go
+```sql
 public class TreasuryYieldMapper
     extends Mapper<Object, BSONObject, IntWritable, DoubleWritable> {
 
@@ -181,7 +181,7 @@ public class TreasuryYieldMapper
 
 让我们来看一下 reducer 的实现（删除了日志记录语句）：
 
-```go
+```sql
 public class TreasuryYieldReducer extends Reducer<IntWritable, DoubleWritable, IntWritable, BSONWritable> {
 
     @Override
@@ -224,7 +224,7 @@ public class TreasuryYieldReducer extends Reducer<IntWritable, DoubleWritable, I
 
 请参考之前的*使用 mongo-hadoop 连接器执行我们的第一个样本 MapReduce 作业*食谱来设置 mongo-hadoop 连接器。此食谱的先决条件和第三章中的*使用 Java 客户端在 Mongo 中执行 MapReduce*食谱是我们此食谱所需的全部内容。这是一个 maven 项目，因此需要设置和安装 maven。请参考第一章中的*从 Java 客户端连接到单节点*食谱，在那里我们提供了在 Windows 上设置 maven 的步骤；该项目是在 Ubuntu Linux 上构建的，以下是您需要在操作系统 shell 中执行的命令：
 
-```go
+```sql
 $ sudo apt-get install maven
 
 ```
@@ -235,7 +235,7 @@ $ sudo apt-get install maven
 
 1.  在项目根目录中的当前目录中的命令提示符下，执行以下命令：
 
-```go
+```sql
 $ mvn clean package
 
 ```
@@ -244,7 +244,7 @@ $ mvn clean package
 
 1.  假设 CSV 文件已经导入到`postalCodes`集合中，请在仍然位于我们刚构建的`mongo-hadoop-mapreduce-test`项目根目录中的当前目录中执行以下命令：
 
-```go
+```sql
 ~/hadoop-binaries/hadoop-2.4.0/bin/hadoop \
  jar target/mongo-hadoop-mapreduce-test-1.0.jar \
  com.packtpub.mongo.cookbook.TopStateMapReduceEntrypoint \
@@ -257,7 +257,7 @@ $ mvn clean package
 
 1.  MapReduce 作业完成后，通过在操作系统命令提示符上键入以下内容打开 mongo shell，并在 shell 中执行以下查询：
 
-```go
+```sql
 $ mongo
 > db.postalCodesHadoopmrOut.find().sort({count:-1}).limit(5)
 
@@ -269,13 +269,13 @@ $ mongo
 
 我们将类保持得非常简单，只包含我们需要的最少内容。我们的项目中只有三个类：`TopStateMapReduceEntrypoint`、`TopStateReducer`和`TopStatesMapper`，都在同一个`com.packtpub.mongo.cookbook`包中。mapper 的`map`函数只是将键值对写入上下文，其中键是州的名称，值是整数值 1。以下是来自`mapper`函数的代码片段：
 
-```go
+```sql
 context.write(new Text((String)value.get("state")), new IntWritable(1));
 ```
 
 Reducer 获得的是相同的键，即州的列表和整数值，为 1。我们所做的就是将相同州的名称和可迭代的总和写入上下文。现在，由于在 Iterable 中没有 size 方法可以在常数时间内给出计数，我们只能在线性时间内将所有得到的 1 相加。以下是 reducer 方法中的代码：
 
-```go
+```sql
 int sum = 0;
 for(IntWritable value : values) {
   sum += value.get();
@@ -287,7 +287,7 @@ context.write(text, new BSONWritable(object));
 
 我们将文本字符串写入键，将包含计数的 JSON 文档写入上下文。然后，mongo-hadoop 连接器负责将`postalCodesHadoopmrOut`文档写入我们拥有的输出集合，其中`_id`字段与发射的键相同。因此，当我们执行以下操作时，我们将获得数据库中拥有最多城市的前五个州：
 
-```go
+```sql
 > db. postalCodesHadoopmrOut.find().sort({count:-1}).limit(5)
 { "_id" : "Maharashtra", "count" : 6446 }
 { "_id" : "Kerala", "count" : 4684 }
@@ -299,7 +299,7 @@ context.write(text, new BSONWritable(object));
 
 最后，主入口类的主方法如下：
 
-```go
+```sql
 Configuration conf = new Configuration();
 MongoConfig config = new MongoConfig(conf);
 config.setInputFormat(MongoInputFormat.class);
@@ -335,7 +335,7 @@ ToolRunner.run(conf, new TopStateMapReduceEntrypoint(), args);
 
 1.  我们将首先从源代码构建 pymongo-hadoop。将项目克隆到本地文件系统后，在克隆项目的根目录中执行以下操作：
 
-```go
+```sql
 $ cd streaming/language_support/python
 $ sudo python setup.py install
 
@@ -345,14 +345,14 @@ $ sudo python setup.py install
 
 1.  这就是我们需要从源代码构建 pymongo-hadoop 的全部内容。但是，如果您选择不从源代码构建，可以在操作系统 shell 中执行以下命令：
 
-```go
+```sql
 $ sudo pip install pymongo_hadoop
 
 ```
 
 1.  以任何方式安装 pymongo-hadoop 后，我们将在 Python 中实现我们的`mapper`和`reducer`函数。`mapper`函数如下：
 
-```go
+```sql
 #!/usr/bin/env python
 
 import sys
@@ -368,7 +368,7 @@ BSONMapper(mapper)
 
 1.  现在是`reducer`函数，将如下所示：
 
-```go
+```sql
 #!/usr/bin/env python
 
 import sys
@@ -385,7 +385,7 @@ BSONReducer(reducer)
 
 1.  环境变量`$HADOOP_HOME`和`$HADOOP_CONNECTOR_HOME`应该分别指向 Hadoop 和 mongo-hadoop 连接器项目的基本目录。现在，我们将在操作系统 shell 中使用以下命令调用`MapReduce`函数。书中提供的代码在 Packt 网站上有`mapper`，`reduce` Python 脚本和 shell 脚本，将用于调用`mapper`和`reducer`函数：
 
-```go
+```sql
 $HADOOP_HOME/bin/hadoop jar \
 $HADOOP_HOME/share/hadoop/tools/lib/hadoop-streaming* \
 -libjars $HADOOP_CONNECTOR_HOME/streaming/build/libs/mongo-hadoop-streaming-1.2.1-SNAPSHOT-hadoop_2.4.jar \
@@ -406,7 +406,7 @@ $HADOOP_HOME/share/hadoop/tools/lib/hadoop-streaming* \
 
 1.  执行该命令时，应该需要一些时间来成功执行 MapReduce 作业，在操作系统命令提示符上键入以下命令打开 mongo shell，并从 shell 执行以下查询：
 
-```go
+```sql
 $ mongo
 > db.pyMRStreamTest.find().sort({count:-1}).limit(5)
 
@@ -520,21 +520,21 @@ $ mongo
 
 1.  将文件下载到本地文件系统，并使用 mongorestore 实用程序导入到本地运行的 mongo 实例中。请注意，以下命令的还原实用程序期望 mongod 实例正在运行并侦听端口`27017`，并且当前目录中有`part-r-0000.bson`文件：
 
-```go
+```sql
 $ mongorestore part-r-00000.bson -d test -c mongoEMRResults
 
 ```
 
 1.  现在，使用 mongo shell 连接到`mongod`实例并执行以下查询：
 
-```go
+```sql
 > db.mongoEMRResults.find().sort({count:-1}).limit(5)
 
 ```
 
 对于查询，我们将看到以下结果：
 
-```go
+```sql
 { "_id" : "Maharashtra", "count" : 6446 }
 { "_id" : "Kerala", "count" : 4684 }
 { "_id" : "Tamil Nadu", "count" : 3784 }

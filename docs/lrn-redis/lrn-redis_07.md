@@ -110,7 +110,7 @@ Shell 是一个程序，它像一个独立的网关一样作用于八卦服务�
 
 八卦服务器的代码很简单，基本上是将命令委托给节点进行处理。在 Shell 作为独立程序的情况下，响应显示在命令提示符中，而在 Shell 作为 API 插件的情况下，结果对象`CheckResult`被传递回调用它的程序。Shell 被实现为单例。这是`Shell.java`的代码：
 
-```go
+```sql
 package org.redisch7.gossipserver.shell;
 /** omitting the import statements**/
 public class Shell {
@@ -188,7 +188,7 @@ public class Shell {
 
 这是客户端监听器的代码，即`ClientEventMessageListener`.Java:
 
-```go
+```sql
 package org.redisch7.gossipserver.shell;
 /** omitting the import statements **/
 public class ClientEventMessageListener implements Runnable {
@@ -294,7 +294,7 @@ public class ClientEventMessageListener implements Runnable {
 
 这是主监听器的代码，即`MasterEventMessageListener.java`：
 
-```go
+```sql
 package org.redisch7.gossipserver.shell;
 /** omitting the import statements **/
 public class MasterEventMessageListener implements Runnable {
@@ -353,7 +353,7 @@ public class MasterEventMessageListener implements Runnable {
 
 以下是`ClientNodeListenerManager.java`的代码：
 
-```go
+```sql
 package org.redisch7.gossipserver.shell;
 /** omitting the import statements **/
 public class ClientNodeListenerManager implements NodeMessageListenerManager {
@@ -393,7 +393,7 @@ public class ClientNodeListenerManager implements NodeMessageListenerManager {
 
 以下是`MasterNodeListenerManager.java`的代码：
 
-```go
+```sql
 package org.redisch7.gossipserver.shell;
 /** omitting the import statements **/
 public class MasterNodeListenerManager implements NodeMessageListenerManager {
@@ -457,7 +457,7 @@ Gossip 服务器结构层概述
 
 请注意，我们选择使用`jedis_2.1.0`作为客户端 API 来连接 Redis。在这个客户端库的这个版本中，使用`PIPELINE`函数中的`MULTI`存在一个相关的 bug。
 
-```go
+```sql
 Exception in thread "main" java.lang.ClassCastException: B cannot be cast to java.util.List at redis.clients.jedis.Connection.getBinaryMultiBulkReply(Connection.java:189)
     at redis.clients.jedis.Jedis.hgetAll(Jedis.java:861)
     at com.work.jedisex.JedisFactory.main(JedisFactory.java:59)
@@ -481,7 +481,7 @@ Exception in thread "main" java.lang.ClassCastException: B cannot be cast to jav
 
 RegisterCommand 的实现如下所示：
 
-```go
+```sql
 package org.redisch7.gossipserver.commands;
 /* OMITTING THE IMPORT STATEMENTS TO SAVE SPACE */
 public class RegisterCommand extends AbstractCommand {
@@ -518,7 +518,7 @@ public class RegisterCommand extends AbstractCommand {
 
 RegisterCommandHandler 的实现如下所示：
 
-```go
+```sql
 package org.redisch7.gossipserver.commandhandlers;
 /* OMITTING THE IMPORT STATEMENTS TO SAVE SPACE */
 public class RegisterCommandHandler extends AbstractCommandHandler {
@@ -570,7 +570,7 @@ public class RegisterCommandHandler extends AbstractCommandHandler {
 
 ActivateCommand 的实现如下所示：
 
-```go
+```sql
 package org.redisch7.gossipserver.commands;
 /* OMITTING THE IMPORT STATEMENTS TO SAVE SPACE */
 public class ActivateCommand extends AbstractCommand {
@@ -596,7 +596,7 @@ public class ActivateCommand extends AbstractCommand {
 
 ActivateCommandHandler 的实现如下所示：
 
-```go
+```sql
 package org.redisch7.gossipserver.commandhandlers;
 /* OMITTING THE IMPORT STATEMENTS TO SAVE SPACE */
 public final class ActivateCommandHandler extends AbstractCommandHandler {
@@ -650,7 +650,7 @@ public final class ActivateCommandHandler extends AbstractCommandHandler {
 
 SetCommand 的实现如下所示：
 
-```go
+```sql
 package org.redisch7.gossipserver.commands;
 /* OMITTING THE IMPORT STATEMENTS TO SAVE SPACE */
 import org.redisch7.gossipserver.util.commandparser.Validator;
@@ -677,7 +677,7 @@ public class SetCommand extends AbstractCommand {
 
 设置命令处理程序的实现如下所示：
 
-```go
+```sql
 package org.redisch7.gossipserver.commandhandlers;
 /* OMITTING THE IMPORT STATEMENTS TO SAVE SPACE */
 public class SetCommandHandler extends AbstractCommandHandler {
@@ -731,7 +731,7 @@ public class SetCommandHandler extends AbstractCommandHandler {
 
 GetCommand 的实现如下所示：
 
-```go
+```sql
 package org.redisch7.gossipserver.commands;
 /* OMITTING THE IMPORT STATEMENTS TO SAVE SPACE */
 public class GetCommand extends AbstractCommand {
@@ -757,7 +757,7 @@ public class GetCommand extends AbstractCommand {
 
 获取命令处理程序的实现如下所示：
 
-```go
+```sql
 package org.redisch7.gossipserver.commandhandlers;
 /* OMITTING THE IMPORT STATEMENTS TO SAVE SPACE */
 public class GetCommandHandler extends AbstractCommandHandler {
@@ -811,7 +811,7 @@ Delete 命令中数据流的顺序
 
 DeleteCommand 的实现如下所示：
 
-```go
+```sql
 package org.redisch7.gossipserver.commands;
 /* OMITTING THE IMPORT STATEMENTS TO SAVE SPACE */
 public class DeleteCommand extends AbstractCommand {
@@ -837,7 +837,7 @@ public class DeleteCommand extends AbstractCommand {
 
 `delete`命令处理程序的实现如下所示：
 
-```go
+```sql
 package org.redisch7.gossipserver.commandhandlers;
 /* OMITTING THE IMPORT STATEMENTS TO SAVE SPACE */
 public class DeleteCommandHandler extends AbstractCommandHandler {
@@ -891,7 +891,7 @@ Passivate 命令中数据流的顺序
 
 `status`命令的实现如下所示：
 
-```go
+```sql
 package org.redisch7.gossipserver.commands;
 /* OMITTING THE IMPORT STATEMENTS TO SAVE SPACE */
 public class StatusCommand extends AbstractCommand {
@@ -917,7 +917,7 @@ public class StatusCommand extends AbstractCommand {
 
 `passive`命令处理程序的实现如下所示：
 
-```go
+```sql
 package org.redisch7.gossipserver.commandhandlers;
 /* OMITTING THE IMPORT STATEMENTS TO SAVE SPACE */
 public class StatusCommandHandler extends AbstractCommandHandler {
@@ -965,7 +965,7 @@ Passivate 命令中数据流的顺序
 
 `passivate`命令的实现如下所示：
 
-```go
+```sql
 package org.redisch7.gossipserver.commands;
 /* OMITTING THE IMPORT STATEMENTS TO SAVE SPACE */
 public class PassivateCommand extends AbstractCommand {
@@ -991,7 +991,7 @@ public class PassivateCommand extends AbstractCommand {
 
 `passivate`命令处理程序的实现如下所示：
 
-```go
+```sql
 package org.redisch7.gossipserver.commandhandlers;
 /* OMITTING THE IMPORT STATEMENTS TO SAVE SPACE */
 public class PassivateCommandHandler extends AbstractCommandHandler {
@@ -1042,7 +1042,7 @@ Reactivate 命令中数据流的顺序
 
 `passivate`命令的实现如下所示：
 
-```go
+```sql
 package org.redisch7.gossipserver.commands;
 /* OMITTING THE IMPORT STATEMENTS TO SAVE SPACE */
 public class ReactivateCommand extends AbstractCommand {
@@ -1068,7 +1068,7 @@ public class ReactivateCommand extends AbstractCommand {
 
 `reactivate`命令处理程序的实现如下所示：
 
-```go
+```sql
 package org.redisch7.gossipserver.commandhandlers;
 /* OMITTING THE IMPORT STATEMENTS TO SAVE SPACE */
 public class ReactivateCommandHandler extends AbstractCommandHandler {
@@ -1119,7 +1119,7 @@ Archive 命令中数据流的顺序
 
 `archive`命令的实现如下所示：
 
-```go
+```sql
 package org.redisch7.gossipserver.commands;
 /* OMITTING THE IMPORT STATEMENTS TO SAVE SPACE */
 public class ArchiveCommand extends AbstractCommand {
@@ -1145,7 +1145,7 @@ public class ArchiveCommand extends AbstractCommand {
 
 `reactive`命令处理程序的实现如下所示：
 
-```go
+```sql
 package org.redisch7.gossipserver.commandhandlers;
 /* OMITTING THE IMPORT STATEMENTS TO SAVE SPACE */
 public final class ArchiveCommandHandler extends AbstractCommandHandler {
@@ -1198,7 +1198,7 @@ public final class ArchiveCommandHandler extends AbstractCommandHandler {
 
 `sync`命令的实现如下所示：
 
-```go
+```sql
 package org.redisch7.gossipserver.commands;
 /* OMITTING THE IMPORT STATEMENTS TO SAVE SPACE */
 public class SynchCommand extends AbstractCommand {
@@ -1224,7 +1224,7 @@ public class SynchCommand extends AbstractCommand {
 
 `sync`命令处理程序的实现如下所示：
 
-```go
+```sql
 package org.redisch7.gossipserver.commandhandlers;
 /* OMITTING THE IMPORT STATEMENTS TO SAVE SPACE */
 public class SynchCommandHandler extends AbstractCommandHandler {
@@ -1265,7 +1265,7 @@ public class SynchCommandHandler extends AbstractCommandHandler {
 
 `reconnect`命令的实现如下所示：
 
-```go
+```sql
 package org.redisch7.gossipserver.commands;
 /* OMITTING THE IMPORT STATEMENTS TO SAVE SPACE */
 public class ReConnectCommand extends AbstractCommand {
@@ -1291,7 +1291,7 @@ public class ReConnectCommand extends AbstractCommand {
 
 重新连接命令处理程序的实现如下所示：
 
-```go
+```sql
 package org.redisch7.gossipserver.commandhandlers;
 /* OMITTING THE IMPORT STATEMENTS TO SAVE SPACE */
 public class ReConnectCommandHandler extends AbstractCommandHandler {
@@ -1364,7 +1364,7 @@ public class ReConnectCommandHandler extends AbstractCommandHandler {
 
 `start`命令的实现如下所示：
 
-```go
+```sql
 package org.redisch7.gossipserver.commands;
 /* OMITTING THE IMPORT STATEMENTS TO SAVE SPACE */
 public class StartMasterCommand extends AbstractCommand {
@@ -1397,7 +1397,7 @@ public class StartMasterCommand extends AbstractCommand {
 
 `stop`命令的实现如下所示：
 
-```go
+```sql
 package org.redisch7.gossipserver.commands;
 /* OMITTING THE IMPORT STATEMENTS TO SAVE SPACE */
 public class StopMasterCommand extends AbstractCommand {
@@ -1430,7 +1430,7 @@ public class StopMasterCommand extends AbstractCommand {
 
 `status`命令的实现如下所示：
 
-```go
+```sql
 package org.redisch7.gossipserver.commands;
 /* OMITTING THE IMPORT STATEMENTS TO SAVE SPACE */
 public class StatusCommand extends AbstractCommand {
@@ -1456,7 +1456,7 @@ public class StatusCommand extends AbstractCommand {
 
 `status`命令处理程序的实现如下所示：
 
-```go
+```sql
 package org.redisch7.gossipserver.commandhandlers;
 /* OMITTING THE IMPORT STATEMENTS TO SAVE SPACE */
 public class StatusCommandHandler extends AbstractCommandHandler {
@@ -1502,7 +1502,7 @@ public class StatusCommandHandler extends AbstractCommandHandler {
 
 `get`命令的实现如下所示：
 
-```go
+```sql
 package org.redisch7.gossipserver.commands;
 /* OMITTING THE IMPORT STATEMENTS TO SAVE SPACE */
 public class GetNodeDataCommand extends AbstractCommand {
@@ -1529,7 +1529,7 @@ public class GetNodeDataCommand extends AbstractCommand {
 
 `get`命令处理程序的实现如下所示：
 
-```go
+```sql
 package org.redisch7.gossipserver.commandhandlers;
 /* OMITTING THE IMPORT STATEMENTS TO SAVE SPACE */
 public class GetNodeDataCommandHandler extends AbstractCommandHandler {
@@ -1604,7 +1604,7 @@ public class GetNodeDataCommandHandler extends AbstractCommandHandler {
 
 `MessageCommand`的实现如下所示：
 
-```go
+```sql
 package org.redisch7.gossipserver.commands;
 /* OMITTING THE IMPORT STATEMENTS TO SAVE SPACE */
 public class MessageCommand extends AbstractCommand {
@@ -1631,7 +1631,7 @@ public class MessageCommand extends AbstractCommand {
 
 `messageCommandHandler`的实现如下所示：
 
-```go
+```sql
 package org.redisch7.gossipserver.commandhandlers;
 /* OMITTING THE IMPORT STATEMENTS TO SAVE SPACE */
 public class MessageCommandHandler extends AbstractCommandHandler {
@@ -1692,7 +1692,7 @@ Kill 命令中数据流的顺序
 
 `kill`命令的实现如下所示：
 
-```go
+```sql
 package org.redisch7.gossipserver.commands;
 /* OMITTING THE IMPORT STATEMENTS TO SAVE SPACE */
 public class KillNodeCommand extends AbstractCommand {
@@ -1734,7 +1734,7 @@ public class KillNodeCommand extends AbstractCommand {
 
 `Kill`命令处理程序的实现如下所示：
 
-```go
+```sql
 package org.redisch7.gossipserver.commandhandlers;
 /* OMITTING THE IMPORT STATEMENTS TO SAVE SPACE */
 public class KillNodeCommandHandler extends AbstractCommandHandler {
@@ -1780,7 +1780,7 @@ Clone 命令中数据流的顺序
 
 `clone`命令的实现如下所示：
 
-```go
+```sql
 package org.redisch7.gossipserver.commands;
 /* OMITTING THE IMPORT STATEMENTS TO SAVE SPACE */
 public class CloneNodeCommand extends AbstractCommand {
@@ -1807,7 +1807,7 @@ public class CloneNodeCommand extends AbstractCommand {
 
 `cloneCommandHandler`的实现如下所示：
 
-```go
+```sql
 package org.redisch7.gossipserver.commandhandlers;
 /* OMITTING THE IMPORT STATEMENTS TO SAVE SPACE */
 public class CloneNodeCommandHandler extends AbstractCommandHandler {

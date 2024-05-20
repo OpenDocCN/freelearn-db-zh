@@ -92,13 +92,13 @@
 
 1.  **在主服务器上**：创建一个复制用户。从服务器使用这个帐户连接到主服务器：
 
-```go
+```sql
 mysql> GRANT REPLICATION SLAVE ON *.* TO 'binlog_user'@'%' IDENTIFIED BY 'binlog_P@ss12';Query OK, 0 rows affected, 1 warning (0.00 sec)
 ```
 
 1.  **在从服务器上**：设置唯一的`SERVER_ID`选项（它应该与主服务器上设置的不同）：
 
-```go
+```sql
 mysql> SET @@GLOBAL.SERVER_ID = 32;
 ```
 
@@ -106,14 +106,14 @@ mysql> SET @@GLOBAL.SERVER_ID = 32;
 
 `mysqldump`：
 
-```go
+```sql
 shell> mysqldump -h <master_host> -u backup_user --password=<pass> --all-databases --routines --events --single-transaction --master-data  > dump.sql
 
 ```
 
 当从另一个从服务器备份时，您必须传递`--slave-dump`选项。`mydumper`：
 
-```go
+```sql
 shell> mydumper -h <master_host> -u backup_user --password=<pass> --use-savepoints  --trx-consistency-only --kill-long-queries --outputdir /backups
 ```
 
@@ -121,25 +121,25 @@ shell> mydumper -h <master_host> -u backup_user --password=<pass> --use-savepoin
 
 `mysqldump`：
 
-```go
+```sql
 shell> mysql -u <user> -p -f < dump.sql
 ```
 
 `mydumper`：
 
-```go
+```sql
 shell> myloader --directory=/backups --user=<user> --password=<password> --queries-per-transaction=5000 --threads=8 --overwrite-tables
 ```
 
 1.  **在从服务器上**：在恢复备份后，您必须执行以下命令：
 
-```go
+```sql
 mysql> CHANGE MASTER TO MASTER_HOST='<master_host>', MASTER_USER='binlog_user', MASTER_PASSWORD='binlog_P@ss12', MASTER_LOG_FILE='<log_file_name>', MASTER_LOG_POS=<position>
 ```
 
 `mysqldump`：备份转储文件中包含`<log_file_name>`和`<position>`。例如：
 
-```go
+```sql
 shell> less dump.sql
 --
 -- Position to start replication or point-in-time recovery from (the master of this slave)
@@ -149,7 +149,7 @@ CHANGE MASTER TO MASTER_LOG_FILE='centos7-bin.000001', MASTER_LOG_POS=463;
 
 `mydumper`：`<log_file_name>`和`<position>`存储在元数据文件中：
 
-```go
+```sql
 shell> cat metadata
 Started dump at: 2017-08-26 06:26:19
 SHOW MASTER STATUS:
@@ -168,13 +168,13 @@ Finished dump at: 2017-08-26 06:26:24
 
 1.  在从服务器上，执行`START SLAVE`命令：
 
-```go
+```sql
 mysql> START SLAVE;
 ```
 
 1.  您可以通过执行以下命令来检查复制的状态：
 
-```go
+```sql
 mysql> SHOW SLAVE STATUS\G
 *************************** 1\. row ***************************
  Slave_IO_State: Waiting for master to send event
@@ -253,13 +253,13 @@ Master_SSL_Verify_Server_Cert: No
 
 1.  使`master2`成为只读：
 
-```go
+```sql
 mysql> SET @@GLOBAL.READ_ONLY=ON;
 ```
 
 1.  在`master2`上，检查当前的二进制日志坐标。
 
-```go
+```sql
 mysql> SHOW MASTER STATUS;
 +----------------+----------+--------------+------------------+-------------------+
 | File           | Position | Binlog_Do_DB | Binlog_Ignore_DB | Executed_Gtid_Set |
@@ -273,19 +273,19 @@ mysql> SHOW MASTER STATUS;
 
 1.  根据前面步骤中的位置，在`master1`上执行`CHANGE MASTER TO`命令：
 
-```go
+```sql
 mysql> CHANGE MASTER TO MASTER_HOST='<master2_host>', MASTER_USER='binlog_user', MASTER_PASSWORD='binlog_P@ss12', MASTER_LOG_FILE='<log_file_name>', MASTER_LOG_POS=<position>
 ```
 
 1.  在`master1`上启动从服务器：
 
-```go
+```sql
 mysql> START SLAVE;
 ```
 
 1.  最后，您可以使`master2`成为读写，应用程序可以开始向其写入。
 
-```go
+```sql
  mysql> SET @@GLOBAL.READ_ONLY=OFF;
 ```
 
@@ -303,7 +303,7 @@ MySQL 多源复制使得复制从服务器能够同时接收来自多个源的�
 
 1.  在`server3`上，将复制存储库从`FILE`修改为`TABLE`。您可以通过运行以下命令动态更改它：
 
-```go
+```sql
 mysql> STOP SLAVE; //If slave is already running
 mysql> SET GLOBAL master_info_repository = 'TABLE';
 mysql> SET GLOBAL relay_log_info_repository = 'TABLE';
@@ -311,7 +311,7 @@ mysql> SET GLOBAL relay_log_info_repository = 'TABLE';
 
 还要更改配置文件：
 
-```go
+```sql
 shell> sudo vi /etc/my.cnf
 [mysqld]
 master-info-repository=TABLE 
@@ -320,19 +320,19 @@ relay-log-info-repository=TABLE
 
 1.  在`server3`上，执行`CHANGE MASTER TO`命令，使其成为`server1`的从服务器，通道名为`master-1`。您可以随意命名：
 
-```go
+```sql
 mysql> CHANGE MASTER TO MASTER_HOST='server1', MASTER_USER='binlog_user', MASTER_PORT=3306, MASTER_PASSWORD='binlog_P@ss12', MASTER_LOG_FILE='server1.000017', MASTER_LOG_POS=788 FOR CHANNEL 'master-1';
 ```
 
 1.  在`server3`上，执行`CHANGE MASTER TO`命令，使其成为`server2`的从服务器，通道为`master-2`：
 
-```go
+```sql
 mysql> CHANGE MASTER TO MASTER_HOST='server2', MASTER_USER='binlog_user', MASTER_PORT=3306, MASTER_PASSWORD='binlog_P@ss12', MASTER_LOG_FILE='server2.000014', MASTER_LOG_POS=75438 FOR CHANNEL 'master-2';
 ```
 
 1.  对于每个通道，执行`START SLAVE FOR CHANNEL`语句如下：
 
-```go
+```sql
 mysql> START SLAVE FOR CHANNEL 'master-1';
 Query OK, 0 rows affected (0.01 sec)
 
@@ -342,7 +342,7 @@ Query OK, 0 rows affected (0.00 sec)
 
 1.  通过执行`SHOW SLAVE STATUS`语句验证从服务器的状态：
 
-```go
+```sql
 mysql> SHOW SLAVE STATUS\G
 *************************** 1\. row ***************************
                Slave_IO_State: Waiting for master to send event
@@ -465,13 +465,13 @@ Master_SSL_Verify_Server_Cert: No
 
 1.  要获取特定通道的从服务器状态，请执行：
 
-```go
+```sql
 mysql> SHOW SLAVE STATUS FOR CHANNEL 'master-1' \G
 ```
 
 1.  这是您可以使用性能模式监视指标的另一种方法：
 
-```go
+```sql
 mysql> SELECT * FROM performance_schema.replication_connection_status\G
 *************************** 1\. row ***************************
                                       CHANNEL_NAME: master-1
@@ -520,7 +520,7 @@ LAST_QUEUED_TRANSACTION_IMMEDIATE_COMMIT_TIMESTAMP: 0000-00-00 00:00:00.000000
 
 您可以通过附加`FOR CHANNEL 'channel_name'`指定通道的所有与从服务器相关的命令：
 
-```go
+```sql
 mysql> STOP SLAVE FOR CHANNEL 'master-1';
 mysql> RESET SLAVE FOR CHANNEL 'master-2';
 ```
@@ -537,7 +537,7 @@ mysql> RESET SLAVE FOR CHANNEL 'master-2';
 
 假设您只想复制`db1`和`db2`。使用以下语句创建复制过滤器。
 
-```go
+```sql
 mysql> CHANGE REPLICATION FILTER REPLICATE_DO_DB = (db1, db2);
 ```
 
@@ -547,13 +547,13 @@ mysql> CHANGE REPLICATION FILTER REPLICATE_DO_DB = (db1, db2);
 
 您可以使用`REPLICATE_DO_TABLE`指定要复制的表：
 
-```go
+```sql
 mysql> CHANGE REPLICATION FILTER REPLICATE_DO_TABLE = ('db1.table1'); 
 ```
 
 假设您想要对表使用正则表达式；您可以使用`REPLICATE_WILD_DO_TABLE`选项：
 
-```go
+```sql
 mysql> CHANGE REPLICATION FILTER REPLICATE_WILD_DO_TABLE = ('db1.imp%'); 
 ```
 
@@ -563,7 +563,7 @@ mysql> CHANGE REPLICATION FILTER REPLICATE_WILD_DO_TABLE = ('db1.imp%');
 
 就像您可以选择复制数据库一样，您可以使用`REPLICATE_IGNORE_DB`忽略复制中的数据库：
 
-```go
+```sql
 mysql> CHANGE REPLICATION FILTER REPLICATE_IGNORE_DB = (db1, db2);
 ```
 
@@ -571,14 +571,14 @@ mysql> CHANGE REPLICATION FILTER REPLICATE_IGNORE_DB = (db1, db2);
 
 您可以使用`REPLICATE_IGNORE_TABLE`和`REPLICATE_WILD_IGNORE_TABLE`选项忽略某些表。`REPLICATE_WILD_IGNORE_TABLE`选项允许使用通配符字符，而`REPLICATE_IGNORE_TABLE`仅接受完整的表名：
 
-```go
+```sql
 mysql> CHANGE REPLICATION FILTER REPLICATE_IGNORE_TABLE = ('db1.table1'); 
 mysql> CHANGE REPLICATION FILTER REPLICATE_WILD_IGNORE_TABLE = ('db1.new%', 'db2.new%'); 
 ```
 
 您还可以通过指定通道名称为通道设置过滤器：
 
-```go
+```sql
 mysql> CHANGE REPLICATION FILTER REPLICATE_DO_DB = (d1) FOR CHANNEL 'master-1';
 ```
 
@@ -594,7 +594,7 @@ mysql> CHANGE REPLICATION FILTER REPLICATE_DO_DB = (d1) FOR CHANNEL 'master-1';
 
 1.  **在服务器 C 上**：停止从服务器并注意`SHOW SLAVE STATUS\G`命令中的`Relay_Master_Log_File`和`Exec_Master_Log_Pos`位置：
 
-```go
+```sql
 mysql> STOP SLAVE;
 Query OK, 0 rows affected (0.01 sec)
 
@@ -622,7 +622,7 @@ mysql> SHOW SLAVE STATUS\G
 
 1.  **在服务器 B 上**：停止从服务器并注意`SHOW SLAVE STATUS\G`命令中的`Relay_Master_Log_File`和`Exec_Master_Log_Pos`位置：
 
-```go
+```sql
 mysql> STOP SLAVE;
 Query OK, 0 rows affected (0.01 sec)
 
@@ -658,7 +658,7 @@ mysql> SHOW SLAVE STATUS\G
 
 1.  **在服务器 C 上**：使用`START SLAVE UNTIL`语句同步到服务器 B 的位置：
 
-```go
+```sql
 mysql> START SLAVE UNTIL MASTER_LOG_FILE='centos7-bin.000023', MASTER_LOG_POS=8250241;
 Query OK, 0 rows affected, 1 warning (0.03 sec)
 
@@ -672,7 +672,7 @@ Message: It is recommended to use --skip-slave-start when doing step-by-step rep
 
 1.  **在服务器 C 上**：等待服务器 C 追上，通过检查`SHOW SLAVE STATUS`输出中的`Exec_Master_Log_Pos`和`Until_Log_Pos`（两者应该相同）：
 
-```go
+```sql
 mysql> SHOW SLAVE STATUS\G
 *************************** 1\. row ***************************
                Slave_IO_State: Waiting for master to send event
@@ -709,7 +709,7 @@ mysql> SHOW SLAVE STATUS\G
 
 1.  **在服务器 B 上**：查找主状态，启动从服务器，并确保它正在复制：
 
-```go
+```sql
 mysql> SHOW MASTER STATUS;
 +---------------------+----------+--------------+------------------+-------------------+
 | File                | Position | Binlog_Do_DB | Binlog_Ignore_DB | Executed_Gtid_Set |
@@ -745,7 +745,7 @@ mysql> SHOW SLAVE STATUS\G
 
 1.  **在服务器 C 上**：停止从服务器，执行`CHANGE MASTER TO`命令，并指向服务器 B。您必须使用从上一步中获得的位置：
 
-```go
+```sql
 mysql> STOP SLAVE;
 Query OK, 0 rows affected (0.04 sec)
 
@@ -755,7 +755,7 @@ Query OK, 0 rows affected, 1 warning (0.04 sec)
 
 1.  **在服务器 C 上**：启动复制并验证从服务器状态：
 
-```go
+```sql
 mysql> START SLAVE;
 Query OK, 0 rows affected (0.00 sec)
 
@@ -798,7 +798,7 @@ Master_SSL_Verify_Server_Cert: No
 
 1.  **在服务器 B 上**：停止从服务器并记录主状态：
 
-```go
+```sql
 mysql> STOP SLAVE;
 Query OK, 0 rows affected (0.04 sec)
 
@@ -813,7 +813,7 @@ mysql> SHOW MASTER STATUS;
 
 1.  **在服务器 C 上**：确保从服务器延迟已经追上。`Relay_Master_Log_File`和`Exec_Master_Log_Pos`应该等于服务器 B 上主状态的输出。一旦延迟追上，停止从服务器：
 
-```go
+```sql
 mysql> SHOW SLAVE STATUS\G
 *************************** 1\. row ***************************
                Slave_IO_State: Waiting for master to send event
@@ -853,14 +853,14 @@ mysql> SHOW SLAVE STATUS\G
 1 row in set (0.00 sec)
 ```
 
-```go
+```sql
 mysql> STOP SLAVE;
 Query OK, 0 rows affected (0.01 sec)
 ```
 
 1.  **在服务器 B 上**：从`SHOW SLAVE STATUS`输出中获取服务器 A 的坐标（注意`Relay_Master_Log_File`和`Exec_Master_Log_Pos`）并启动从服务器：
 
-```go
+```sql
 mysql> SHOW SLAVE STATUS\G
 *************************** 1\. row ***************************
                Slave_IO_State: 
@@ -898,24 +898,24 @@ mysql> SHOW SLAVE STATUS\G
         Seconds_Behind_Master: NULL
 ```
 
-```go
+```sql
 mysql> START SLAVE;
 Query OK, 0 rows affected (0.01 sec)
 ```
 
 1.  **在服务器 C 上**：停止从服务器并执行`CHANGE MASTER TO COMMAND`指向服务器 A。使用从上一步中记录的位置（`server_A-bin.000023`和`16497695`）。最后启动从服务器并验证从服务器状态：
 
-```go
+```sql
 mysql> STOP SLAVE;
 Query OK, 0 rows affected (0.07 sec)
 ```
 
-```go
+```sql
 mysql> CHANGE MASTER TO MASTER_HOST = 'Server A', MASTER_USER = 'binlog_user', MASTER_PASSWORD = 'binlog_P@ss12', MASTER_LOG_FILE='server_A-bin.000023', MASTER_LOG_POS=16497695;
 Query OK, 0 rows affected, 1 warning (0.02 sec)
 ```
 
-```go
+```sql
 mysql> START SLAVE;
 Query OK, 0 rows affected (0.07 sec)
 
@@ -969,14 +969,14 @@ mysql> SHOW SLAVE STATUS\G
 
 1.  停止从服务器：
 
-```go
+```sql
 mysql> STOP SLAVE;
 Query OK, 0 rows affected (0.06 sec)
 ```
 
 1.  执行`CHANGE MASTER TO MASTER_DELAY =`并启动从服务器。假设您想要 1 小时的延迟，您可以将`MASTER_DELAY`设置为`3600`秒：
 
-```go
+```sql
 mysql> CHANGE MASTER TO MASTER_DELAY = 3600;
 Query OK, 0 rows affected (0.04 sec)
 
@@ -992,7 +992,7 @@ Query OK, 0 rows affected (0.00 sec)
 
 `Slave_SQL_Running_State`: SQL 线程的状态。
 
-```go
+```sql
 mysql> SHOW SLAVE STATUS\G
 *************************** 1\. row ***************************
                Slave_IO_State: Waiting for master to send event
@@ -1043,7 +1043,7 @@ Master_SSL_Verify_Server_Cert: No
 
 GTID 表示为一对坐标，用冒号（`:`）分隔。
 
-```go
+```sql
 GTID = source_id:transaction_id
 ```
 
@@ -1057,7 +1057,7 @@ GTID = source_id:transaction_id
 
 1.  在`my.cnf`中启用 GTID：
 
-```go
+```sql
 shell> sudo vi /etc/my.cnf [mysqld]gtid_mode=ON
 enforce-gtid-consistency=true
 skip_slave_start
@@ -1065,25 +1065,25 @@ skip_slave_start
 
 1.  将主服务器设置为只读，并确保所有从服务器与主服务器保持同步。这非常重要，因为主服务器和从服务器之间不应该存在任何数据不一致。
 
-```go
+```sql
 On master mysql> SET @@global.read_only = ON; On Slaves (if replication is already setup) mysql> SHOW SLAVE STATUS\G
 ```
 
 1.  重新启动所有从服务器以使 GTID 生效。由于在配置文件中给出了`skip_slave_start`，从服务器在指定`START SLAVE`命令之前不会启动。如果启动从服务器，它将失败，并显示此错误——`The replication receiver thread cannot start because the master has GTID_MODE = OFF and this server has GTID_MODE = ON`。
 
-```go
+```sql
 shell> sudo systemctl restart mysql
 ```
 
 1.  重新启动主服务器。重新启动主服务器后，它将以读写模式开始，并在 GTID 模式下开始接受写操作：
 
-```go
+```sql
 shell> sudo systemctl restart mysql
 ```
 
 1.  执行`CHANGE MASTER TO`命令以设置 GTID 复制：
 
-```go
+```sql
 mysql> CHANGE MASTER TO MASTER_HOST = <master_host>, MASTER_PORT = <port>, MASTER_USER = 'binlog_user', MASTER_PASSWORD = 'binlog_P@ss12', MASTER_AUTO_POSITION = 1;
 ```
 
@@ -1091,13 +1091,13 @@ mysql> CHANGE MASTER TO MASTER_HOST = <master_host>, MASTER_PORT = <port>, MASTE
 
 1.  在所有从服务器上执行`START SLAVE`：
 
-```go
+```sql
 mysql> START SLAVE;
 ```
 
 1.  验证从服务器是否正在复制：
 
-```go
+```sql
 mysql> SHOW SLAVE STATUS\G
 *************************** 1\. row ***************************
                Slave_IO_State: Waiting for master to send event
@@ -1180,14 +1180,14 @@ Master_SSL_Verify_Server_Cert: No
 
 1.  在主服务器上，安装`rpl_semi_sync_master`插件：
 
-```go
+```sql
 mysql> INSTALL PLUGIN rpl_semi_sync_master SONAME 'semisync_master.so';
 Query OK, 0 rows affected (0.86 sec)
 ```
 
 验证插件是否已激活：
 
-```go
+```sql
 mysql> SELECT PLUGIN_NAME, PLUGIN_STATUS FROM INFORMATION_SCHEMA.PLUGINS WHERE PLUGIN_NAME LIKE '%semi%';
 +----------------------+---------------+
 | PLUGIN_NAME          | PLUGIN_STATUS |
@@ -1199,7 +1199,7 @@ mysql> SELECT PLUGIN_NAME, PLUGIN_STATUS FROM INFORMATION_SCHEMA.PLUGINS WHERE P
 
 1.  在主服务器上，启用半同步复制并调整超时时间（比如 1 秒）：
 
-```go
+```sql
 mysql> SET @@GLOBAL.rpl_semi_sync_master_enabled=1;
 Query OK, 0 rows affected (0.00 sec)
 
@@ -1225,7 +1225,7 @@ mysql> SHOW VARIABLES LIKE 'rpl_semi_sync_master_timeout';
 
 1.  在从服务器上，安装`rpl_semi_sync_slave`插件：
 
-```go
+```sql
 mysql> INSTALL PLUGIN rpl_semi_sync_slave SONAME 'semisync_slave.so';
 Query OK, 0 rows affected (0.22 sec)
 
@@ -1240,7 +1240,7 @@ mysql> SELECT PLUGIN_NAME, PLUGIN_STATUS FROM INFORMATION_SCHEMA.PLUGINS WHERE P
 
 1.  在从服务器上，启用半同步复制并重新启动从服务器 IO 线程：
 
-```go
+```sql
 mysql> SET GLOBAL rpl_semi_sync_slave_enabled = 1;
 Query OK, 0 rows affected (0.00 sec)
 
@@ -1255,7 +1255,7 @@ Query OK, 0 rows affected (0.00 sec)
 
 要查找连接为半同步的客户端数量，请在主服务器上执行：
 
-```go
+```sql
 mysql> SHOW STATUS LIKE 'Rpl_semi_sync_master_clients';
 +------------------------------+-------+
 | Variable_name                | Value |
@@ -1267,7 +1267,7 @@ mysql> SHOW STATUS LIKE 'Rpl_semi_sync_master_clients';
 
 当超时发生并且从服务器赶上时，主服务器在异步和半同步复制之间切换。要检查主服务器正在使用的复制类型，请检查`Rpl_semi_sync_master_status`的状态（打开表示半同步，关闭表示异步）：
 
-```go
+```sql
 mysql> SHOW STATUS LIKE 'Rpl_semi_sync_master_status';
 +-----------------------------+-------+
 | Variable_name               | Value |
@@ -1281,14 +1281,14 @@ mysql> SHOW STATUS LIKE 'Rpl_semi_sync_master_status';
 
 1.  停止从服务器：
 
-```go
+```sql
 mysql> STOP SLAVE;
 Query OK, 0 rows affected (0.01 sec)
 ```
 
 1.  在主服务器上，执行任何语句：
 
-```go
+```sql
 mysql> USE employees;
 Database changed
 
@@ -1298,7 +1298,7 @@ Query OK, 0 rows affected, 1 warning (0.00 sec)
 
 您会注意到主服务器已经切换到异步复制，因为即使在 1 秒后（`rpl_semi_sync_master_timeout`的值），它仍未收到从从服务器的任何确认：
 
-```go
+```sql
 mysql> SHOW STATUS LIKE 'Rpl_semi_sync_master_status';
 +-----------------------------+-------+
 | Variable_name               | Value |
@@ -1311,7 +1311,7 @@ mysql> DROP TABLE IF EXISTS employees_test;
 Query OK, 0 rows affected (1.02 sec)
 ```
 
-```go
+```sql
 
 mysql> SHOW STATUS LIKE 'Rpl_semi_sync_master_status';
 +-----------------------------+-------+
@@ -1324,14 +1324,14 @@ mysql> SHOW STATUS LIKE 'Rpl_semi_sync_master_status';
 
 1.  启动从服务器：
 
-```go
+```sql
 mysql> START SLAVE;
 Query OK, 0 rows affected (0.02 sec)
 ```
 
 1.  在主服务器上，您会注意到主服务器已经切换回半同步复制。
 
-```go
+```sql
 mysql> SHOW STATUS LIKE 'Rpl_semi_sync_master_status';
 +-----------------------------+-------+
 | Variable_name               | Value |

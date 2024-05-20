@@ -40,31 +40,31 @@ Percona Toolkit 是一套高级开源命令行工具，由 Percona 开发和使�
 
 1.  下载存储库软件包：
 
-```go
+```sql
 shell> wget https://repo.percona.com/apt/percona-release_0.1-4.$(lsb_release -sc)_all.deb
 ```
 
 1.  安装存储库软件包：
 
-```go
+```sql
 shell> sudo dpkg -i percona-release_0.1-4.$(lsb_release -sc)_all.deb
 ```
 
 1.  更新本地软件包列表：
 
-```go
+```sql
 shell> sudo apt-get update
 ```
 
 1.  确保 Percona 软件包可用：
 
-```go
+```sql
 shell> apt-cache search percona
 ```
 
 您应该看到类似以下的输出：
 
-```go
+```sql
 percona-xtrabackup-dbg - Debug symbols for Percona XtraBackup
 percona-xtrabackup-test - Test suite for Percona XtraBackup
 percona-xtradb-cluster-client - Percona XtraDB Cluster database client
@@ -76,17 +76,17 @@ percona-xtradb-cluster-testsuite-5.5 - Percona Server database test suite
 
 1.  安装`percona-toolkit`软件包：
 
-```go
+```sql
 shell> sudo apt-get install percona-toolkit
 ```
 
 如果您不想安装存储库，也可以直接安装：
 
-```go
+```sql
 shell> wget https://www.percona.com/downloads/percona-toolkit/3.0.4/binary/debian/xenial/x86_64/percona-toolkit_3.0.4-1.xenial_amd64.deb
 ```
 
-```go
+```sql
 shell> sudo dpkg -i percona-toolkit_3.0.4-1.yakkety_amd64.deb;
 shell> sudo apt-get install -f
 ```
@@ -95,13 +95,13 @@ shell> sudo apt-get install -f
 
 1.  安装存储库软件包：
 
-```go
+```sql
 shell> sudo yum install http://www.percona.com/downloads/percona-release/redhat/0.1-4/percona-release-0.1-4.noarch.rpm
 ```
 
 如果成功，您应该看到以下内容：
 
-```go
+```sql
 Installed:
   percona-release.noarch 0:0.1-4
 
@@ -110,13 +110,13 @@ Complete!
 
 1.  确保 Percona 软件包可用：
 
-```go
+```sql
 shell> sudo yum list | grep percona
 ```
 
 您应该看到类似以下的输出：
 
-```go
+```sql
 percona-release.noarch                     0.1-4                       @/percona-release-0.1-4.noarch
 Percona-Server-55-debuginfo.x86_64         5.5.54-rel38.7.el7          percona-release-x86_64
 Percona-Server-56-debuginfo.x86_64         5.6.35-rel81.0.el7          percona-release-x86_64
@@ -126,13 +126,13 @@ Percona-Server-57-debuginfo.x86_64         5.7.17-13.1.el7             percona-r
 
 1.  安装 Percona Toolkit：
 
-```go
+```sql
 shell> sudo yum install percona-toolkit
 ```
 
 如果您不想安装存储库，可以直接使用 YUM 安装：
 
-```go
+```sql
 shell> sudo yum install https://www.percona.com/downloads/percona-toolkit/3.0.4/binary/redhat/7/x86_64/percona-toolkit-3.0.4-1.el7.x86_64.rpm
 ```
 
@@ -158,7 +158,7 @@ shell> sudo yum install https://www.percona.com/downloads/percona-toolkit/3.0.4/
 
 +   更改列的默认值（超快，根本不影响表数据），输出将类似于这样：
 
-```go
+```sql
 Query OK, 0 rows affected (0.07 sec)
 ```
 
@@ -168,7 +168,7 @@ Query OK, 0 rows affected (0.07 sec)
 
 +   更改列的数据类型（需要大量时间，并且确实需要重建表的所有行），输出将类似于这样：
 
-```go
+```sql
 Query OK, 1671168 rows affected (1 min 35.54 sec)
 ```
 
@@ -178,7 +178,7 @@ Query OK, 1671168 rows affected (1 min 35.54 sec)
 
 如果要向`employees`表添加新列，可以执行`ADD COLUMN`语句：
 
-```go
+```sql
 mysql> ALTER TABLE employees ADD COLUMN address varchar(100);
 Query OK, 0 rows affected (5.10 sec)
 Records: 0  Duplicates: 0  Warnings: 0
@@ -188,7 +188,7 @@ Records: 0  Duplicates: 0  Warnings: 0
 
 如果您想增加`varchar`列的长度，可以执行`MODIFY COLUMN`语句：
 
-```go
+```sql
 mysql> ALTER TABLE employees MODIFY COLUMN address VARCHAR(255);
 Query OK, 0 rows affected (0.01 sec)
 Records: 0  Duplicates: 0  Warnings: 0
@@ -196,7 +196,7 @@ Records: 0  Duplicates: 0  Warnings: 0
 
 如果您认为`varchar(255)`不足以存储地址，并且想要将其更改为`tinytext`，您可以使用`MODIFY COLUMN`语句。但是，在这种情况下，由于您正在修改列的数据类型，所有现有表的行都应该被修改，这需要表复制，并且会阻塞 DMLs：
 
-```go
+```sql
 mysql> ALTER TABLE employees MODIFY COLUMN address tinytext;
 Query OK, 300025 rows affected (4.36 sec)
 Records: 300025  Duplicates: 0  Warnings: 0
@@ -208,7 +208,7 @@ Records: 300025  Duplicates: 0  Warnings: 0
 
 添加一个虚拟生成的列只是一个元数据更改，几乎是瞬时的：
 
-```go
+```sql
 mysql> ALTER TABLE employees ADD COLUMN full_name VARCHAR(40) AS (CONCAT('first_name', ' ', 'last_name'));
 Query OK, 0 rows affected (0.09 sec)
 Records: 0  Duplicates: 0  Warnings: 0
@@ -216,7 +216,7 @@ Records: 0  Duplicates: 0  Warnings: 0
 
 但是，添加`STORED GENERATED`列和修改`VIRTUAL GENERATED`列不是在线的：
 
-```go
+```sql
 mysql> ALTER TABLE employees MODIFY COLUMN full_name VARCHAR(40) AS (CONCAT(first_name, '-', last_name)) VIRTUAL;
 Query OK, 300026 rows affected (4.37 sec)
 Records: 300026  Duplicates: 0  Warnings: 0
@@ -228,7 +228,7 @@ Records: 300026  Duplicates: 0  Warnings: 0
 
 为了使以下示例起作用，请创建示例表和数据库
 
-```go
+```sql
 mysql> CREATE DATABASE prod;
 mysql> CREATE TABLE prod.audit_log (id int NOT NULL, msg varchar(64));
 mysql> CREATE DATABASE archive;
@@ -238,7 +238,7 @@ mysql> CREATE DATABASE archive;
 
 例如，如果要将`audit_log`表重命名为`audit_log_archive_2018`，可以执行以下操作：
 
-```go
+```sql
 mysql> USE prod;
 Database changed
 
@@ -248,7 +248,7 @@ Query OK, 0 rows affected (0.07 sec)
 
 如果要将表从一个数据库移动到另一个数据库，可以使用点表示法指定数据库名称。例如，如果要将名为`audit_log`的表从名为`prod`的数据库移动到名为`archive`的数据库，执行以下操作：
 
-```go
+```sql
 mysql> USE prod
 Reading table information for completion of table and column names
 You can turn off this feature to get a quicker startup with -A
@@ -303,7 +303,7 @@ mysql> SHOW TABLES;
 
 修改列数据类型的方法如下：
 
-```go
+```sql
 shell> pt-online-schema-change D=employees,t=employees,h=localhost -u root --ask-pass --alter="MODIFY COLUMN address VARCHAR(100)" --alter-foreign-keys-method=auto --execute
 Enter MySQL password: 
 No slaves found.  See --recursion-method if host server1 has slaves.
@@ -346,7 +346,7 @@ Successfully altered `employees`.`employees`.
 
 如果要更改已经具有触发器的`salaries`表，您需要指定`--preserver-triggers`选项，否则将出现错误：`The table `employees`.`salaries` has triggers but --preserve-triggers was not specified.`：
 
-```go
+```sql
 shell> pt-online-schema-change D=employees,t=salaries,h=localhost -u user --ask-pass --alter="MODIFY COLUMN salary int" --alter-foreign-keys-method=auto --execute --no-drop-old-table --preserve-triggers 
 No slaves found.  See --recursion-method if host server1 has slaves.
 Not checking slave lag because no slaves were found and --check-slave-lag was not specified.
@@ -382,7 +382,7 @@ Successfully altered `employees`.`salaries`
 
 如果要确保从属服务器的延迟不会超过 10 秒，请传递`--max-lag=10`：
 
-```go
+```sql
 shell> pt-online-schema-change D=employees,t=employees,h=localhost -u user --ask-pass --alter="MODIFY COLUMN address VARCHAR(100)" --alter-foreign-keys-method=auto --execute --preserve-triggers --max-lag=10
 Enter MySQL password: 
 Found 1 slaves:
@@ -429,7 +429,7 @@ Successfully altered `employees`.`employees`.
 
 `pt-online-schema-change`仅在有主键或唯一键时才有效，否则将出现以下错误：
 
-```go
+```sql
 The new table `employees`.`_employees_new` does not have a PRIMARY KEY or a unique index which is required for the DELETE trigger.
 ```
 
@@ -439,7 +439,7 @@ The new table `employees`.`_employees_new` does not have a PRIMARY KEY or a uniq
 
 有时，您不希望保留旧数据并希望删除它。如果要删除所有上个月访问的行，如果表很小（<10k 行），您可以直接使用以下命令：
 
-```go
+```sql
 DELETE FROM <TABLE> WHERE last_accessed<DATE_ADD(NOW(), INTERVAL -1 MONTH)
 ```
 
@@ -449,7 +449,7 @@ DELETE FROM <TABLE> WHERE last_accessed<DATE_ADD(NOW(), INTERVAL -1 MONTH)
 
 这是一个伪代码示例：
 
-```go
+```sql
 WHILE count<=0:
     DELETE FROM <TABLE> WHERE last_accessed<DATE_ADD(NOW(), INTERVAL -1 MONTH) LIMIT 10000;
     count=SELECT COUNT(*) FROM <TABLE> WHERE last_accessed<DATE_ADD(NOW(), INTERVAL -1 MONTH);
@@ -459,7 +459,7 @@ WHILE count<=0:
 
 这是伪代码，假设`id`是`PRIMARY KEY`：
 
-```go
+```sql
 WHILE count<=0:
     SELECT id FROM <TABLE> WHERE last_accessed < DATE_ADD(NOW(), INTERVAL -1 MONTH) LIMIT 10000;
     DELETE FROM <TABLE> WHERE id IN ('ids from above statement');
@@ -476,7 +476,7 @@ WHILE count<=0:
 
 如果您想要删除`employees`表中`hire_date`早于 30 年的所有行，您可以执行以下操作：
 
-```go
+```sql
 shell> pt-archiver --source h=localhost,D=employees,t=employees -u <user> -p<pass> --where="hire_date<DATE_ADD(NOW(), INTERVAL -30 YEAR)" --no-check-charset --limit 10000 --commit-each
 ```
 
@@ -494,7 +494,7 @@ shell> pt-archiver --source h=localhost,D=employees,t=employees -u <user> -p<pas
 
 假设您想要将`employees`数据库的`employees`表的所有行移动到`employees_archive`表中，您可以执行以下操作：
 
-```go
+```sql
 shell> pt-archiver --source h=localhost,D=employees,t=employees --dest h=localhost,D=employees_archive -u <user> -p<pass> --where="1=1" --no-check-charset --limit 10000 --commit-each
 ```
 
@@ -504,7 +504,7 @@ shell> pt-archiver --source h=localhost,D=employees,t=employees --dest h=localho
 
 如果您想要从一张表复制数据到另一张表，您可以使用`mysqldump`或`mysqlpump`备份特定行，然后将它们加载到目标表中。作为替代，您也可以使用`pt-archive`。如果您指定`--no-delete`选项，`pt-archiver`将不会从源中删除行。
 
-```go
+```sql
 shell> pt-archiver --source h=localhost,D=employees,t=employees --dest h=localhost,D=employees_archive -u <user> -p<pass> --where="1=1" --no-check-charset --limit 10000 --commit-each --no-delete
 ```
 
@@ -520,14 +520,14 @@ shell> pt-archiver --source h=localhost,D=employees,t=employees --dest h=localho
 
 1.  使用`INSERT INTO SELECT`语句：
 
-```go
+```sql
 mysql> CREATE TABLE employees_clone LIKE employees;
 mysql> INSERT INTO employees_clone SELECT * FROM employees;
 ```
 
 请注意，如果有任何生成的列，上述语句将不起作用。在这种情况下，您应该提供完整的插入语句，不包括生成的列。
 
-```go
+```sql
 mysql> INSERT INTO employees_clone SELECT * FROM employees;
 ERROR 3105 (HY000): The value specified for generated column 'hire_date_year' in table 'employees_clone' is not allowed.
 
@@ -592,7 +592,7 @@ Records: 300024  Duplicates: 0  Warnings: 0
 
 如果您想根据`emp_no`对`employees`表进行分区，并且想要在一个分区中保留 100,000 名员工，可以这样创建：
 
-```go
+```sql
 mysql> CREATE TABLE `employees` (
   `emp_no` int(11) NOT NULL,
   `birth_date` date NOT NULL,
@@ -616,7 +616,7 @@ PARTITION BY RANGE (emp_no)
 
 如果员工号大于`500000`，由于没有为它们定义分区，插入将失败并显示错误。为了避免这种情况，您必须定期检查并添加分区，或者创建一个`MAXVALUE`分区来捕获所有这些异常：
 
-```go
+```sql
 mysql> CREATE TABLE `employees` (
   `emp_no` int(11) NOT NULL,
   `birth_date` date NOT NULL,
@@ -640,7 +640,7 @@ PARTITION BY RANGE (emp_no)
 
 如果您想基于`hire_date`进行分区，可以使用`YEAR(hire_date)`函数作为分区表达式：
 
-```go
+```sql
 mysql> CREATE TABLE `employees` (
   `emp_no` int(11) NOT NULL,
   `birth_date` date NOT NULL,
@@ -666,7 +666,7 @@ MySQL 中的分区广泛用于`date`、`datetime`或`timestamp`列。如果您�
 
 分区函数`to_days()`返回自`0000-01-01`以来的天数，这是一个整数：
 
-```go
+```sql
 mysql> CREATE TABLE `event_history` (
   `event_id` int(11) NOT NULL,
   `event_name` varchar(10) NOT NULL,
@@ -699,13 +699,13 @@ PARTITION pmax VALUES LESS THAN MAXVALUE ENGINE = InnoDB
 
 如果要将现有表转换为分区表，并且分区键不是`PRIMARY KEY`的一部分，则需要删除`PRIMARY KEY`并将分区键作为`PRIMARY KEY`和所有唯一键的一部分添加。否则，您将收到错误`ERROR 1503 (HY000): A PRIMARY KEY must include all columns in the table's partitioning function.`。您可以按以下方式执行：
 
-```go
+```sql
 mysql> ALTER TABLE employees DROP PRIMARY KEY, ADD PRIMARY KEY(emp_no,hire_date);
 Query OK, 0 rows affected (0.11 sec)
 Records: 0  Duplicates: 0  Warnings: 0
 ```
 
-```go
+```sql
 mysql> ALTER TABLE employees PARTITION BY RANGE (YEAR(hire_date))
         (PARTITION p1980 VALUES LESS THAN (1980) ENGINE = InnoDB,
         PARTITION p1990 VALUES LESS THAN (1990) ENGINE = InnoDB,
@@ -724,7 +724,7 @@ Records: 300025  Duplicates: 0  Warnings: 0
 
 如果您希望移除分区，可以执行`REMOVE PARTITIONING`语句：
 
-```go
+```sql
 mysql> ALTER TABLE employees REMOVE PARTITIONING;
 Query OK, 0 rows affected (0.09 sec)
 Records: 0  Duplicates: 0  Warnings: 0
@@ -742,7 +742,7 @@ Records: 0  Duplicates: 0  Warnings: 0
 
 您可以直接在`RANGE COLUMNS`中使用`hire_date`列，而不是使用`to_days()`或`year()`函数：
 
-```go
+```sql
 mysql> ALTER TABLE employees 
     PARTITION BY RANGE COLUMNS (hire_date) 
     (PARTITION p0 VALUES LESS THAN ('1970-01-01'),
@@ -758,7 +758,7 @@ Records: 300025  Duplicates: 0  Warnings: 0
 
 或者您可以根据他们的`last_name`来划分员工。这将不能保证在分区之间的均匀分布：
 
-```go
+```sql
 mysql> ALTER TABLE employees 
 PARTITION BY RANGE COLUMNS (last_name) 
     (PARTITION p0 VALUES LESS THAN ('b'),
@@ -774,7 +774,7 @@ Records: 300025  Duplicates: 0  Warnings: 0
 
 使用`RANGE COLUMNS`，您可以在分区函数中放置多个列：
 
-```go
+```sql
 mysql> CREATE TABLE range_columns_example (
     a INT,
     b INT,
@@ -793,7 +793,7 @@ PARTITION BY RANGE COLUMNS(a,b,c) (
 
 如果插入值`a=10`、`b=20`、`c=100`、`d=100`、`e=100`，它将进入`p1`。在设计按`RANGE COLUMNS`分区的表时，您可以通过使用`mysql`客户端来测试连续的分区定义，如下所示：
 
-```go
+```sql
 mysql> SELECT (10,20,100) < (0,25,50) p0, (10,20,100) < (10,50,100) p1, (10,20,100) < (10,100,200) p2;
 +----+----+----+
 | p0 | p1 | p2 |
@@ -819,7 +819,7 @@ mysql> SELECT (10,20,100) < (0,25,50) p0, (10,20,100) < (10,50,100) p1, (10,20,1
 
 假设有一个带有邮政编码和城市的客户表。例如，如果您想要将具有特定邮政编码的客户划分到一个分区中，您可以使用`LIST`分区：
 
-```go
+```sql
 mysql> CREATE TABLE customer (
 customer_id INT,
 zipcode INT,
@@ -836,7 +836,7 @@ PARTITION BY LIST(zipcode) (
 
 如果您希望直接使用列而不是整数，可以使用`LIST COLUMNS`：
 
-```go
+```sql
 mysql> CREATE TABLE customer (
 customer_id INT,
 zipcode INT,
@@ -859,7 +859,7 @@ PARTITION BY LIST COLUMNS(city) (
 
 例如，如果`hire_date`是`1987-11-28`，`YEAR(hire_date)`将是`1987`，`MOD(1987,8)`是`3`。因此，行进入第三个分区：
 
-```go
+```sql
 mysql> CREATE TABLE `employees` (
   `emp_no` int(11) NOT NULL,
   `birth_date` date NOT NULL,
@@ -879,7 +879,7 @@ PARTITIONS 8;
 
 在`LINEAR HASH`分区中，您可以使用相同的语法，只是添加一个`LINEAR`关键字。MySQL 使用二的幂算法来确定分区，而不是使用`MODULUS`操作。有关更多详细信息，请参阅[`dev.mysql.com/doc/refman/8.0/en/partitioning-linear-hash.html`](https://dev.mysql.com/doc/refman/8.0/en/partitioning-linear-hash.html)：
 
-```go
+```sql
 mysql> CREATE TABLE `employees` (
   `emp_no` int(11) NOT NULL,
   `birth_date` date NOT NULL,
@@ -901,7 +901,7 @@ PARTITIONS 8;
 
 `KEY`只接受零个或多个列名的列表。如果将用作分区键的列，必须包括表的主键的一部分或全部，如果表有主键。如果未指定列名作为分区键，则使用表的主键，如果有的话：
 
-```go
+```sql
 mysql> CREATE TABLE `employees` (
   `emp_no` int(11) NOT NULL,
   `birth_date` date NOT NULL,
@@ -921,7 +921,7 @@ PARTITIONS 8;
 
 您可以进一步将每个分区划分为分区表。这称为**子分区**或**复合分区**：
 
-```go
+```sql
 mysql> CREATE TABLE `employees` (
   `emp_no` int(11) NOT NULL,
   `birth_date` date NOT NULL,
@@ -960,7 +960,7 @@ MySQL 不会扫描没有匹配值的分区；这是自动的，称为分区修�
 
 以基于`emp_no`进行分区的`employees`表为例：
 
-```go
+```sql
 mysql> CREATE TABLE `employees` (
   `emp_no` int(11) NOT NULL,
   `birth_date` date NOT NULL,
@@ -984,7 +984,7 @@ PARTITION BY RANGE (YEAR(hire_date))
 
 假设执行以下`SELECT`查询：
 
-```go
+```sql
 mysql> SELECT last_name,birth_date FROM employees WHERE hire_date='1999-02-01' AND first_name='Mariangiola';
 ```
 
@@ -998,7 +998,7 @@ MySQL 优化器检测到查询中使用了分区列，并自动确定要扫描�
 
 要了解优化器扫描的分区，可以执行查询的`EXPLAIN`计划，该计划在第十三章的*Explain plan*部分中有解释，*性能调整*：
 
-```go
+```sql
 mysql> EXPLAIN SELECT last_name,birth_date FROM employees WHERE hire_date='1999-02-01' AND first_name='Mariangiola'\G
 *************************** 1\. row ***************************
            id: 1
@@ -1016,7 +1016,7 @@ possible_keys: name
 
 ```
 
-```go
+```sql
 mysql> EXPLAIN SELECT last_name,birth_date FROM employees WHERE hire_date>='1999-02-01' AND first_name='Mariangiola'\G
 *************************** 1\. row ***************************
            id: 1
@@ -1038,7 +1038,7 @@ possible_keys: name
 
 分区修剪是基于`WHERE`子句的自动选择。您可以在查询中明确指定要扫描的分区。查询可以是`SELECT`、`DELETE`、`INSERT`、`REPLACE`、`UPDATE`、`LOAD DATA`和`LOAD XML`。`PARTITION`选项用于从给定表中选择分区，您应该在所有其他选项之前，包括任何表别名，指定关键字`PARTITION` <partition name>，例如：
 
-```go
+```sql
 mysql> SELECT emp_no,hire_date FROM employees PARTITION (p1990) LIMIT 10;
 +--------+------------+
 | emp_no | hire_date  |
@@ -1059,7 +1059,7 @@ mysql> SELECT emp_no,hire_date FROM employees PARTITION (p1990) LIMIT 10;
 
 同样，我们可以删除：
 
-```go
+```sql
 mysql> DELETE FROM employees PARTITION (p1980, p1990) WHERE first_name LIKE 'j%';
 Query OK, 7001 rows affected (0.12 sec)
 ```
@@ -1068,7 +1068,7 @@ Query OK, 7001 rows affected (0.12 sec)
 
 在管理分区时最重要的是提前添加足够的分区以进行基于时间的`RANGE`分区。如果未能这样做，将在插入时出现错误，或者如果定义了`MAXVALUE`分区，则所有插入都将进入`MAXVALUE`分区。例如，考虑没有`pmax`分区的`event_history`表：
 
-```go
+```sql
 mysql> CREATE TABLE `event_history` (
   `event_id` int(11) NOT NULL,
   `event_name` date NOT NULL,
@@ -1110,7 +1110,7 @@ PARTITION p20171015 VALUES LESS THAN (736982) ENGINE = InnoDB
 
 要添加新分区，请执行`ADD PARTITION (<PARTITION DEFINITION>)`语句：
 
-```go
+```sql
 mysql> ALTER TABLE event_history ADD PARTITION (
 PARTITION p20171016 VALUES LESS THAN (736983) ENGINE = InnoDB,
 PARTITION p20171017 VALUES LESS THAN (736984) ENGINE = InnoDB
@@ -1123,7 +1123,7 @@ PARTITION p20171017 VALUES LESS THAN (736984) ENGINE = InnoDB
 
 如果存在`MAXVALUE`分区，则无法在`MAXVALUE`之后添加分区；在这种情况下，您需要将`REORGANIZE MAXVALUE`分区分成两个分区：
 
-```go
+```sql
 mysql> ALTER TABLE event_history REORGANIZE PARTITION pmax INTO (PARTITION p20171016 VALUES LESS THAN (736983) ENGINE = InnoDB,
 PARTITION pmax VALUES LESS THAN MAXVALUE ENGINE = InnoDB);
 ```
@@ -1132,7 +1132,7 @@ PARTITION pmax VALUES LESS THAN MAXVALUE ENGINE = InnoDB);
 
 您还可以将多个分区重新组织为单个分区：
 
-```go
+```sql
 mysql> ALTER TABLE event_history REORGANIZE PARTITION p20171001,p20171002,p20171003,p20171004,p20171005,p20171006,p20171007 
 INTO (PARTITION p2017_oct_week1 VALUES LESS THAN (736974));
 ```
@@ -1143,7 +1143,7 @@ INTO (PARTITION p2017_oct_week1 VALUES LESS THAN (736974));
 
 如果`p20170930`已经超过了保留期限，您可以使用`ALTER TABLE ... DROP PARTITION`语句删除该分区：
 
-```go
+```sql
 mysql> ALTER TABLE event_history DROP PARTITION p20170930;
 Query OK, 0 rows affected (0.02 sec)
 Records: 0  Duplicates: 0  Warnings: 0
@@ -1155,7 +1155,7 @@ Records: 0  Duplicates: 0  Warnings: 0
 
 如果您希望在表中保留`PARTITION DEFINITION`并仅删除数据，可以执行`TRUNCATE PARTITION`命令：
 
-```go
+```sql
 mysql> ALTER TABLE event_history TRUNCATE PARTITION p20171001;
 Query OK, 0 rows affected (0.08 sec)
 ```
@@ -1166,7 +1166,7 @@ Query OK, 0 rows affected (0.08 sec)
 
 假设`employees`表是基于`HASH`进行分区的：
 
-```go
+```sql
 mysql> CREATE TABLE `employees` (
   `emp_no` int(11) NOT NULL,
   `birth_date` date NOT NULL,
@@ -1184,7 +1184,7 @@ PARTITIONS 8;
 
 要将分区从`8`减少到`6`，您可以执行`COALESCE PARTITION`语句，并指定要减少的分区数，即*8-6=2*：
 
-```go
+```sql
 mysql> ALTER TABLE employees COALESCE PARTITION 2;
 Query OK, 0 rows affected (0.31 sec)
 Records: 0  Duplicates: 0  Warnings: 0
@@ -1192,7 +1192,7 @@ Records: 0  Duplicates: 0  Warnings: 0
 
 要将分区从`6`增加到`16`，您可以执行`ADD PARTITION`语句，并指定要增加的分区数，即*16-6=10*：
 
-```go
+```sql
 mysql> ALTER TABLE employees ADD PARTITION PARTITIONS 10;
 Query OK, 0 rows affected (5.11 sec)
 Records: 0  Duplicates: 0  Warnings: 0
@@ -1202,7 +1202,7 @@ Records: 0  Duplicates: 0  Warnings: 0
 
 您还可以执行其他操作，例如`REBUILD`，`OPTIMIZE`，`ANALYZE`和`REPAIR`语句，例如：
 
-```go
+```sql
 mysql> ALTER TABLE event_history REPAIR PARTITION p20171009, p20171010;
 ```
 
@@ -1218,7 +1218,7 @@ mysql> ALTER TABLE event_history REPAIR PARTITION p20171009, p20171010;
 
 要知道表是否已分区，可以执行`SHOW CREATE TABLE\G`语句，该语句显示了表定义以及分区，例如：
 
-```go
+```sql
 mysql> SHOW CREATE TABLE employees \G
 *************************** 1\. row ***************************
        Table: employees
@@ -1246,7 +1246,7 @@ Create Table: CREATE TABLE `employees` (
 
 您可以执行`SHOW TABLE STATUS`命令，并在输出中检查`Create_options`：
 
-```go
+```sql
 mysql> SHOW TABLE STATUS LIKE 'employees'\G
 *************************** 1\. row ***************************
            Name: employees
@@ -1274,7 +1274,7 @@ Max_data_length: NULL
 
 `EXPLAIN`计划显示了查询所扫描的所有分区。如果您对`SELECT * FROM <table>`运行`EXPLAIN`计划，它将列出所有分区，例如：
 
-```go
+```sql
 mysql> EXPLAIN SELECT * FROM employees\G
 *************************** 1\. row ***************************
            id: 1
@@ -1296,7 +1296,7 @@ possible_keys: NULL
 
 与所有前面的方法相比，`INFORMATION_SCHEMA.PARTITIONS`提供了有关分区的更多信息：
 
-```go
+```sql
 mysql> SHOW CREATE TABLE INFORMATION_SCHEMA.PARTITIONS\G
 *************************** 1\. row ***************************
        Table: PARTITIONS
@@ -1332,7 +1332,7 @@ Create Table: CREATE TEMPORARY TABLE `PARTITIONS` (
 
 要了解有关表分区的更多详细信息，您可以通过指定数据库名称和表名称来查询`INFORMATION_SCHEMA.PARTITIONS`表，例如：
 
-```go
+```sql
 mysql> SELECT PARTITION_NAME FROM INFORMATION_SCHEMA.PARTITIONS WHERE TABLE_SCHEMA='employees' AND TABLE_NAME='employees';
 +----------------+
 | PARTITION_NAME |
@@ -1349,7 +1349,7 @@ mysql> SELECT PARTITION_NAME FROM INFORMATION_SCHEMA.PARTITIONS WHERE TABLE_SCHE
 
 您可以在该分区中获取诸如`PARTITION_METHOD`，`PARTITION_EXPRESSION`，`PARTITION_DESCRIPTION`和`TABLE_ROWS`等详细信息：
 
-```go
+```sql
 mysql> SELECT * FROM INFORMATION_SCHEMA.PARTITIONS WHERE TABLE_SCHEMA='employees' AND TABLE_NAME='employees' AND PARTITION_NAME='p1990'\G
 *************************** 1\. row ***************************
                 TABLE_CATALOG: def
@@ -1420,7 +1420,7 @@ SUBPARTITION_ORDINAL_POSITION: NULL
 
 您可以创建一个如下的表：
 
-```go
+```sql
 mysql> CREATE TABLE `customer_data` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `msg` text,
@@ -1446,7 +1446,7 @@ mysql> CREATE TABLE `customer_data` (
 
 将有一个缓冲周分区，将会在 42 天后，并且始终为空，以便我们可以分割和 7+2 个每日分区，带有 2 个缓冲。
 
-```go
+```sql
 mysql> DROP TRIGGER IF EXISTS customer_data_insert;
 DELIMITER $$
 CREATE TRIGGER customer_data_insert
@@ -1459,7 +1459,7 @@ $$
 DELIMITER ;
 ```
 
-```go
+```sql
 mysql> DROP TRIGGER IF EXISTS customer_data_update;
 DELIMITER $$
 CREATE TRIGGER customer_data_update
@@ -1474,13 +1474,13 @@ DELIMITER ;
 
 +   假设客户端插入了一个时间戳为 1508265000（2017-10-17 18:30:00）并且到期值为 1508351400（2017-10-18 18:30:00）的行，soft_delete 将为 2，这将使其进入分区 pd20171019
 
-```go
+```sql
 mysql> INSERT INTO customer_data(id, msg, timestamp, expires) VALUES(1,'test',1508265000000,1508351400000);
 Query OK, 1 row affected (0.05 sec)
 
 ```
 
-```go
+```sql
 mysql> SELECT * FROM customer_data PARTITION (pd20171019);
 +----+------+---------------+---------------+-------------+
 | id | msg  | timestamp     | expires       | soft_delete |
@@ -1492,12 +1492,12 @@ mysql> SELECT * FROM customer_data PARTITION (pd20171019);
 
 +   假设客户端没有设置到期时间，expires 列将为 0，这将使`soft_delete`为`0`，并且将进入`no_retention`分区。
 
-```go
+```sql
 mysql> INSERT INTO customer_data(id, msg, timestamp, expires)  VALUES(2,'non_expiry_row',1508265000000,0);
 Query OK, 1 row affected (0.07 sec)
 ```
 
-```go
+```sql
 mysql> SELECT * FROM customer_data PARTITION (no_retention);
 +----+----------------+---------------+---------+-------------+
 | id | msg            | timestamp     | expires | soft_delete |
@@ -1509,18 +1509,18 @@ mysql> SELECT * FROM customer_data PARTITION (no_retention);
 
 +   假设客户端希望设置到期时间（假设为 2017-10-19 06:30:00），到期列可以更新，这将把行从`no_retention`分区移动到相应的分区（这会有一些性能影响，因为行必须在分区之间移动）
 
-```go
+```sql
 mysql> UPDATE customer_data SET expires=1508394600000 WHERE id=2;
 Query OK, 1 row affected (0.06 sec)
 Rows matched: 1  Changed: 1  Warnings: 0
 ```
 
-```go
+```sql
 mysql> SELECT * FROM customer_data PARTITION (no_retention);
 Empty set (0.00 sec)
 ```
 
-```go
+```sql
 mysql> SELECT * FROM customer_data PARTITION (pd20171020);
 +----+----------------+---------------+---------------+-------------+
 | id | msg            | timestamp     | expires       | soft_delete |
@@ -1532,7 +1532,7 @@ mysql> SELECT * FROM customer_data PARTITION (pd20171020);
 
 +   假设客户端设置了一个超出我们分区范围的到期时间，它将自动进入`long_retention`分区。
 
-```go
+```sql
 mysql> INSERT INTO customer_data(id, msg, timestamp, expires)  VALUES(3,'long_expiry',1507852800000,1608025600000);
 
 mysql> SELECT * FROM customer_data PARTITION (long_retention);
@@ -1573,7 +1573,7 @@ mysql> SELECT * FROM customer_data PARTITION (long_retention);
 
 将有一个缓冲周分区，将会在 42 天后，并且始终为空，以便我们可以分割和 7+2 个每日分区，带有 2 个缓冲。
 
-```go
+```sql
 mysql> DROP TRIGGER IF EXISTS customer_data_insert;
 DELIMITER $$
 CREATE TRIGGER customer_data_insert
@@ -1586,7 +1586,7 @@ $$
 DELIMITER ; 
 ```
 
-```go
+```sql
 mysql> DROP TRIGGER IF EXISTS customer_data_update;
 DELIMITER $$
 CREATE TRIGGER customer_data_update

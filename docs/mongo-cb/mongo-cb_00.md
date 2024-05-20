@@ -48,7 +48,7 @@ MongoDB 是一种面向文档的领先 NoSQL 数据库，提供线性可扩展�
 
 代码块设置如下：
 
-```go
+```sql
    import com.mongodb.DB;
    import com.mongodb.DBCollection;
    import com.mongodb.DBObject;
@@ -57,7 +57,7 @@ MongoDB 是一种面向文档的领先 NoSQL 数据库，提供线性可扩展�
 
 任何命令行输入或输出都按如下方式编写：
 
-```go
+```sql
 $ sudo apt-get install default-jdk
 
 ```

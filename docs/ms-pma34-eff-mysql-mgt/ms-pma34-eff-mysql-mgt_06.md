@@ -62,7 +62,7 @@ MySQL 包括**mysqldump**-一个命令行实用程序，可用于生成导出文
 
 默认模板是可配置的，通过以下参数：
 
-```go
+```sql
 $cfg['Export']['file_template_table'] = '@TABLE@';
 $cfg['Export']['file_template_database'] = '@DATABASE@';
 $cfg['Export']['file_template_server'] = '@SERVER@';
@@ -87,7 +87,7 @@ $cfg['Export']['file_template_server'] = '@SERVER@';
 
 为了节省传输时间并获得更小的导出文件，phpMyAdmin 可以压缩为 ZIP、GZIP 或 BZIP2 格式。只有在 PHP 服务器编译时分别使用了`--with-zlib`（用于 ZIP 和 GZIP）或`--with-bz2`（用于 BZ2）配置选项，才会提供这些格式。以下参数控制在面板中呈现哪些压缩选项：
 
-```go
+```sql
 $cfg['ZipDump'] = TRUE;
 $cfg['GZipDump'] = TRUE;
 $cfg['BZipDump'] = TRUE;
@@ -170,7 +170,7 @@ SQL 选项用于定义导出将包含的确切信息。下面的屏幕截图显�
 
 +   **在转储数据时使用的函数：** 选择有**INSERT，UPDATE**和**REPLACE**。其中最著名的是默认的**INSERT**—使用`INSERT`语句导入我们的数据。但是，在导入时，我们可能会遇到这样的情况：表已经存在并包含有价值的数据，我们只想更新当前导出表中的列。**UPDATE**生成类似下面这行代码的语句，在找到相同的主键或唯一键时更新一行：
 
-```go
+```sql
 UPDATE `author` SET `id` = 1, `name` = 'John Smith', `phone` = '111-1111' WHERE `id` = '1';
 
 ```
@@ -211,7 +211,7 @@ UPDATE `author` SET `id` = 1, `name` = 'John Smith', `phone` = '111-1111' WHERE 
 
 点击**Go**会生成一个包含以下行的文件：
 
-```go
+```sql
 "id","name","phone"
 "1","John Smith","+01 445 789-1234"
 "2","Maria Sunshine","+01 455 444-5683"
@@ -264,7 +264,7 @@ UPDATE `author` SET `id` = 1, `name` = 'John Smith', `phone` = '111-1111' WHERE 
 
 这种格式在数据交换中非常流行。我们可以选择要导出的数据定义元素（如函数、过程、表、触发器或视图）。接下来是`author`表格的输出。
 
-```go
+```sql
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 - phpMyAdmin XML Dump
@@ -328,7 +328,7 @@ PRIMARY KEY (`id`)
 
 **YAML**代表**YAML 不是标记语言**。YAML 是一种人类可读的数据序列化格式；它的官方网站是[`www.yaml.org`](http://www.yaml.org)。这种格式在 phpMyAdmin 中没有我们可以选择的选项。以下是`author`表格的 YAML 导出：
 
-```go
+```sql
 1:
 id: 1
 name: John Smith
@@ -348,7 +348,7 @@ phone: 333-3333
 
 **Texy!**是一个带有自己简化语法的格式化工具（[`texy.info/en/`](http://texy.info/en/)）。以下是以这种格式导出的示例代码：
 
-```go
+```sql
 ===Database marc_book
 == Table structure for table author
 |------
@@ -367,7 +367,7 @@ phone: 333-3333
 
 在 PHP 中，关联数组可以保存文本数据；因此，可以使用 PHP 数组导出格式。以下是`author`表格的 PHP 数组导出：
 
-```go
+```sql
 <?php
 // marc_book.author
 $author = array(
@@ -385,7 +385,7 @@ MediaWiki（[`www.mediawiki.org/wiki/MediaWiki`](http://www.mediawiki.org/wiki/M
 
 JavaScript 对象表示法（[`json.org`](http://json.org)）是一种在网络世界中流行的数据交换格式。以这种格式导出`author`表格的代码如下所示：
 
-```go
+```sql
 /**
 Export to JSON plugin for PHPMyAdmin
 @version 0.1
@@ -448,7 +448,7 @@ Export to JSON plugin for PHPMyAdmin
 
 在 Linux 系统上，假设 Web 服务器以`group apache`运行，以下命令可以解决问题：
 
-```go
+```sql
 # mkdir save_dir
 # chgrp apache save_dir
 # chmod g=rwx save_dir 
@@ -475,7 +475,7 @@ Export to JSON plugin for PHPMyAdmin
 
 我们可以在`$cfg['SaveDir']`参数中使用特殊字符串`%u`。这个字符串将被登录的用户名替换。例如，如下行代码所示：
 
-```go
+```sql
 $cfg['SaveDir'] = './save_dir/%u';
 
 ```

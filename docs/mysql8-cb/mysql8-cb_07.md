@@ -38,13 +38,13 @@
 
 语法如下：
 
-```go
+```sql
 shell> mysqldump [options]
 ```
 
 在选项中，您可以指定用户名、密码和主机名以连接到数据库，如下所示：
 
-```go
+```sql
 --user <user_name> --password <password>
 or
 -u <user_name> -p<password>
@@ -56,7 +56,7 @@ or
 
 可以通过以下方式完成：
 
-```go
+```sql
 shell> mysqldump --all-databases > dump.sql
 ```
 
@@ -64,7 +64,7 @@ shell> mysqldump --all-databases > dump.sql
 
 包括例程和事件：
 
-```go
+```sql
 shell> mysqldump --all-databases --routines --events > dump.sql
 ```
 
@@ -80,7 +80,7 @@ shell> mysqldump --all-databases --routines --events > dump.sql
 
 `--master-data`选项将服务器的二进制日志坐标打印到`dump`文件中。如果`--master-data=2`，它将作为注释打印。这还使用`FLUSH TABLES WITH READ LOCK`语句来获取二进制日志的快照。正如在第五章“事务”中所解释的那样，在存在任何长时间运行的事务时，这可能非常危险：
 
-```go
+```sql
 shell> mysqldump --all-databases --routines --events --single-transaction --master-data > dump.sql
 ```
 
@@ -88,13 +88,13 @@ shell> mysqldump --all-databases --routines --events --single-transaction --mast
 
 备份始终在从服务器上进行。要获取备份时主服务器的二进制日志坐标，可以使用`--dump-slave`选项。如果要从主服务器获取二进制日志备份，请使用此选项。否则，请使用`--master-data`选项：
 
-```go
+```sql
 shell> mysqldump --all-databases --routines --events --single-transaction --dump-slave > dump.sql
 ```
 
 输出将如下所示：
 
-```go
+```sql
 --
 -- Position to start replication or point-in-time recovery from (the master of this slave)
 --
@@ -105,13 +105,13 @@ CHANGE MASTER TO MASTER_LOG_FILE='centos7-bin.000001', MASTER_LOG_POS=463;
 
 要仅备份特定数据库，请执行以下操作：
 
-```go
+```sql
 shell> mysqldump --databases employees > employees_backup.sql
 ```
 
 要仅备份特定表，请执行以下操作：
 
-```go
+```sql
 shell> mysqldump --databases employees --tables employees > employees_backup.sql
 ```
 
@@ -119,7 +119,7 @@ shell> mysqldump --databases employees --tables employees > employees_backup.sql
 
 要忽略某些表，可以使用`--ignore-table=database.table`选项。要指定要忽略的多个表，请多次使用该指令：
 
-```go
+```sql
 shell> mysqldump --databases employees --ignore-table=employees.salary > employees_backup.sql
 ```
 
@@ -127,13 +127,13 @@ shell> mysqldump --databases employees --ignore-table=employees.salary > employe
 
 `mysqldump`可帮助您过滤备份的数据。假设您要备份 2000 年后加入的员工的备份：
 
-```go
+```sql
 shell> mysqldump --databases employees --tables employees --databases employees --tables employees  --where="hire_date>'2000-01-01'" > employees_after_2000.sql
 ```
 
 您可以使用`LIMIT`子句来限制结果：
 
-```go
+```sql
 shell> mysqldump --databases employees --tables employees --databases employees --tables employees  --where="hire_date >= '2000-01-01' LIMIT 10" > employees_after_2000_limit_10.sql
 ```
 
@@ -141,7 +141,7 @@ shell> mysqldump --databases employees --tables employees --databases employees 
 
 有时，您可能无法访问数据库服务器的 SSH（例如云实例，如 Amazon RDS）。在这种情况下，您可以使用`mysqldump`从远程服务器备份到本地服务器。为此，您需要使用`--hostname`选项提到`hostname`。确保用户具有适当的权限以连接和执行备份：
 
-```go
+```sql
 shell> mysqldump --all-databases --routines --events --triggers --hostname <remote_hostname> > dump.sql
 ```
 
@@ -153,7 +153,7 @@ shell> mysqldump --all-databases --routines --events --triggers --hostname <remo
 
 您可以使用`--no-data`仅转储模式：
 
-```go
+```sql
 shell> mysqldump --all-databases --routines --events --triggers --no-data > schema.sql
 ```
 
@@ -163,7 +163,7 @@ shell> mysqldump --all-databases --routines --events --triggers --no-data > sche
 
 `--complete-insert`将在`INSERT`语句中打印列名，这将在修改后的表中有额外列时有所帮助：
 
-```go
+```sql
 shell> mysqldump --all-databases --no-create-db --no-create-info --complete-insert > data.sql
 ```
 
@@ -175,7 +175,7 @@ shell> mysqldump --all-databases --no-create-db --no-create-info --complete-inse
 
 假设您希望将生产数据库中的数据还原到已经存在一些数据的开发机器。如果要将生产中的数据与开发中的数据合并，可以使用`--replace`选项，该选项将使用`REPLACE INTO`语句而不是`INSERT`语句。您还应该包括`--skip-add-drop-table`选项，该选项不会将`DROP TABLE`语句写入`dump`文件。如果表的数量和结构相同，还可以包括`--no-create-info`选项，该选项将跳过`dump`文件中的`CREATE TABLE`语句：
 
-```go
+```sql
 shell> mysqldump --databases employees --skip-add-drop-table --no-create-info --replace > to_development.sql
 ```
 
@@ -197,13 +197,13 @@ shell> mysqldump --databases employees --skip-add-drop-table --no-create-info --
 
 通过指定线程数（基于 CPU 数量）可以加快转储过程。例如，使用八个线程进行完整备份：
 
-```go
+```sql
 shell> mysqlpump --default-parallelism=8 > full_backup.sql
 ```
 
 您甚至可以为每个数据库指定线程数。在我们的情况下，`employees`数据库与`company`数据库相比非常大。因此，您可以为`employees`生成四个线程，并为`company`数据库生成两个线程：
 
-```go
+```sql
 shell> mysqlpump -u root --password --parallel-schemas=4:employees --default-parallelism=2 > full_backup.sql
 Dump progress: 0/6 tables, 250/331145 rows
 Dump progress: 0/34 tables, 494484/3954504 rows
@@ -217,7 +217,7 @@ Dump completed in 6957
 
 另一个例子是将线程分配给`db1`和`db2`的三个线程，`db3`和`db4`的两个线程，以及其余数据库的四个线程：
 
-```go
+```sql
 shell> mysqlpump --parallel-schemas=3:db1,db2 --parallel-schemas=2:db3,db4 --default-parallelism=4 > full_backup.sql
 ```
 
@@ -227,13 +227,13 @@ shell> mysqlpump --parallel-schemas=3:db1,db2 --parallel-schemas=2:db3,db4 --def
 
 备份以`prod`结尾的所有数据库：
 
-```go
+```sql
 shell> mysqlpump --include-databases=%prod --result-file=db_prod.sql
 ```
 
 假设某些数据库中有一些测试表，您希望将它们从备份中排除；您可以使用`--exclude-tables`选项指定，该选项将在所有数据库中排除名称为`test`的表：
 
-```go
+```sql
 shell> mysqlpump --exclude-tables=test --result-file=backup_excluding_test.sql
 ```
 
@@ -251,13 +251,13 @@ shell> mysqlpump --exclude-tables=test --result-file=backup_excluding_test.sql
 
 在`mysqldump`中，您将不会在`CREATE USER`或`GRANT`语句中获得用户的备份；相反，您必须备份`mysql.user`表。使用`mysqlpump`，您可以将用户帐户作为帐户管理语句（`CREATE USER`和`GRANT`）而不是插入到`mysql`系统数据库中：
 
-```go
+```sql
 shell> mysqlpump --exclude-databases=% --users > users_backup.sql
 ```
 
 您还可以通过指定`--exclude-users`选项来排除一些用户：
 
-```go
+```sql
 shell> mysqlpump --exclude-databases=% --exclude-users=root --users > users_backup.sql
 ```
 
@@ -267,25 +267,25 @@ shell> mysqlpump --exclude-databases=% --exclude-users=root --users > users_back
 
 请注意，您应该具有适当的解压缩实用程序：
 
-```go
+```sql
 shell> mysqlpump -u root -pxxxx --compress-output=lz4 > dump.lz4
 ```
 
 要解压缩，请执行此操作：
 
-```go
+```sql
 shell> lz4_decompress dump.lz4 dump.sql
 ```
 
 使用`zlib`执行此操作：
 
-```go
+```sql
 shell> mysqlpump -u root -pxxxx --compress-output=zlib > dump.zlib
 ```
 
 要解压缩，请执行此操作：
 
-```go
+```sql
 shell> zlib_decompress dump.zlib dump.sql
 ```
 
@@ -325,13 +325,13 @@ shell> zlib_decompress dump.zlib dump.sql
 
 在 Ubuntu/Debain 上：
 
-```go
+```sql
 shell> sudo apt-get install libglib2.0-dev libmysqlclient-dev zlib1g-dev libpcre3-dev cmake git
 ```
 
 在 Red Hat/CentOS/Fedora 上：
 
-```go
+```sql
 shell> yum install glib2-devel mysql-devel zlib-devel pcre-devel cmake gcc-c++ git
 shell> cd /opt
 shell> git clone https://github.com/maxbube/mydumper.git
@@ -357,7 +357,7 @@ Install the project...
 
 或者，您可以使用 YUM 或 APT，在此处找到发布版本：[`github.com/maxbube/mydumper/releases`](https://github.com/maxbube/mydumper/releases)
 
-```go
+```sql
 #YUM
 shell> sudo yum install -y "https://github.com/maxbube/mydumper/releases/download/v0.9.3/mydumper-0.9.3-41.el7.x86_64.rpm"
 
@@ -372,7 +372,7 @@ shell> sudo apt-get install -f
 
 以下命令将所有数据库备份到`/backups`文件夹中：
 
-```go
+```sql
 shell> mydumper -u root --password=<password> --outputdir /backups
 ```
 
@@ -380,7 +380,7 @@ shell> mydumper -u root --password=<password> --outputdir /backups
 
 视图存储为`<database_name>.<table>-schema-view.sql`。存储的例程，触发器和事件存储为`<database_name>-schema-post.sql`（如果目录未创建，请使用`sudo mkdir –pv /backups`）：
 
-```go
+```sql
 shell> ls -lhtr /backups/company*
 -rw-r--r-- 1 root root 69 Aug 13 10:11 /backups/company-schema-create.sql
 -rw-r--r-- 1 root root 180 Aug 13 10:11 /backups/company.payments.sql
@@ -392,7 +392,7 @@ shell> ls -lhtr /backups/company*
 
 如果有任何超过 60 秒的查询，`mydumper`将以以下错误失败：
 
-```go
+```sql
 ** (mydumper:18754): CRITICAL **: There are queries in PROCESSLIST running longer than 60s, aborting dump,
  use --long-query-guard to change the guard value, kill queries (--kill-long-queries) or use  different server for dump
 
@@ -402,7 +402,7 @@ shell> ls -lhtr /backups/company*
 
 `--kill-long-queries`选项会杀死所有大于 60 秒或由`--long-query-guard`设置的值的查询。请注意，由于错误（[`bugs.launchpad.net/mydumper/+bug/1713201`](https://bugs.launchpad.net/mydumper/+bug/1713201)），`--kill-long-queries`也会杀死复制线程：
 
-```go
+```sql
 shell> sudo mydumper --kill-long-queries --outputdir /backups** (mydumper:18915): WARNING **: Using trx_consistency_only, binlog coordinates will not be accurate if you are writing to non transactional tables.
 ** (mydumper:18915): WARNING **: Killed a query that was running for 368s
 ```
@@ -413,7 +413,7 @@ shell> sudo mydumper --kill-long-queries --outputdir /backups** (mydumper:18915)
 
 在主服务器上，它捕获二进制日志位置：
 
-```go
+```sql
 shell> sudo cat /backups/metadata 
 Started dump at: 2017-08-20 12:44:09
 SHOW MASTER STATUS:
@@ -424,7 +424,7 @@ SHOW MASTER STATUS:
 
 在从服务器上，它捕获主服务器和从服务器的二进制日志位置：
 
-```go
+```sql
 shell> cat /backups/metadataStarted dump at: 2017-08-26 06:26:19
 SHOW MASTER STATUS:
  Log: server1.000012
@@ -435,7 +435,7 @@ SHOW SLAVE STATUS:
  Log: master-bin.000013
 ```
 
-```go
+```sql
  Pos: 4633
  GTID:
 Finished dump at: 2017-08-26 06:26:24
@@ -445,11 +445,11 @@ Finished dump at: 2017-08-26 06:26:24
 
 以下命令将`employees`数据库的`employees`表备份到`/backups`目录中：
 
-```go
+```sql
 shell> mydumper -u root --password=<password> -B employees -T employees --triggers --events --routines  --outputdir /backups/employee_table
 ```
 
-```go
+```sql
 shell> ls -lhtr /backups/employee_table/
 total 17M
 -rw-r--r-- 1 root root 71 Aug 13 10:35 employees-schema-create.sql
@@ -473,7 +473,7 @@ total 17M
 
 您可以使用`regex`选项包括/排除特定数据库。以下命令将从备份中排除`mysql`和`test`数据库：
 
-```go
+```sql
 shell> mydumper -u root --password=<password> --regex '^(?!(mysql|test))' --outputdir /backups/specific_dbs
 ```
 
@@ -481,7 +481,7 @@ shell> mydumper -u root --password=<password> --regex '^(?!(mysql|test))' --outp
 
 为了加快大表的转储和恢复速度，您可以将其分成小块。块大小可以通过它包含的行数来指定，每个块将被写入单独的文件中：
 
-```go
+```sql
 shell> mydumper -u root --password=<password> -B employees -T employees --triggers --events --routines --rows=10000 -t 8 --trx-consistency-only --outputdir /backups/employee_table_chunks
 ```
 
@@ -493,7 +493,7 @@ shell> mydumper -u root --password=<password> -B employees -T employees --trigge
 
 对于每个块，将创建一个文件，格式为`<database_name>.<table_name>.<number>.sql`；数字用五个零填充：
 
-```go
+```sql
 shell> ls -lhr /backups/employee_table_chunks
 total 17M
 -rw-r--r-- 1 root root 71 Aug 13 10:45 employees-schema-create.sql
@@ -525,11 +525,11 @@ total 17M
 
 您可以指定`--compress`选项来压缩备份：
 
-```go
+```sql
 shell> mydumper -u root --password=<password> -B employees -T employees -t 8 --trx-consistency-only --compress --outputdir /backups/employees_compress
 ```
 
-```go
+```sql
 shell> ls -lhtr /backups/employees_compress
 total 5.3M
 -rw-r--r-- 1 root root 91 Aug 13 11:01 employees-schema-create.sql.gz
@@ -542,7 +542,7 @@ total 5.3M
 
 您可以使用`--no-schemas`选项跳过模式并进行仅数据备份：
 
-```go
+```sql
 shell> mydumper -u root --password=<password> -B employees -T employees -t 8 --no-schemas --compress --trx-consistency-only --outputdir /backups/employees_data
 ```
 
@@ -554,13 +554,13 @@ shell> mydumper -u root --password=<password> -B employees -T employees -t 8 --n
 
 1.  关闭 MySQL 服务器：
 
-```go
+```sql
 shell> sudo service mysqld stop
 ```
 
 1.  将文件复制到`data directory`（您的目录可能不同）：
 
-```go
+```sql
 shell> sudo rsync -av /data/mysql /backups
 or do rsync over ssh to remote server
 shell> rsync -e ssh -az /data/mysql/ backup_user@remote_server:/backups
@@ -568,7 +568,7 @@ shell> rsync -e ssh -az /data/mysql/ backup_user@remote_server:/backups
 
 1.  启动 MySQL 服务器：
 
-```go
+```sql
 shell> sudo service mysqld start
 ```
 
@@ -596,19 +596,19 @@ XtraBackup 是由 Percona 提供的开源备份软件。它在不关闭服务器
 
 1.  安装`mysql-community-libs-compat`：
 
-```go
+```sql
 shell> sudo yum install -y mysql-community-libs-compat
 ```
 
 1.  安装 Percona 存储库：
 
-```go
+```sql
 shell> sudo yum install http://www.percona.com/downloads/percona-release/redhat/0.1-4/percona-release-0.1-4.noarch.rpm
 ```
 
 您应该看到以下输出：
 
-```go
+```sql
 Retrieving http://www.percona.com/downloads/percona-release/redhat/0.1-4/percona-release-0.1-4.noarch.rpm
 Preparing...                ########################################### [100%]
    1:percona-release        ########################################### [100%]
@@ -616,7 +616,7 @@ Preparing...                ########################################### [100%]
 
 1.  测试存储库：
 
-```go
+```sql
 shell> yum list | grep xtrabackup
 holland-xtrabackup.noarch 1.0.14-3.el7 epel 
 percona-xtrabackup.x86_64 2.3.9-1.el7 percona-release-x86_64
@@ -632,7 +632,7 @@ percona-xtrabackup-test-24.x86_64 2.4.8-1.el7 percona-release-x86_64
 
 1.  安装 XtraBackup：
 
-```go
+```sql
 shell> sudo yum install percona-xtrabackup-24
 ```
 
@@ -640,13 +640,13 @@ shell> sudo yum install percona-xtrabackup-24
 
 1.  从 Percona 获取存储库软件包：
 
-```go
+```sql
 shell> wget https://repo.percona.com/apt/percona-release_0.1-4.$(lsb_release -sc)_all.deb
 ```
 
 1.  使用`dpkg`安装下载的软件包。为此，请以`root`或`sudo`身份运行以下命令：
 
-```go
+```sql
 shell> sudo dpkg -i percona-release_0.1-4.$(lsb_release -sc)_all.deb
 ```
 
@@ -654,13 +654,13 @@ shell> sudo dpkg -i percona-release_0.1-4.$(lsb_release -sc)_all.deb
 
 1.  记得更新本地缓存：
 
-```go
+```sql
 shell> sudo apt-get update
 ```
 
 1.  之后，您可以安装软件包：
 
-```go
+```sql
 shell> sudo apt-get install percona-xtrabackup-24
 ```
 
@@ -672,13 +672,13 @@ shell> sudo apt-get install percona-xtrabackup-24
 
 在开始备份之前，请锁定实例以进行备份：
 
-```go
+```sql
 mysql> LOCK INSTANCE FOR BACKUP;
 ```
 
 执行备份，完成后解锁实例：
 
-```go
+```sql
 mysql> UNLOCK INSTANCE;
 ```
 
@@ -690,13 +690,13 @@ mysql> UNLOCK INSTANCE;
 
 1.  在服务器上创建一个复制用户。创建一个强密码：
 
-```go
+```sql
 mysql> GRANT REPLICATION SLAVE ON *.* TO 'binlog_user'@'%' IDENTIFIED BY 'binlog_pass';Query OK, 0 rows affected, 1 warning (0.03 sec)
 ```
 
 1.  检查服务器上的二进制日志：
 
-```go
+```sql
 mysql> SHOW BINARY LOGS;+----------------+-----------+
 | Log_name       | File_size |
 +----------------+-----------+
@@ -713,7 +713,7 @@ mysql> SHOW BINARY LOGS;+----------------+-----------+
 
 1.  登录到备份服务器并执行以下命令。这将从 MySQL 服务器复制二进制日志到备份服务器。您可以开始使用`nohup`或`disown`：
 
-```go
+```sql
 shell> mysqlbinlog -u <user> -p<pass> -h <server> --read-from-remote-server --stop-never 
 --to-last-log --raw server1.000008 &
 shell> disown -a
@@ -721,7 +721,7 @@ shell> disown -a
 
 1.  验证二进制日志是否已备份：
 
-```go
+```sql
 shell> ls -lhtr server1.0000*-rw-r-----. 1 mysql mysql 2.4K Aug 25 12:22 server1.000008
 -rw-r-----. 1 mysql mysql  199 Aug 25 12:22 server1.000009
 -rw-r-----. 1 mysql mysql 1.1K Aug 25 12:22 server1.000010

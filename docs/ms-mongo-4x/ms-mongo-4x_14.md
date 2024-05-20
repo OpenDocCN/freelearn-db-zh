@@ -214,7 +214,7 @@ Kafka 主题进一步分为多个分区。我们可以在写入主题时，以�
 
 在我们的本地机器上安装 Kafka，或者选择任何云提供商（有很好的 EC2 教程可以找到），我们可以使用以下单个命令创建一个主题：
 
-```go
+```sql
 $ kafka-topics  --create --zookeeper localhost:2181 --replication-factor 1  --partitions 1 --topic xmr-btc
 Created topic "xmr-btc".
 ```
@@ -223,20 +223,20 @@ Created topic "xmr-btc".
 
 删除主题与创建主题类似，使用以下命令：
 
-```go
+```sql
 $ kafka-topics --delete --zookeeper localhost:2181 --topic xmr-btc
 ```
 
 我们可以通过发出以下命令来获取所有主题的列表：
 
-```go
+```sql
 $ kafka-topics --list --zookeeper localhost:2181
 xmr-btc
 ```
 
 然后我们可以为我们的主题创建一个命令行生产者，只是为了测试我们是否可以将消息发送到队列，就像这样：
 
-```go
+```sql
 $ kafka-console-producer --broker-list localhost:9092 --topic xmr-btc
 ```
 
@@ -244,7 +244,7 @@ $ kafka-console-producer --broker-list localhost:9092 --topic xmr-btc
 
 之后，我们可以通过启动一个消费者来查看等待在我们队列中的消息：
 
-```go
+```sql
 $ kafka-console-consumer --zookeeper localhost:2181 --topic xmr-btc --from-beginning
 ```
 
@@ -258,7 +258,7 @@ $ kafka-console-consumer --zookeeper localhost:2181 --topic xmr-btc --from-begin
 
 我们的`produce`方法将用于将消息写入 Kafka，如下所示：
 
-```go
+```sql
 def produce
   options = { converters: :numeric, headers: true }
    CSV.foreach('xmr_btc.csv', options) do |row|
@@ -270,7 +270,7 @@ end
 
 我们的`consume`方法将从 Kafka 中读取消息，如下所示：
 
-```go
+```sql
 def consume
   consumer = @kafka.consumer(group_id: 'xmr-consumers')
   consumer.subscribe('xmr-btc', start_from_beginning: true)
@@ -292,7 +292,7 @@ end
 
 1.  首先，我们创建我们的集合，以便我们的文档在一分钟后过期。在`mongo` shell 中输入以下内容：
 
-```go
+```sql
 > use exchange_data
 > db.xmr_btc.createIndex( { "createdAt": 1 }, { expireAfterSeconds: 60 })
 {
@@ -307,7 +307,7 @@ end
 
 1.  对于我们的用例，我们将使用低级别的 MongoDB Ruby 驱动程序。`MongoExchangeClient`的代码如下：
 
-```go
+```sql
 class MongoExchangeClient
  def initialize
    @collection = Mongo::Client.new([ '127.0.0.1:27017' ], database: :exchange_data).database[:xmr_btc]
@@ -344,7 +344,7 @@ MongoDB Connector for Hadoop 是官方支持的库，允许将 MongoDB 数据文
 
 1.  创建一个目录（在我们的情况下，命名为`mongo_lib`），并使用以下命令将这两个 JAR 复制到其中：
 
-```go
+```sql
 export HADOOP_CLASSPATH=$HADOOP_CLASSPATH:<path_to_directory>/mongo_lib/
 ```
 
@@ -354,13 +354,13 @@ export HADOOP_CLASSPATH=$HADOOP_CLASSPATH:<path_to_directory>/mongo_lib/
 
 1.  一旦我们设置好了 Hive，我们只需运行以下命令：
 
-```go
+```sql
 > hive
 ```
 
 1.  然后，我们添加之前下载的三个 JAR（`mongo-hadoop-core`、`mongo-hadoop-driver`和`mongo-hadoop-hive`）：
 
-```go
+```sql
 hive> add jar /Users/dituser/code/hadoop-2.8.1/mongo-hadoop-core-2.0.2.jar;
 Added [/Users/dituser/code/hadoop-2.8.1/mongo-hadoop-core-2.0.2.jar] to class path
 Added resources: [/Users/dituser/code/hadoop-2.8.1/mongo-hadoop-core-2.0.2.jar]
@@ -391,13 +391,13 @@ hive>
 
 1.  现在我们已经准备好了，我们可以创建一个由我们本地 Hive 数据支持的 MongoDB 集合：
 
-```go
+```sql
 hive> create external table exchanges_mongo (objectid STRING, customerid INT,pair STRING,time STRING, recommendation INT) STORED BY 'com.mongodb.hadoop.hive.MongoStorageHandler' WITH SERDEPROPERTIES('mongo.columns.mapping'='{"objectid":"_id", "customerid":"customerid","pair":"pair","time":"Timestamp", "recommendation":"recommendation"}') tblproperties('mongo.uri'='mongodb://localhost:27017/exchange_data.xmr_btc');
 ```
 
 1.  最后，我们可以按照以下方式将`exchanges` Hive 表中的所有数据复制到 MongoDB 中：
 
-```go
+```sql
 hive> Insert into table exchanges_mongo select * from exchanges;
 ```
 

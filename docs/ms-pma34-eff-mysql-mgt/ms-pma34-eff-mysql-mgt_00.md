@@ -74,7 +74,7 @@ phpMyAdmin 是一个处理 MySQL 管理的开源 Web 界面。它可以执行各
 
 代码块设置如下：
 
-```go
+```sql
 $i++;
 $cfg['Servers'][$i]['host'] = '';
 $cfg['Servers'][$i]['port'] = '';
@@ -84,7 +84,7 @@ $cfg['Servers'][$i]['socket'] = '';
 
 当我们希望引起您对代码块的特定部分的注意时，相关行或项目将以粗体显示：
 
-```go
+```sql
 UPDATE `marc_book`.`book` SET `some_bits` = b '101' 
 WHERE `book`.`isbn` = '1-234567-89-0' LIMIT 1;
 
@@ -92,7 +92,7 @@ WHERE `book`.`isbn` = '1-234567-89-0' LIMIT 1;
 
 任何命令行输入或输出都以以下形式书写：
 
-```go
+```sql
  tar -xzvf phpMyAdmin-3.4.5-all-languages.tar.gz
 
 ```

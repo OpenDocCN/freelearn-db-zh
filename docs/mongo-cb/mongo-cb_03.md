@@ -44,7 +44,7 @@ Mongo 支持所有主要编程语言，并得到 MongoDB Inc 的支持。社区�
 
 1.  在 shell 中输入以下内容，Python shell 应该启动：
 
-```go
+```sql
 $ python
 Python 2.7.6 (default, Mar 22 2014, 22:59:56)
 [GCC 4.8.2] on linux2
@@ -55,7 +55,7 @@ Type "help", "copyright", "credits" or "license" for more information.
 
 1.  然后，导入`pymongo`包，并创建客户端如下：
 
-```go
+```sql
 >>> import pymongo
 >>> client = pymongo.MongoClient('localhost', 27017)
 The following is an alternative way to connect
@@ -65,7 +65,7 @@ The following is an alternative way to connect
 
 1.  这样做效果很好，可以实现相同的结果。现在我们有了客户端，下一步是获取我们将执行操作的数据库。这与一些编程语言不同，在那里我们有一个`getDatabase()`方法来获取数据库的实例。我们将获取一个对数据库对象的引用，我们将在其上执行操作，在这种情况下是`test`。我们将以以下方式执行此操作：
 
-```go
+```sql
 >>> db = client.test
 Another alternative is 
 >>> db = client['test']
@@ -74,14 +74,14 @@ Another alternative is
 
 1.  我们将查询`postalCodes`集合。我们将将结果限制为 10 项。
 
-```go
+```sql
 >>> postCodes = db.postalCodes.find().limit(10)
 
 ```
 
 1.  遍历结果。注意`for`语句后的缩进。以下片段应该打印出返回的 10 个文档：
 
-```go
+```sql
 >>> for postCode in postCodes:
  print 'City: ', postCode['city'], ', State: ', postCode['state'], ', Pin Code: ', postCode['pincode']
 
@@ -89,21 +89,21 @@ Another alternative is
 
 1.  要查找一个文档，请执行以下操作：
 
-```go
+```sql
 >>> postCode = db.postalCodes.find_one()
 
 ```
 
 1.  按以下方式打印返回结果的`state`和`city`：
 
-```go
+```sql
 >>> print 'City: ', postCode['city'], ', State: ', postCode['state'], ', Pin Code: ', postCode['pincode']
 
 ```
 
 1.  让我们查询古吉拉特邦前 10 个城市，按城市名称排序，并且额外选择`city`、`state`和`pincode`。在 Python shell 中执行以下查询：
 
-```go
+```sql
 >>> cursor = db.postalCodes.find({'state':'Gujarat'}, {'_id':0, 'city':1, 'state':1, 'pincode':1}).sort('city', pymongo.ASCENDING).limit(10)
 
 ```
@@ -112,7 +112,7 @@ Another alternative is
 
 1.  让我们对我们查询的数据进行排序。我们希望按州的降序和城市的升序进行排序。我们将编写以下查询：
 
-```go
+```sql
 >>> city = db.postalCodes.find().sort([('state', pymongo.DESCENDING),('city',pymongo.ASCENDING)]).limit(5)
 
 ```
@@ -121,7 +121,7 @@ Another alternative is
 
 1.  因此，我们已经玩了一会儿，找到了文档，并涵盖了 Python 中与查询 MongoDB 有关的基本操作。现在，让我们稍微了解一下`insert`操作。我们将使用一个测试集合来执行这些操作，而不会干扰我们的邮政编码测试数据。我们将使用`pymongoTest`集合来实现这个目的，并按以下方式向其中添加文档：
 
-```go
+```sql
 >>> for i in range(1, 21):
  db.pymongoTest.insert_one({'i':i})
 
@@ -129,7 +129,7 @@ Another alternative is
 
 1.  `insert`可以接受一个字典对象列表并执行批量插入。因此，现在类似以下的`insert`是完全有效的：
 
-```go
+```sql
 >>> db.pythonTest.insert_many([{'name':'John'}, {'name':'Mark'}])
 
 ```
@@ -144,7 +144,7 @@ Another alternative is
 
 在第 6 步，我们执行另一个`find`来查询数据。在第 8 步，我们传递了两个 Python 字典。第一个字典是查询，类似于我们在 mongo shell 中使用的查询参数。第二个字典用于提供要在结果中返回的字段。对于一个字段，值为 1 表示该值将被选择并返回在结果中。这与在关系数据库中使用`select`语句并显式提供要选择的几组列是相同的。`_id`字段默认被选择，除非在选择器`dict`对象中明确设置为零。这里提供的选择器是`{'_id':0, 'city':1, 'state':1, 'pincode':1}`，它选择了城市、州和邮政编码，并抑制了`_id`字段。我们也有一个排序方法。这个方法有两种格式，如下所示：
 
-```go
+```sql
 sort(sort_field, sort_direction)
 sort([(sort_field, sort_direction)…(sort_field, sort_direction)])
 ```
@@ -159,7 +159,7 @@ sort([(sort_field, sort_direction)…(sort_field, sort_direction)])
 
 添加插入多个文档的功能需要另一个参数来控制行为。在给定的列表中，如果其中一个插入失败，剩余的插入是否应该继续，还是在遇到第一个错误时停止插入？控制此行为的参数名称是`continue_on_error`，其默认值为`False`，即遇到第一个错误时停止插入。如果此值为`True`，并且在插入过程中发生多个错误，那么只有最新的错误将可用，因此默认选项为`False`是明智的。让我们看几个例子。在 Python shell 中，执行以下操作：
 
-```go
+```sql
 >>> db.contOnError.drop()
 >>> db.contOnError.insert([{'_id':1}, {'_id':1}, {'_id':2}, {'_id':2}])
 >>> db.contOnError.count()
@@ -168,7 +168,7 @@ sort([(sort_field, sort_direction)…(sort_field, sort_direction)])
 
 我们将得到的计数是`1`，这是第一个具有`_id`字段为`1`的文档。一旦找到另一个具有相同`_id`字段值的文档，即在本例中为`1`，就会抛出错误并停止批量插入。现在执行以下`insert`操作：
 
-```go
+```sql
 >>> db.contOnError.drop()
 >>> db.contOnError.insert([{'_id':1}, {'_id':1}, {'_id':2}, {'_id':2}], continue_on_error=True)
 >>> db.contOnError.count()
@@ -191,7 +191,7 @@ sort([(sort_field, sort_direction)…(sort_field, sort_direction)])
 
 在我们开始之前，让我们定义一个小函数，它通过游标迭代并在控制台上显示游标的结果。每当我们想要在`pymongoTests`集合上显示查询结果时，我们将使用这个函数。以下是函数体：
 
-```go
+```sql
 >>> def showResults(cursor):
  if cursor.count() != 0:
  for e in cursor:
@@ -203,7 +203,7 @@ sort([(sort_field, sort_direction)…(sort_field, sort_direction)])
 
 您可以参考上一个配方中的步骤 1 和步骤 2，了解如何连接到 MongoDB 服务器以及用于在该数据库上执行 CRUD 操作的`db`对象。此外，还可以参考上一个配方中的第 8 步，了解如何在`pymongoTest`集合中插入所需的测试数据。一旦数据存在，您可以在 Python shell 中执行以下操作来确认该集合中的数据：
 
-```go
+```sql
 >>> showResults(db.pymongoTest.find())
 
 ```
@@ -216,7 +216,7 @@ sort([(sort_field, sort_direction)…(sort_field, sort_direction)])
 
 1.  如果`i`字段的值大于 10，则我们将设置一个名为`gtTen`的字段，并指定一个布尔值`True`。让我们执行以下更新：
 
-```go
+```sql
 >>>result = db.pymongoTest.update_one({'i':{'$gt':10}}, {'$set':{'gtTen':True}})
 >>> print result.raw_result
 {u'n': 1, u'nModified': 0, u'ok': 1, 'updatedExisting': True}
@@ -225,14 +225,14 @@ sort([(sort_field, sort_direction)…(sort_field, sort_direction)])
 
 1.  查询集合，通过执行以下操作查看其数据，并检查已更新的数据：
 
-```go
+```sql
 >>> showResults(db.pymongoTest.find())
 
 ```
 
 1.  显示的结果证实只有一个文档被更新。现在我们将再次执行相同的更新，但这一次，我们将更新所有与提供的查询匹配的文档。在 Python shell 中执行以下更新。注意响应中的 n 的值，这次是`10`。
 
-```go
+```sql
 >>> result = db.pymongoTest.update_many({'i':{'$gt':10}},{'$set':{'gtTen':True}})
 print result.raw_result
 {u'n': 10, u'nModified': 9, u'ok': 1, 'updatedExisting': True}
@@ -243,14 +243,14 @@ print result.raw_result
 
 1.  让我们看看如何执行`upsert`操作。Upserts 是更新加插入，如果文档存在则更新文档，就像更新操作一样，否则插入一个新文档。我们将看一个例子。考虑对集合中不存在的文档进行以下更新：
 
-```go
+```sql
 >>> db.pymongoTest.update_one({'i':21},{'$set':{'gtTen':True}})
 
 ```
 
 1.  这里的更新不会更新任何内容，并且返回更新的文档数为零。但是，如果我们想要更新一个文档（如果存在），否则插入一个新文档并原子性地应用更新，那么我们执行一个`upsert`操作。在这种情况下，`upsert`操作执行如下。请注意返回结果中提到的`upsert`，新插入文档的`ObjectId`和`updatedExisting`值，这个值是`False`：
 
-```go
+```sql
 >>>result = db.pymongoTest.update_one({'i':21},{'$set':{'gtTen':True}}, upsert=True)
 >>> print result.raw_result
 {u'n': 1,
@@ -263,7 +263,7 @@ print result.raw_result
 
 1.  让我们看看如何使用`remove`方法从集合中删除文档：
 
-```go
+```sql
 >>>result = db.pymongoTest.delete_one({'i':21})
 >>> print result.raw_result
 {u'n': 1, u'ok': 1}
@@ -274,7 +274,7 @@ print result.raw_result
 
 1.  要从集合中删除多个文档，我们使用`delete_many`方法：
 
-```go
+```sql
 >>>result = db.pymongoTest.delete_many({'i':{'$gt': 10}})
 >>> print result.raw_result
 {u'n': 10, u'ok': 1}
@@ -283,7 +283,7 @@ print result.raw_result
 
 1.  我们现在将看一下查找和修改操作。我们可以将这些操作视为查找文档并更新/删除它的一种方式，这两种操作都是原子性执行的。操作完成后，返回的文档要么是更新操作之前的文档，要么是更新操作之后的文档。（在`remove`的情况下，操作后将没有文档。）在没有这种操作的情况下，我们无法保证在多个客户端连接可能对同一文档执行类似操作的情况下的原子性。以下是如何在 Python 中执行此查找和修改操作的示例：
 
-```go
+```sql
 >>> db.pymongoTest.find_one_and_update({'i':20}, {'$set':{'inWords':'Twenty'}})
 {u'_id': ObjectId('557bdb070640fd0a0a935c22'), u'i': 20}
 
@@ -295,7 +295,7 @@ print result.raw_result
 
 1.  执行以下`find`方法来查询并查看我们在上一步中更新的文档。结果文档将包含在`Words`字段中新增的内容：
 
-```go
+```sql
 >>> db.pymongoTest.find_one({'i':20})
 {u'i': 20, u'_id': ObjectId('557bdb070640fd0a0a935c22'), u'inWords': u'Twenty'}
 
@@ -303,7 +303,7 @@ print result.raw_result
 
 1.  我们将再次执行`find`和`modify`操作，但这一次，我们返回更新后的文档，而不是在步骤 9 中看到的更新前的文档。在 Python shell 中执行以下操作：
 
-```go
+```sql
 >>> db.pymongoTest.find_one_and_update({'i':19}, {'$set':{'inWords':'Nineteen'}}, new=True)
 {u'_id': ObjectId('557bdb070640fd0a0a935c21'), u'i': 19, u'inWords': u'Nineteen'}
 
@@ -311,14 +311,14 @@ print result.raw_result
 
 1.  我们在上一个食谱中看到了如何使用 PyMongo 进行查询。在这里，我们将继续进行查询操作。我们看到`sort`和`limit`函数是如何链接到 find 操作的。对`postalCodes`集合的调用原型如下：
 
-```go
+```sql
 db.postalCode.find(..).limit(..).sort(..)
 
 ```
 
 1.  有一种实现相同结果的替代方法。在 Python shell 中执行以下查询：
 
-```go
+```sql
 >>>cursor = db.postalCodes.find({'state':'Gujarat'}, {'_id':0, 'city':1, 'state':1, 'pincode':1}, limit=10, sort=[('city', pymongo.ASCENDING)])
 
 ```
@@ -329,7 +329,7 @@ db.postalCode.find(..).limit(..).sort(..)
 
 让我们看看在这个示例中我们做了什么；我们从在步骤 1 中更新集合中的文档开始。但是，默认情况下，更新操作只更新第一个匹配的文档，其余匹配的文档不会被更新。在步骤 2 中，我们添加了一个名为`multi`的参数，其值为`True`，以便在同一更新操作中更新多个文档。请注意，所有这些文档不会作为一个事务的一部分被原子更新。在 Python shell 中查看更新后，我们看到与在 Mongo shell 中所做的操作非常相似。如果我们想要为更新操作命名参数，那么提供为查询使用的文档的参数名称称为`spec`，而更新文档的参数名称称为`document`。例如，以下更新是有效的：
 
-```go
+```sql
 >>> db.pymongoTest.update_one(spec={'i':{'$gt':10}},document= {'$set':{'gtTen':True}})
 
 ```
@@ -342,7 +342,7 @@ db.postalCode.find(..).limit(..).sort(..)
 
 在这个示例中看到的所有操作都是针对连接到独立实例的客户端的。如果您连接到一个副本集，客户端将以不同的方式实例化。我们也知道，默认情况下不允许查询副本节点的数据。我们需要在连接到副本节点的 mongo shell 中显式执行`rs.slaveOk()`来查询它。在 Python 客户端中也是以类似的方式执行。如果我们连接到副本节点，不能默认查询它，但是我们指定我们可以查询副本节点的方式略有不同。从 PyMongo 3.0 开始，我们现在可以在初始化`MongoClient`时传递`ReadPreference`。这主要是因为，从 PyMongo 3.0 开始，`pymongo.MongoClient()`是连接到独立实例、副本集或分片集群的唯一方式。可用的读取偏好包括`PRIMARY`、`SECONDARY`、`PRIMARY_PREFERRED`、`SECONDARY_PREFERRED`和`NEAREST`。
 
-```go
+```sql
 >> client = pymongo.MongoClient('localhost', 27017, readPreference='secondaryPreferred')
 >> print cl.read_preference
 SecondaryPreferred(tag_sets=None)
@@ -353,7 +353,7 @@ SecondaryPreferred(tag_sets=None)
 
 默认情况下，未显式设置读取偏好的初始化客户端的`read_preference`为`PRIMARY`（值为零）。但是，如果我们现在从先前初始化的客户端获取数据库对象，则读取偏好将为`NEAREST`（值为`4`）。
 
-```go
+```sql
 >>> db = client.test
 >>> db.read_preference
 Primary()
@@ -363,7 +363,7 @@ Primary()
 
 设置读取偏好就像做以下操作一样简单：
 
-```go
+```sql
 >>>db =  client.get_database('test', read_preference=ReadPreference.SECONDARY)
 
 ```
@@ -376,7 +376,7 @@ Primary()
 
 在 shell 中，我们显示`dbs`以显示连接的 mongo 实例中的所有数据库名称。从 Python 客户端，我们对客户端实例执行以下操作：
 
-```go
+```sql
 >>> client.database_names()
 [u'local', u'test']
 
@@ -384,7 +384,7 @@ Primary()
 
 同样，要查看集合的列表，我们在 mongo shell 中执行`show collections`；在 Python 中，我们对数据库对象执行以下操作：
 
-```go
+```sql
 >>> db.collection_names()
 [u'system.indexes', u'writeConcernTest', u'pymongoTest']
 
@@ -392,7 +392,7 @@ Primary()
 
 现在对于`index`操作；我们首先查看`pymongoTest`集合中存在的所有索引。在 Python shell 中执行以下操作以查看集合上的索引：
 
-```go
+```sql
 >>> db.pymongoTest.index_information()
 {u'_id_': {u'key': [(u'_id', 1)], u'ns': u'test.pymongoTest', u'v': 1}}
 
@@ -400,7 +400,7 @@ Primary()
 
 现在，我们将按照以下方式在`pymongoTest`集合上对键`x`创建一个升序排序的索引：
 
-```go
+```sql
 >>>from pymongo import IndexModel, ASCENDING
 >>> myindex = IndexModel([("x", ASCENDING)], name='Index_on_X')
 >>>db.pymongoTest.create_indexes([myindex])
@@ -410,7 +410,7 @@ Primary()
 
 我们可以再次列出索引以确认索引的创建：
 
-```go
+```sql
 >>> db.pymongoTest.index_information()
 {u'Index_on_X': {u'key': [(u'x', 1)], u'ns': u'test.pymongoTest', u'v': 1},
  u'_id_': {u'key': [(u'_id', 1)], u'ns': u'test.pymongoTest', u'v': 1}}
@@ -419,7 +419,7 @@ Primary()
 
 我们可以看到索引已经创建。删除索引也很简单，如下所示：
 
-```go
+```sql
 db.pymongoTest.drop_index('Index_on_X')
 
 ```
@@ -438,35 +438,35 @@ db.pymongoTest.drop_index('Index_on_X')
 
 1.  通过在命令提示符中输入以下内容来打开 Python 终端：
 
-```go
+```sql
 $ Python
 
 ```
 
 1.  一旦 Python shell 打开，按照以下方式导入`pymongo`：
 
-```go
+```sql
 >>> import pymongo
 
 ```
 
 1.  创建`MongoClient`的实例如下：
 
-```go
+```sql
 >>> client = pymongo.MongoClient('mongodb://localhost:27017')
 
 ```
 
 1.  按照以下方式获取测试数据库的对象：
 
-```go
+```sql
 >>> db = client.test
 
 ```
 
 1.  现在，我们按照以下步骤在`postalCodes`集合上执行聚合操作：
 
-```go
+```sql
 result = db.postalCodes.aggregate(
  [
  {'$project':{'state':1, '_id':0}},
@@ -480,7 +480,7 @@ result = db.postalCodes.aggregate(
 
 1.  输入以下内容以查看结果：
 
-```go
+```sql
 >>>for r in result:
 print r
 {u'count': 6446, u'_id': u'Maharashtra'}
@@ -509,63 +509,63 @@ print r
 
 1.  通过在命令提示符上输入以下内容打开 Python 终端：
 
-```go
+```sql
 >>>python
 
 ```
 
 1.  一旦 Python shell 打开，导入`bson`包，如下所示：
 
-```go
+```sql
 >>> import bson
 
 ```
 
 1.  导入`pymongo`包，如下所示：
 
-```go
+```sql
 >>> import pymongo
 
 ```
 
 1.  创建一个`MongoClient`对象，如下所示：
 
-```go
+```sql
 >>> client = pymongo.MongoClient('mongodb://localhost:27017')
 
 ```
 
 1.  获取测试数据库的对象，如下所示：
 
-```go
+```sql
 >>> db = client.test
 
 ```
 
 1.  编写以下`mapper`函数：
 
-```go
+```sql
 >>>  mapper = bson.Code('''function() {emit(this.state, 1)}''')
 
 ```
 
 1.  编写以下`reducer`函数：
 
-```go
+```sql
 >>>  reducer = bson.Code('''function(key, values){return Array.sum(values)}''')
 
 ```
 
 1.  调用 map reduce；结果将被发送到`pymr_out`集合：
 
-```go
+```sql
 >>>  db.postalCodes.map_reduce(map=mapper, reduce=reducer, out='pymr_out')
 
 ```
 
 1.  验证结果如下：
 
-```go
+```sql
 >>>  c = db.pymr_out.find(sort=[('value', pymongo.DESCENDING)], limit=5)
 >>> for elem in c:
 ...     print elem
@@ -587,7 +587,7 @@ print r
 
 我们不会在这里解释 map reduce JavaScript 函数，但它非常简单，它所做的就是将键作为州名，并将值作为特定州名出现的次数。使用的结果文档，将州名作为`_id`字段，另一个名为 value 的字段，它是给定在`_id`字段中出现的特定州名的次数的总和，添加到输出集合`pymr_out`中。例如，在整个集合中，州`马哈拉施特拉邦`出现了`6446`次，因此马哈拉施特拉邦的文档是`{u'_id': u'马哈拉施特拉邦', u'value': 6446.0}`。要验证结果是否正确，您可以在 mongo shell 中执行以下查询，并查看结果是否确实为`6446`：
 
-```go
+```sql
 > db.postalCodes.count({state:'Maharashtra'})
 6446
 
@@ -619,7 +619,7 @@ print r
 
 1.  如果您计划使用 Maven 来执行此测试用例，请转到命令提示符，更改项目根目录下的目录，并执行以下命令来执行此单个测试用例：
 
-```go
+```sql
 $ mvn -Dtest=com.packtpub.mongo.cookbook.MongoDriverQueryAndInsertTest test
 
 ```
@@ -632,19 +632,19 @@ $ mvn -Dtest=com.packtpub.mongo.cookbook.MongoDriverQueryAndInsertTest test
 
 我们首先看一下这个类中的`getClient`方法。已创建的`client`实例是`com.mongodb.MongoClient`类型的实例。对于这个类有几个重载的构造函数；然而，我们使用以下方法来实例化客户端：
 
-```go
+```sql
 MongoClient client = new MongoClient("localhost:27017");
 ```
 
 另一个要看的方法是在同一个抽象类中的`getJavaDriverTestDatabase`，它可以获取数据库实例。这个实例类似于 shell 中的隐式变量`db`。在 Java 中，这个类是`com.mongodb.DB`类型的实例。我们通过在客户端实例上调用`getDB()`方法来获取这个`DB`类的实例。在我们的情况下，我们想要`javaDriverTest`数据库的`DB`实例，我们可以通过以下方式获取：
 
-```go
+```sql
 getClient().getDB("javaDriverTest");
 ```
 
 一旦我们获得了`com.mongodb.DB`的实例，我们就可以使用它来获得`com.mongodb.DBCollection`的实例，这将用于执行各种操作——在集合上进行`find`和`insert`操作。抽象测试类中的`getJavaTestCollection`方法返回`DBCollection`的一个实例。我们通过在`com.mongodb.DB`上调用`getCollection()`方法来获取`javaTest`集合的这个类的一个实例，如下所示：
 
-```go
+```sql
 getJavaDriverTestDatabase().getCollection("javaTest")
 ```
 
@@ -656,7 +656,7 @@ getJavaDriverTestDatabase().getCollection("javaTest")
 
 我们要检查的下一个方法是`getDocumentsFromTestCollection`。这个测试用例在集合上执行了一个`find`操作，并获取其中的所有文档。`collection.find()`调用在`DBCollection`的实例上执行`find`操作。`find`操作的返回值是`com.mongodb.DBCursor`。值得注意的一点是，调用`find`操作本身并不执行查询，而只是返回`DBCursor`的实例。这是一个不消耗服务器端资源的廉价操作。实际查询只有在`DBCursor`实例上调用`hasNext`或`next`方法时才在服务器端执行。`hasNext()`方法用于检查是否有更多的结果，`next()`方法用于导航到结果中的下一个`DBObject`实例。对`DBCursor`实例返回的示例用法是遍历结果：
 
-```go
+```sql
 while(cursor.hasNext()) {
   DBObject object = cursor.next();
   //Some operation on the returned object to get the fields and
@@ -666,7 +666,7 @@ while(cursor.hasNext()) {
 
 现在，我们来看一下`withLimitAndSkip`和`withQueryProjectionAndSort`两个方法。这些方法向我们展示了如何对结果进行排序、限制数量和跳过初始结果的数量。正如我们所看到的，排序、限制和跳过方法是链接在一起的：
 
-```go
+```sql
 DBCursor cursor = collection
         .find(null)
         .sort(new BasicDBObject("_id", -1))
@@ -682,7 +682,7 @@ DBCursor cursor = collection
 
 例如，测试用例的`withQueryProjectionAndSort`方法中的以下查询选择所有文档作为第一个参数为`null`，返回的`DBCursor`将包含只包含一个名为`value`的字段的文档：
 
-```go
+```sql
 DBCursor cursor = collection
       .find(null, new BasicDBObject("value", 1).append("_id", 0))
       .sort(new BasicDBObject("_id", 1));
@@ -692,7 +692,7 @@ DBCursor cursor = collection
 
 最后，我们来看一下测试用例中的另外两个方法，`insertDataTest`和`insertTestDataWithWriteConcern`。在这两种方法中，我们使用了`insert`方法的几种变体。所有`insert`方法都在`DBCollection`实例上调用，并返回一个`com.mongodb.WriteResult`的实例。结果可以用于通过调用`getLastError()`方法获取写操作期间发生的错误，使用`getN()`方法获取插入的文档数量，以及操作的写关注。有关方法的更多详细信息，请参阅 MongoDB API 的 Javadoc。我们执行的两个插入操作如下：
 
-```go
+```sql
 collection.insert(new BasicDBObject("value", "Hello World"));
 
 collection.insert(new BasicDBObject("value", "Hello World"), WriteConcern.JOURNALED);
@@ -724,7 +724,7 @@ MongoDB 驱动当前版本的 Javadocs 可以在[`api.mongodb.org/java/current/`
 
 1.  如果您计划使用 Maven 执行此测试用例，请转到命令提示符，更改到项目的根目录，并执行以下命令来执行这个单个测试用例：
 
-```go
+```sql
 $ mvn -Dtest=com.packtpub.mongo.cookbook.MongoDriverUpdateAndDeleteTest test
 
 ```
@@ -737,7 +737,7 @@ $ mvn -Dtest=com.packtpub.mongo.cookbook.MongoDriverUpdateAndDeleteTest test
 
 现在让我们看看这个类中的方法。我们首先看一下`basicUpdateTest()`。在这个方法中，我们首先创建测试数据，然后执行以下更新：
 
-```go
+```sql
 collection.update(
   new BasicDBObject("i", new BasicDBObject("$gt", 10)),
   new BasicDBObject("$set", new BasicDBObject("gtTen", true)));
@@ -747,7 +747,7 @@ collection.update(
 
 我们将要看的下一个方法是`multiUpdateTest`，它将更新给定查询的所有匹配文档，而不是第一个匹配的文档。我们使用的方法是在集合实例上使用`updateMulti`。`updateMulti`方法是更新多个文档的便捷方式。以下是我们调用的更新多个文档的方法：
 
-```go
+```sql
 collection.updateMulti(new BasicDBObject("i",
     new BasicDBObject("$gt", 10)),
     new BasicDBObject("$set", new BasicDBObject("gtTen", true)));
@@ -755,7 +755,7 @@ collection.updateMulti(new BasicDBObject("i",
 
 我们接下来做的操作是删除文档。删除文档的测试用例方法是`deleteTest()`。文档被删除如下：
 
-```go
+```sql
 collection.remove(new BasicDBObject(
       "i", new BasicDBObject("$gt", 10)),
       WriteConcern.JOURNALED);
@@ -765,7 +765,7 @@ collection.remove(new BasicDBObject(
 
 请注意，当服务器在 32 位机器上启动时，默认情况下禁用了日志记录。在这些机器上使用写关注可能会导致操作失败，并出现以下异常：
 
-```go
+```sql
 com.mongodb.CommandFailureException: { "serverUsed" : "localhost/127.0.0.1:27017" , "connectionId" : 5 , "n" : 0 , "badGLE" : { "getlasterror" : 1 , "j" : true} , "ok" : 0.0 , "errmsg" : "cannot use 'j' option when a host does not have journaling enabled" , "code" : 2}
 
 ```
@@ -774,7 +774,7 @@ com.mongodb.CommandFailureException: { "serverUsed" : "localhost/127.0.0.1:27017
 
 接下来我们将看看`findAndModify`操作。执行此操作的测试用例方法是`findAndModifyTest`。以下代码行用于执行此操作：
 
-```go
+```sql
 DBObject old = collection.findAndModify(
     new BasicDBObject("i", 10),
     new BasicDBObject("i", 100));
@@ -784,7 +784,7 @@ DBObject old = collection.findAndModify(
 
 前面的方法是`findAndModify`操作的简单版本。有一个重载版本的方法，签名如下：
 
-```go
+```sql
 DBObject findAndModify(DBObject query, DBObject fields, DBObject sort,boolean remove, DBObject update, boolean returnNew, boolean upsert)
 
 ```
@@ -807,7 +807,7 @@ DBObject findAndModify(DBObject query, DBObject fields, DBObject sort,boolean re
 
 mongo 中的所有查询都是`DBObject`实例，其中可能包含更多嵌套的`DBObject`实例。对于小查询来说很简单，但对于更复杂的查询来说会变得很丑陋。考虑一个相对简单的查询，我们想查询`i > 10`和`i < 15`的文档。这个 mongo 查询是`{$and:[{i:{$gt:10}}`，`{i:{$lt:15}}]}`。在 Java 中编写这个查询意味着使用`BasicDBObject`实例，这甚至更加痛苦，如下所示：
 
-```go
+```sql
     DBObject query = new BasicDBObject("$and",
       new BasicDBObject[] {
         new BasicDBObject("i", new BasicDBObject("$gt", 10)),
@@ -817,7 +817,7 @@ mongo 中的所有查询都是`DBObject`实例，其中可能包含更多嵌套�
 
 然而，值得庆幸的是，有一个名为`com.mongodb.QueryBuilder`的类，这是一个用于构建复杂查询的实用类。前面的查询是使用查询构建器构建的，如下所示：
 
-```go
+```sql
 DBObject query = QueryBuilder.start("i").greaterThan(10).and("i").lessThan(15).get();
 ```
 
@@ -845,7 +845,7 @@ DBObject query = QueryBuilder.start("i").greaterThan(10).and("i").lessThan(15).g
 
 1.  如果您计划使用 Maven 执行此测试用例，请转到命令提示符，更改项目根目录下的目录，并执行以下命令以执行此单个测试用例：
 
-```go
+```sql
 $ mvn -Dtest=com.packtpub.mongo.cookbook.MongoAggregationTesttest
 
 ```
@@ -856,7 +856,7 @@ $ mvn -Dtest=com.packtpub.mongo.cookbook.MongoAggregationTesttest
 
 我们测试类中用于聚合功能的方法是`aggregationTest()`。聚合操作是在 Java 客户端上使用`DBCollection`类中定义的`aggregate()`方法对 MongoDB 执行的。该方法具有以下签名：
 
-```go
+```sql
 AggregationOutput aggregate(firstOp, additionalOps)
 ```
 
@@ -866,7 +866,7 @@ AggregationOutput aggregate(firstOp, additionalOps)
 
 让我们看看我们如何在测试类中实现了聚合管道：
 
-```go
+```sql
 AggregationOutput output = collection.aggregate(
     //{'$project':{'state':1, '_id':0}},
     new BasicDBObject("$project", new BasicDBObject("state", 1).append("_id", 0)),
@@ -904,7 +904,7 @@ AggregationOutput output = collection.aggregate(
 
 1.  如果您计划使用 Maven 执行此测试用例，请转到命令提示符，将目录更改为项目的根目录，并执行以下命令以执行此单个测试用例：
 
-```go
+```sql
 $ mvn -Dtest=com.packtpub.mongo.cookbook.MongoMapReduceTesttest
 
 ```
@@ -929,7 +929,7 @@ $ mvn -Dtest=com.packtpub.mongo.cookbook.MongoMapReduceTesttest
 
 假设读者对 shell 中的 map reduce 操作很熟悉，我们不会解释在测试用例方法中使用的 map reduce JavaScript 函数。它所做的就是将键作为州的名称和值进行发射，这些值是特定州名出现的次数。此结果将添加到输出集合`javaMROutput`中。例如，在整个集合中，州`Maharashtra`出现了`6446`次；因此，`Maharashtra`州的文档是`{'_id': 'Maharashtra', 'value': 6446}`。要确认这是否是真实值，可以在 mongo shell 中执行以下查询，并查看结果是否确实为`6446`：
 
-```go
+```sql
 > db.postalCodes.count({state:'Maharashtra'})
 6446
 

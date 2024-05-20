@@ -126,7 +126,7 @@ phpMyAdmin 能够检测文件应用了哪种压缩方法（如果有的话）。
 
 默认情况下，phpMyAdmin 期望 CSV 文件与目标表具有相同数量的列和相同的列顺序。这可以通过在“列名”中输入一个逗号分隔的列名列表来改变，以符合源文件格式。例如，假设我们的源文件只包含作者 ID 和作者姓名信息：
 
-```go
+```sql
 "1","John Smith"
 "2","Maria Sunshine"
 
@@ -136,7 +136,7 @@ phpMyAdmin 能够检测文件应用了哪种压缩方法（如果有的话）。
 
 当我们点击“Go”时，导入将被执行，并且我们会收到确认。如果文件的总大小不太大，我们还可能看到生成的 INSERT 查询。
 
-```go
+```sql
 Import has been successfully finished, 2 queries executed.
 INSERT INTO `author` VALUES ('1', 'John Smith', '+01 445 789-1234'
 )# 1 row(s) affected.
@@ -221,7 +221,7 @@ phpMyAdmin 的 LOAD 界面提供了两种 LOAD 方法，试图选择最佳的默
 
 由于原始数据库名称是 XML 导出的一部分，当前的 phpMyAdmin 版本只支持将 XML 文件导入到导出源数据库中。要导入到不同的数据库，我们需要首先使用文本编辑器并更改以下行中的数据库名称：
 
-```go
+```sql
 <pma:database name="marc_book" collation="latin1_swedish_ci" charset="latin1">
 
 ```

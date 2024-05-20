@@ -32,7 +32,7 @@
 
 我们有一个`customers`集合，我们在第三章中使用过，*查询文档*，其中包含这些文档：
 
-```go
+```sql
 {
  "_id" : ObjectId("54aecd26867124b88608b4c9"),
  "username" : "customer1",
@@ -44,14 +44,14 @@
 
 我们可以在 mongo shell 上使用`createIndex`方法在`username`字段上创建索引：
 
-```go
+```sql
 db.customers.createIndex({username: 1})
 
 ```
 
 以下查询将使用先前创建的索引：
 
-```go
+```sql
 db.customers.find({username: "customer1"})
 
 ```
@@ -70,7 +70,7 @@ db.customers.find({username: "customer1"})
 
 考虑到我们之前使用过的`customers`集合，对其进行了一些修改以适应本节的工作：
 
-```go
+```sql
 {
  "_id" : ObjectId("54aecd26867124b88608b4c9"),
  "username" : "customer1",
@@ -90,7 +90,7 @@ db.customers.find({username: "customer1"})
 
 以下命令在`username`字段中创建一个升序索引：
 
-```go
+```sql
 db.customers.createIndex({username: 1})
 
 ```
@@ -99,42 +99,42 @@ db.customers.createIndex({username: 1})
 
 创建相同的索引的另一种方法，但按降序顺序进行：
 
-```go
+```sql
 db.customers.createIndex({username: -1})
 
 ```
 
 在下面的查询中，MongoDB 将使用在`username`字段中创建的索引来减少应该检查的`customers`集合中文档的数量：
 
-```go
+```sql
 db.customers.find({username: "customer1"})
 
 ```
 
 除了在集合文档中的字符串或数字字段上创建索引，我们还可以在嵌入式文档的字段上创建索引。因此，这样的查询将使用创建的索引：
 
-```go
+```sql
 db.customers.createIndex({"address.state": 1})
 
 ```
 
 以下代码创建了嵌入地址文档的`state`字段的索引：
 
-```go
+```sql
 db.customers.find({"address.state": "RJ"})
 
 ```
 
 虽然有点复杂，但我们也可以创建整个嵌入式文档的索引：
 
-```go
+```sql
 db.customers.createIndex({address: 1})
 
 ```
 
 以下查询将使用索引：
 
-```go
+```sql
 db.customers.find(
 {
  "address" : 
@@ -150,7 +150,7 @@ db.customers.find(
 
 但是，这些查询都不会这样做：
 
-```go
+```sql
 db.customers.find({state: "RJ"})
 
 db.customers.find({address: {zipcode: "87654321"}})
@@ -159,7 +159,7 @@ db.customers.find({address: {zipcode: "87654321"}})
 
 这是因为为了匹配嵌入式文档，我们必须精确匹配整个文档，包括字段顺序。以下查询也不会使用索引：
 
-```go
+```sql
 db.customers.find(
 {
  "address" : 
@@ -181,7 +181,7 @@ db.customers.find(
 
 在 MongoDB 中，我们可以创建一个保存多个字段值的索引。我们应该称这种索引为复合索引。单字段索引和复合索引之间没有太大的区别。最大的区别在于排序顺序。在我们继续讨论复合索引的特点之前，让我们使用`customers`集合来创建我们的第一个复合索引：
 
-```go
+```sql
 {
  "_id" : ObjectId("54aecd26867124b88608b4c9"),
  "username" : "customer1",
@@ -199,7 +199,7 @@ db.customers.find(
 
 我们可以想象一个应用程序，它想要使用`username`和`password`字段一起在查询中对客户进行身份验证。
 
-```go
+```sql
 db.customers.find(
 {
 username: "customer1", 
@@ -211,14 +211,14 @@ password: "b1c5098d0c6074db325b0b9dddb068e1"
 
 为了在执行此查询时获得更好的性能，我们可以创建`username`和`password`字段的索引：
 
-```go
+```sql
 db.customers.createIndex({username: 1, password: 1})
 
 ```
 
 尽管如此，对于以下查询，MongoDB 是否使用复合索引？
 
-```go
+```sql
 #Query 1
 db.customers.find({username: "customer1"})
 #Query 2
@@ -237,7 +237,7 @@ db.customers.find(
 
 假设我们在`customers`集合中有以下索引：
 
-```go
+```sql
 db.customers.createIndex(
 {
  "address.state":1, 
@@ -273,7 +273,7 @@ db.customers.createIndex(
 
 因此，对于此查询：
 
-```go
+```sql
 db.customers.find(
 {
  "address.state": "RJ", 
@@ -285,7 +285,7 @@ db.customers.find(
 
 如果我们有这个索引将更有效：
 
-```go
+```sql
 db.customers.createIndex({"address.state": 1, "address.street": 1})
 
 ```
@@ -302,7 +302,7 @@ db.customers.createIndex({"address.state": 1, "address.street": 1})
 
 考虑具有以下文档的`customers`集合：
 
-```go
+```sql
 {
  "_id" : ObjectId("54aecd26867124b88608b4c9"),
  "username" : "customer1",
@@ -339,7 +339,7 @@ db.customers.createIndex({"address.state": 1, "address.street": 1})
 
 我们可以为此集合创建以下索引：
 
-```go
+```sql
 db.customers.createIndex({followedSellers: 1})
 
 db.customers.createIndex({wishList: 1})
@@ -352,7 +352,7 @@ db.customers.createIndex({"wishList.seller": 1})
 
 但是无法创建以下索引：
 
-```go
+```sql
 db.customers.createIndex({followedSellers: 1, wishList: 1}
 
 ```
@@ -363,7 +363,7 @@ db.customers.createIndex({followedSellers: 1, wishList: 1}
 
 可以在集合中创建字符串或字符串字段数组的文本索引。对于以下示例，我们将使用我们在第三章中也使用的`products`集合，*查询文档*，但进行了一些修改：
 
-```go
+```sql
 { 
  "_id" : ObjectId("54837b61f059b08503e200db"), 
  "name" : "Product 1", 
@@ -389,7 +389,7 @@ db.customers.createIndex({followedSellers: 1, wishList: 1}
 
 我们可以通过在`createIndex`方法中指定`text`参数来创建文本索引：
 
-```go
+```sql
 db.products.createIndex({name: "text"})
 
 db.products.createIndex({description: "text"})
@@ -402,7 +402,7 @@ db.products.createIndex({keywords: "text"})
 
 尽管每个集合只能创建一个文本索引的限制，但可以创建复合文本索引：
 
-```go
+```sql
 db.products.createIndex({name: "text", description: "text"})
 
 ```
@@ -413,7 +413,7 @@ db.products.createIndex({name: "text", description: "text"})
 
 创建集合的文本索引的一种常见且有用的方法是为集合的所有文本字段创建索引。有一个特殊的语法用于创建此索引，您可以如下所示：
 
-```go
+```sql
 db.products.createIndex({"$**","text"})
 
 ```
@@ -464,14 +464,14 @@ db.products.createIndex({"$**","text"})
 
 具有语言的索引创建示例可能是：
 
-```go
+```sql
 db.products.createIndex({name: "text"},{ default_language: "pt"})
 
 ```
 
 我们还可以选择不使用任何语言，只需使用`none`值创建索引：
 
-```go
+```sql
 db.products.createIndex({name: "text"},{ default_language: "none"})
 
 ```
@@ -494,7 +494,7 @@ db.products.createIndex({name: "text"},{ default_language: "none"})
 
 这种类型的索引可以从日期向量创建。文档将在达到较低数组值时过期。MongoDB 负责通过后台任务在 60 秒的间隔内控制文档的过期。例如，让我们使用本章中一直在使用的`customers`集合：
 
-```go
+```sql
 { 
 "_id" : ObjectId("5498da405d0ffdd8a07a87ba"), 
 "username" : "customer1", 
@@ -506,7 +506,7 @@ db.products.createIndex({name: "text"},{ default_language: "none"})
 
 基于`accountConfirmationExpireAt`字段的生存时间索引的创建命令将如下所示：
 
-```go
+```sql
 db.customers.createIndex(
 {accountConfirmationExpireAt: 1}, {expireAfterSeconds: 3600}
 )
@@ -517,7 +517,7 @@ db.customers.createIndex(
 
 还有另一种基于生存时间创建索引的方法，即定时方式。以下示例向我们展示了这种实现方法：
 
-```go
+```sql
 db.customers.createIndex({
 accountConfirmationExpireAt: 1}, {expireAfterSeconds: 0}
 )
@@ -534,7 +534,7 @@ accountConfirmationExpireAt: 1}, {expireAfterSeconds: 0}
 
 如果我们在`insert`操作期间没有设置任何值，唯一字段的默认值将始终为 null。正如您之前所见，对于集合的`_id`字段创建的索引是唯一的。考虑`customers`集合的最后一个示例，可以通过执行以下操作创建唯一索引：
 
-```go
+```sql
 db.customers.createIndex({username: 1}, {unique: true})
 
 ```
@@ -547,7 +547,7 @@ db.customers.createIndex({username: 1}, {unique: true})
 
 以`customers`集合中的以下文档为例：
 
-```go
+```sql
 { "_id" : ObjectId("54b2e184bc471cf3f4c0a314"), "username" : "customer1", "email" : "customer1@customer.com", "password" : "b1c5098d0c6074db325b0b9dddb068e1" }
 { "_id" : ObjectId("54b2e618bc471cf3f4c0a316"), "username" : "customer2", "email" : "customer2@customer.com", "password" : "9f6a4a5540b8ebdd3bec8a8d23efe6bb" }
 { "_id" : ObjectId("54b2e629bc471cf3f4c0a317"), "username" : "customer3", "email" : "customer3@customer.com" }
@@ -556,21 +556,21 @@ db.customers.createIndex({username: 1}, {unique: true})
 
 使用以下示例命令，我们可以在`customers`集合中创建一个`sparse`索引：
 
-```go
+```sql
 db.customers.createIndex({password: 1}, {sparse: true})
 
 ```
 
 以下示例查询使用了创建的索引：
 
-```go
+```sql
 db.customers.find({password: "9f6a4a5540b8ebdd3bec8a8d23efe6bb"})
 
 ```
 
 另一方面，下面的示例查询，请求按索引字段的降序排列，将不使用索引：
 
-```go
+```sql
 db.customers.find().sort({password: -1})
 
 ```

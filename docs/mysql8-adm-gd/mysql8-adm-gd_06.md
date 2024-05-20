@@ -84,7 +84,7 @@ MySQL 服务器使用可插拔存储引擎架构，可以从已运行的 MySQL �
 
 +   **安装存储引擎**：在服务器中使用存储引擎之前，必须使用`INSTALL PLUGIN` SQL 语句将存储引擎插件共享库加载到 MySQL 中。如果您创建了一个名为`MyExample`的`MYEXAMPLE`引擎插件，并且共享库的名称为`MyExample.so`，那么您需要使用以下语句加载它们：
 
-```go
+```sql
  mysql> INSTALL PLUGIN MyExample SONAME 'MyExample.so';
 ```
 
@@ -92,7 +92,7 @@ MySQL 服务器使用可插拔存储引擎架构，可以从已运行的 MySQL �
 
 +   **卸载存储引擎**：在卸载存储引擎之前，请确保没有表在使用该存储引擎。如果卸载了一个存储引擎，并且任何现有表需要该存储引擎，那么这些表将变得不可访问，并且只会存在于适用的磁盘上。如果您卸载了名为`MyExample`的`MYEXAMPLE`引擎插件，然后执行以下语句来卸载存储引擎：
 
-```go
+```sql
  mysql> UNINSTALL PLUGIN MyExample ;
 ```
 
@@ -124,7 +124,7 @@ MySQL 可插拔存储引擎负责在实际数据上执行 I/O 操作，并满足
 
 当使用`CREATE TABLE`语句创建新表时，可以使用`ENGINE`表选项指定要为表使用的引擎。如果不指定`ENGINE`表选项，则将使用默认的存储引擎。`InnoDB`是 MySQL 8.0 的默认引擎。您还可以使用`ALTER TABLE`语句将表从一个存储引擎转换为另一个存储引擎，如下例所示：
 
-```go
+```sql
 CREATE TABLE table1 (i1 INT) ENGINE = INNODB;
 CREATE TABLE table3 (i3 INT) ENGINE = MEMORY;
 ALTER TABLE table3 ENGINE = InnoDB;
@@ -132,7 +132,7 @@ ALTER TABLE table3 ENGINE = InnoDB;
 
 可以通过设置`default_storage_engine`变量为当前会话设置默认存储引擎，如下例所示：
 
-```go
+```sql
 SET default_storage_engine=MEMORY;
 ```
 
@@ -144,7 +144,7 @@ SET default_storage_engine=MEMORY;
 
 对于`MyISAM`引擎，有几个在`mysqld`中指定的启动选项可以改变`MyISAM`表的行为；例如：
 
-```go
+```sql
 --myisam-recover-options=mode
 ```
 
@@ -554,7 +554,7 @@ InnoDB 是一种多版本存储引擎。这意味着它具有保留更改的旧�
 
 可以通过在`INFORMATION_SCHEMA`数据库上执行`SHOW TABLES`语句来检索`InnoDB` `INFORMATION_SCHEMA`表的列表：
 
-```go
+```sql
 mysql> SHOW TABLES FROM INFORMATION_SCHEMA LIKE 'INNODB%';
 ```
 
@@ -628,7 +628,7 @@ MySQL AB 在 MySQL 5.1 中引入了可插拔存储引擎架构，包括 MySQL 8 
 
 `status_vars`是通用插件描述符的成员。如果值不为 0，则指向一个`st_mysql_show_var`结构的数组，其中每个结构描述一个状态变量，后跟一个所有成员都设置为 0 的结构。`st_mysql_show_var`结构的定义如下：
 
-```go
+```sql
 struct st_mysql_show_var {   
   const char *name;   
   char *value;   
@@ -676,7 +676,7 @@ handlerton（处理程序单例的简称）定义了存储引擎。它包含指�
 
 `EXAMPLE`存储引擎的示例如下：
 
-```go
+```sql
 handlerton example_hton= {
  "EXAMPLE", /* Name of the storage engine */
  SHOW_OPTION_YES, /* It should be displayed in options or not */
@@ -719,7 +719,7 @@ handlerton example_hton= {
 
 在源文件中定义`handlerton`之前，必须在方法头中定义实例化方法。以下是`CSV`引擎显示实例化方法的示例：
 
-```go
+```sql
 static handler* tina_create_handler(TABLE *table);
 ```
 
@@ -727,7 +727,7 @@ static handler* tina_create_handler(TABLE *table);
 
 以下示例显示了`MyISAM`存储引擎的实例化方法：
 
-```go
+```sql
 static handler *myisam_create_handler(TABLE *table)
  {
  return new ha_myisam(table);
@@ -740,7 +740,7 @@ static handler *myisam_create_handler(TABLE *table)
 
 扩展应以空终止的字符串数组的形式给出，并且在调用[`custom-engine.html#custom-engine-api-reference-bas_ext bas_ext()`]方法时返回相同的内容，如下面的块所示：
 
-```go
+```sql
 const char **ha_tina::bas_ext() const
 {
  return ha_tina_exts;
@@ -753,7 +753,7 @@ const char **ha_tina::bas_ext() const
 
 在处理程序实例化之后，应该遵循创建表方法。存储引擎必须实现[`custom-engine.html#custom-engine-api-reference-create create()`]方法，如下面的块所示：
 
-```go
+```sql
 virtual int create(const char *name, TABLE *form, HA_CREATE_INFO *info)=0;
 ```
 
@@ -763,7 +763,7 @@ virtual int create(const char *name, TABLE *form, HA_CREATE_INFO *info)=0;
 
 `*info`参数是包含有关`CREATE TABLE`语句的信息的结构。它用于创建表，结构在`handler.h`文件中定义。以下是参考结构：
 
-```go
+```sql
 typedef struct st_ha_create_information
 {
  CHARSET_INFO *table_charset, *default_table_charset; /* charset in table */
@@ -797,7 +797,7 @@ typedef struct st_ha_create_information
 
 在对任何表执行任何读取或写入操作之前，MySQL 服务器调用[`custom-engine.html#custom-engine-api-reference-open handler::open()`]方法来打开表索引和数据文件：
 
-```go
+```sql
 int open(const char *name, int mode, int test_if_locked);
 ```
 
@@ -805,7 +805,7 @@ int open(const char *name, int mode, int test_if_locked);
 
 最终选项决定处理程序在打开之前是否应检查表上的锁定。可以选择以下选项：
 
-```go
+```sql
 #define HA_OPEN_ABORT_IF_LOCKED 0 /* default */
 #define HA_OPEN_WAIT_IF_LOCKED 1 /* wait if table is locked */
 #define HA_OPEN_IGNORE_IF_LOCKED 2 /* ignore if locked */
@@ -823,7 +823,7 @@ int open(const char *name, int mode, int test_if_locked);
 
 方法的实现是创建高级存储引擎的第一步。以下显示了在`CSV`引擎的九行表扫描期间进行的方法调用：
 
-```go
+```sql
 ha_tina::store_lock
 ha_tina::external_lock
 ha_tina::info
@@ -863,7 +863,7 @@ ha_tina::extra - ENUM HA_EXTRA_RESET Reset database to after open
 
 使用共享访问方法的存储引擎在`CSV`引擎中可见。其他示例引擎必须从共享结构中删除相同的内容，如下所示：
 
-```go
+```sql
 int ha_tina::close(void)
  {
  DBUG_ENTER("ha_tina::close");

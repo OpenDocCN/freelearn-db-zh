@@ -244,7 +244,7 @@ phpMyAdmin 只提供为一张表定义一个显示列的选项，并且这一列
 
 默认情况下，如果外部表中最多有 100 行，则会出现此下拉列表。这由以下参数控制：
 
-```go
+```sql
 $cfg['ForeignKeyMaxLimit'] = 100;
 
 ```
@@ -253,14 +253,14 @@ $cfg['ForeignKeyMaxLimit'] = 100;
 
 我们可能希望以不同的方式查看下拉列表中的信息。这里，**John Smith**是内容，**1**是 ID。默认显示由以下代码控制：
 
-```go
+```sql
 $cfg['ForeignKeyDropdownOrder'] = array( 'content-id', 'id-content');
 
 ```
 
 我们可以在定义数组中使用`—content-id`和`id-content—`中的一个或两个字符串，并按照我们喜欢的顺序。因此，将`$cfg['ForeignKeyDropdownOrder']`定义为`array('id-content')`将产生一个只有这些选择的列表：
 
-```go
+```sql
 1 John Smith
 2 Maria Sunshine
 3 André Smith

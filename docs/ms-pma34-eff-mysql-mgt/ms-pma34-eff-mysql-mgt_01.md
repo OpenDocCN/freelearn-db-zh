@@ -98,7 +98,7 @@ phpMyAdmin 提供了涵盖基本 MySQL 数据库和表操作的功能。它还�
 
 假设我们选择了`phpMyAdmin-3.4.5-all-languages.tar.gz`并直接下载到 Linux 服务器上的某个目录。我们将其移动到我们的 Web 服务器文档根目录（例如`/var/www/html`）或其子目录之一（例如`/var/www/html/utilities`）。然后，我们使用以下 shell 命令或使用窗口管理器提供的任何图形文件提取器进行提取：
 
-```go
+```sql
 tar -xzvf phpMyAdmin-3.4.5-all-languages.tar.gz 
 
 ```
@@ -137,7 +137,7 @@ Apache 通常作为服务运行。因此，我们必须确保运行服务的用�
 
 在正常情况下，phpMyAdmin 会验证此文件的权限是否允许任何人修改。这意味着该文件不应该被世界写入。如果权限不正确，它还会显示警告。然而，在某些情况下（例如在非 Windows 服务器上挂载的 NTFS 文件系统），权限检测会失败。在这些情况下，您应该将以下配置参数设置为`false:`
 
-```go
+```sql
 $cfg['CheckConfigurationPermissions'] = false;
 
 ```
@@ -206,7 +206,7 @@ phpMyAdmin 不维护自己的用户帐户；相反，它使用 MySQL 的权限�
 
 这里的原则是 Web 服务器必须能够写入这个目录。有多种方法可以实现这一点。以下是在 Linux 服务器上可以使用的一种方法——在这个目录上为每个人添加读、写和执行权限。
 
-```go
+```sql
 cd phpMyAdmin
 mkdir config
 chmod 777 config 
@@ -243,7 +243,7 @@ chmod 777 config
 
 最后一步是将`config.inc.php`从`config`目录复制到顶级目录 —— 包含`index.php`的目录。通过复制此文件，它将由用户拥有，而不是由 Web 服务器拥有，从而确保可以进行进一步的修改。可以通过 FTP 或通过以下命令进行此复制：
 
-```go
+```sql
 cd config
 cp config.inc.php .. 
 
@@ -251,7 +251,7 @@ cp config.inc.php ..
 
 作为安全措施，直到配置步骤完成之前，建议更改`config`目录的权限，例如使用以下命令：
 
-```go
+```sql
 chmod ugo-rwx config 
 
 ```
@@ -302,7 +302,7 @@ chmod ugo-rwx config
 
 例如，我们会将其更改为：
 
-```go
+```sql
 $cfg['PmaAbsoluteUri'] = 'http://www.mydomain.com/phpMyAdmin/';
 
 ```
@@ -311,7 +311,7 @@ $cfg['PmaAbsoluteUri'] = 'http://www.mydomain.com/phpMyAdmin/';
 
 文件的下一部分包含特定于服务器的配置，每个配置都以以下代码片段开头：
 
-```go
+```sql
 $i++;
 $cfg['Servers'][$i]['host'] = '';
 
@@ -319,7 +319,7 @@ $cfg['Servers'][$i]['host'] = '';
 
 如果我们只检查正常的服务器参数（其他参数在本章的*安装 phpMyAdmin 配置存储*部分中有介绍），我们会看到每个服务器的以下代码块：
 
-```go
+```sql
 $i++;
 $cfg['Servers'][$i]['host'] = '';
 $cfg['Servers'][$i]['port'] = '';
@@ -342,7 +342,7 @@ $cfg['Servers'][$i]['verbose'] = '';
 
 在 phpMyAdmin 界面中显示的服务器名称将是`'host'`中输入的名称，除非我们在以下参数中输入非空值，例如：
 
-```go
+```sql
 $cfg['Servers'][$i]['verbose'] = 'Test server';
 
 ```
@@ -357,7 +357,7 @@ PHP 与 MySQL 服务器通信的传统机制，在 PHP 5 之前可用的是`mysq
 
 `mysql`和`mysqli`扩展在连接到`localhost`上的 MySQL 时会自动使用套接字。考虑以下配置：
 
-```go
+```sql
 $cfg['Servers'][$i]['host'] = 'localhost';
 $cfg['Servers'][$i]['port'] = '';
 $cfg['Servers'][$i]['socket'] = '';
@@ -370,7 +370,7 @@ $cfg['Servers'][$i]['extension'] = 'mysql';
 
 如果主机名不是`localhost`，将发生 TCP 连接；在这种情况下，使用特殊端口`3307`。然而，将端口值留空将使用默认的`3306`端口：
 
-```go
+```sql
 $cfg['Servers'][$i]['host'] = 'mysql.mydomain.com';
 $cfg['Servers'][$i]['port'] = '3307';
 $cfg['Servers'][$i]['socket'] = '';
@@ -383,7 +383,7 @@ $cfg['Servers'][$i]['extension'] = 'mysql';
 
 PHP 与 MySQL 之间通信所使用的协议允许压缩模式。使用此模式可以提高效率。要利用此模式，只需指定：
 
-```go
+```sql
 $cfg['Servers'][$i]['compress'] = TRUE;
 
 ```
@@ -404,7 +404,7 @@ $cfg['Servers'][$i]['compress'] = TRUE;
 
 当我们在 MySQL 服务器中创建`controluser`时，我们填写参数如下示例中的内容，将`xxx`替换为一个适当复杂的密码：
 
-```go
+```sql
 $cfg['Servers'][$i]['controluser'] = 'pma';
 $cfg['Servers'][$i]['controlpass'] = 'xxx';
 
@@ -434,7 +434,7 @@ $cfg['Servers'][$i]['controlpass'] = 'xxx';
 
 这条消息可以通过以下参数禁用（默认情况下设置为`FALSE`）：
 
-```go
+```sql
 $cfg['PmaNoRelation_DisableWarning'] = TRUE;
 
 ```
@@ -461,7 +461,7 @@ $cfg['PmaNoRelation_DisableWarning'] = TRUE;
 
 我们需要修改`scripts/create_tables.sql`文件的本地副本，以便用所需的所有表填充我们的数据库。它们将具有前缀`pma_`以便于识别。我们需要删除以下行：
 
-```go
+```sql
 CREATE DATABASE IF NOT EXISTS `phpmyadmin`
 DEFAULT CHARACTER SET utf8 COLLATE utf8_bin;
 USE phpmyadmin;
@@ -478,7 +478,7 @@ USE phpmyadmin;
 
 现在是时候调整`config.inc.php`中所有与配置存储相关的参数了。这可以通过本章中的设置脚本轻松完成，也可以通过从`config.sample.inc.php`文件中粘贴适当的行来完成。数据库是我们自己的，表名是刚刚创建的表名：
 
-```go
+```sql
 $cfg['Servers'][$i]['pmadb'] = 'mydatabase';
 $cfg['Servers'][$i]['bookmarktable'] = 'pma_bookmark';
 $cfg['Servers'][$i]['relation'] = 'pma_relation';
@@ -524,7 +524,7 @@ $cfg['Servers'][$i]['userconfig'] = 'pma_userconfig';
 
 我们首先确保控制用户`pma`已经创建，并且在`config.inc.php`中的定义是合适的。然后我们将`scripts/create_tables.sql`复制到我们的本地工作站并进行编辑。我们替换以下行：
 
-```go
+```sql
 -- GRANT SELECT, INSERT, DELETE, UPDATE ON `phpmyadmin`.* TO
 -- 'pma'@localhost;
 
@@ -532,7 +532,7 @@ $cfg['Servers'][$i]['userconfig'] = 'pma_userconfig';
 
 使用这些，删除注释字符（双破折号）：
 
-```go
+```sql
 GRANT SELECT, INSERT, DELETE, UPDATE ON `phpmyadmin`.* TO
 'pma'@localhost;
 
@@ -542,7 +542,7 @@ GRANT SELECT, INSERT, DELETE, UPDATE ON `phpmyadmin`.* TO
 
 最后一步是调整`config.inc.php`中与关系特性相关的所有参数。请参阅*为单个用户安装*部分，除了`pmadb`参数中的数据库名称，该名称将如下代码片段所示：
 
-```go
+```sql
 $cfg['Servers'][$i]['pmadb'] = 'phpmyadmin';
 
 ```

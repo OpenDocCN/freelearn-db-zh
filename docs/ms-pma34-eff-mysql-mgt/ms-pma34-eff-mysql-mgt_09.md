@@ -80,7 +80,7 @@
 
 基于字符的列具有描述用于解释内容的字符集以及排序规则的排序属性。**name**列当前具有**latin1_swedish_ci**排序规则，可以通过**Structure**页面看到。在**Operations**页面上，如果我们将表`author`的排序规则从**latin1_swedish_ci**更改为**utf8_general_ci**，则会生成以下语句：
 
-```go
+```sql
 ALTER TABLE `author` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci
 
 ```

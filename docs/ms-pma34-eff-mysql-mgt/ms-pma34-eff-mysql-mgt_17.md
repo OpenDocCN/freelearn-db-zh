@@ -56,7 +56,7 @@ MySQL 5.0 引入了对命名和可更新视图的支持（更多详细信息可�
 
 我们注意到，在生成的 SQL 查询中，我们没有看到原始的`CREATE VIEW`语句。原因是我们正在使用`SELECT`语句从视图中进行选择，隐藏了我们从视图中提取数据的事实。然而，导出视图的结构将显示 MySQL 如何内部存储我们的视图：
 
-```go
+```sql
 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`%` SQL SECURITY DEFINER VIEW `book_public_info` AS
 select `book`.`isbn` AS `number`,`book`.`title` AS `title` from `book`;
 
@@ -98,7 +98,7 @@ phpMyAdmin 在开始支持存储过程和函数之前花了一些时间。原因
 
 然后我们在主查询框中输入存储过程的代码：
 
-```go
+```sql
 CREATE PROCEDURE `add_page`(IN param_isbn VARCHAR(25),
 IN param_pages INT, OUT param_message VARCHAR(100))
 BEGIN
@@ -120,7 +120,7 @@ END
 
 同样，在查询框中，我们通过输入以下语句来测试我们的存储过程。在这里，我们使用了一个 SQL 变量`@message`，它将接收`OUT`参数`param_message`的内容：
 
-```go
+```sql
 call add_page('1-234567-22-0', 4, @message);
 SELECT @message;
 
@@ -130,7 +130,7 @@ SELECT @message;
 
 然后我们可以验证这本书的页数是否增加了。我们还需要测试有问题的情况：
 
-```go
+```sql
 call add_page('1-234567-22-0', 101, @message);
 SELECT @message;
 
@@ -146,7 +146,7 @@ SELECT @message;
 
 第一个图标将这个存储过程的文本带入查询框进行编辑。第二个图标用于删除这个存储过程。在编辑存储过程时，我们注意到文本已经被稍微修改。
 
-```go
+```sql
 DROP PROCEDURE `add_page`//
 CREATE DEFINER=`marc`@`%` PROCEDURE `add_page`(IN param_isbn VARCHAR(25), IN param_pages INT, OUT param_message VARCHAR(100))
 BEGIN
@@ -187,7 +187,7 @@ phpMyAdmin 对函数的处理在许多方面类似于我们在例程中所涵盖
 
 让我们定义一个函数，根据其代码检索国家名称。我更喜欢在函数定义内清楚地标识参数使用`param_`前缀和局部变量使用`var_`前缀。我们将使用我们信任的 SQL 查询框再次输入函数的代码，并指示该框使用`//`作为分隔符。
 
-```go
+```sql
 CREATE FUNCTION get_country_name(param_country_code CHAR(2))
 RETURNS VARCHAR(50)
 READS SQL DATA
@@ -211,7 +211,7 @@ END
 
 要测试我们刚刚创建的函数，请在查询框中输入以下查询（参见[第十一章]：(ch11.html "第十一章。输入 SQL 语句")）
 
-```go
+```sql
 SELECT CONCAT('ca->', get_country_name('ca'), ', zz->',
 get_country_name('zz')) as test;
 
@@ -219,7 +219,7 @@ get_country_name('zz')) as test;
 
 这将产生以下结果：
 
-```go
+```sql
 ca->Canada, zz->not found
 
 ```
@@ -228,7 +228,7 @@ ca->Canada, zz->not found
 
 在导出数据库时，存储过程和函数会出现在 SQL 导出中。这是因为在**导出**页面的**对象创建选项**对话框中默认选择了**添加 CREATE PROCEDURE / FUNCTION / EVENT**复选框（在**自定义**导出模式中可以看到）。以下是与存储过程和函数相关的导出文件部分：
 
-```go
+```sql
 DELIMITER $$
 --
 -- Procedures
@@ -280,7 +280,7 @@ DELIMITER ;
 
 当前的 phpMyAdmin 版本没有触发器创建界面。因此，我们在查询框中输入触发器定义时要特别注意在分隔符框中输入`//`： 
 
-```go
+```sql
 CREATE TRIGGER after_book_insert AFTER INSERT ON book
 FOR EACH ROW
 BEGIN
@@ -330,7 +330,7 @@ MySQL 5.1 提供了用户定义的分区（参考[`dev.mysql.com/doc/refman/5.1/
 
 在这里，我们输入一个`PARTITION BY RANGE`子句，它将在**id**列上创建分区：
 
-```go
+```sql
 PARTITION BY RANGE (id) (
 PARTITION p0 VALUES LESS THAN (1000),
 PARTITION p1 VALUES LESS THAN (2000),
@@ -353,7 +353,7 @@ PARTITION p2 VALUES LESS THAN (30000)
 
 最后，在 SQL 模式下导出此`test`表会生成带有嵌入式注释的语句，MySQL 5.1 服务器将识别并解释这些语句以重新创建相同的分区：
 
-```go
+```sql
 CREATE TABLE `test` (
 `id` int(11) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1
@@ -372,14 +372,14 @@ PARTITION p2 VALUES LESS THAN (3000) ENGINE = MyISAM) */;
 
 我们应该首先验证调度程序是否在我们的服务器上处于活动状态。如果没有，我们需要激活它。否则，什么也不会发生！我们将首先在查询框中输入以下语句：
 
-```go
+```sql
 SHOW VARIABLES LIKE 'event%';
 
 ```
 
 接下来，我们在结果中查找名为`event_scheduler`的变量。如果此变量设置为`OFF`，我们需要要求系统管理员（或具有`SUPER`特权的人）执行以下语句：
 
-```go
+```sql
 SET GLOBAL event_scheduler = ON;
 
 ```
@@ -392,7 +392,7 @@ SET GLOBAL event_scheduler = ON;
 
 当前的 phpMyAdmin 版本没有一个界面，我们可以在其中选择`CREATE EVENT`语句的各个部分。因此，唯一剩下的方法是使用 SQL 查询框来输入语句并理解其语法！在这里，我们将使用一个完全虚构的例子：
 
-```go
+```sql
 CREATE EVENT add_page_count
 ON SCHEDULE
 EVERY 1 MINUTE

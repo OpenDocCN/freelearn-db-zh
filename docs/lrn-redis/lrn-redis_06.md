@@ -202,7 +202,7 @@ Redis 提供的另一个优势是它是开源的，而且 Redis 的运行时资�
 
 +   **Commands**：这是所有将在应用程序中实现的命令的父类和抽象类：
 
-```go
+```sql
 package org.learningRedis.web;
 import org.learningRedis.web.util.Argument;
 public abstract class Commands {
@@ -219,7 +219,7 @@ public abstract class Commands {
 
 +   **默认命令**：这是默认命令，如果 URL 中传递的命令未被应用程序识别，将会执行该命令：
 
-```go
+```sql
 package org.learningRedis.web;
 import org.learningRedis.web.util.Argument;
 public class DefaultCommand extends Commands {
@@ -235,7 +235,7 @@ public class DefaultCommand extends Commands {
 
 +   **Argument**：这个类的主要目标是封装请求中传入的所有名称值属性，并将其放入一个地图中，以便以后在程序中使用：
 
-```go
+```sql
 package org.learningRedis.web.util;
 import java.util.HashMap;
 import java.util.Map;
@@ -264,7 +264,7 @@ public class Argument {
 
 ProductApp servlet 将包含围绕产品管理的命令。ProductApp servlet 的代码如下：
 
-```go
+```sql
 package org.learningRedis.web;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -330,7 +330,7 @@ public class ProductApp extends HttpServlet {
 
 +   `CommisionProductCommand`：这将实现`委托`命令。命令的实现如下：
 
-```go
+```sql
 package org.learningRedis.web.productmgmt.commands;
 import java.util.Map;
 import org.learningRedis.web.Commands;
@@ -368,7 +368,7 @@ public class CommissionProductCommand extends Commands {
 
 +   `显示命令`：这将实现`显示`命令。命令的实现如下：
 
-```go
+```sql
 package org.learningRedis.web.productmgmt.commands;
 import org.learningRedis.web.Commands;
 import org.learningRedis.web.util.Argument;
@@ -395,7 +395,7 @@ public class DisplayCommand extends Commands {
 
 +   `DisplayTagCommand`：这将实现`browse`命令。命令的实现如下：
 
-```go
+```sql
 package org.learningRedis.web.productmgmt.commands;
 import org.learningRedis.web.Commands;
 import org.learningRedis.web.util.Argument;
@@ -424,7 +424,7 @@ public class DisplayTagCommand extends Commands {
 
 +   `UpdateTag`：这将实现`UpdateTagCommand`命令。命令的实现如下：
 
-```go
+```sql
 package org.learningRedis.web.productmgmt.commands;
 import org.learningRedis.web.Commands;
 import org.learningRedis.web.util.AnalyticsDBManager;
@@ -473,7 +473,7 @@ public class UpdateTagCommand extends Commands {
 
 +   `VisitTodayCommand`：这将实现`browse`命令。命令的实现如下：
 
-```go
+```sql
 package org.learningRedis.web.analytics.commands;
 import org.learningRedis.web.Commands;
 import org.learningRedis.web.util.AnalyticsDBManager;
@@ -504,7 +504,7 @@ public class VisitTodayCommand extends Commands {
 
 +   `PurchasesTodayCommand`：这将实现`purchasestoday`命令。命令的实现如下：
 
-```go
+```sql
 package org.learningRedis.web.analytics.commands;
 import org.learningRedis.web.Commands;
 import org.learningRedis.web.util.Argument;
@@ -535,7 +535,7 @@ public class PurchasesTodayCommand extends Commands {
 
 +   `TagHistoryCommand`：这将实现`browse`命令。命令的实现如下：
 
-```go
+```sql
 package org.learningRedis.web.productmgmt.commands;
 import org.learningRedis.web.Commands;
 import org.learningRedis.web.util.AnalyticsDBManager;
@@ -573,7 +573,7 @@ public class TagHistoryCommand extends Commands {
 
 UserApp servlet 将包含围绕用户管理和用户分析的命令。UserApp servlet 的代码如下：
 
-```go
+```sql
 package org.learningRedis.web;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -687,7 +687,7 @@ public class UserApp extends HttpServlet {
 
 +   `RegistrationCommand`：这将实现`register`命令。命令的代码如下：
 
-```go
+```sql
 package org.learningRedis.web.sessionmgmt.commands;
 import org.learningRedis.web.Commands;
 import org.learningRedis.web.util.Argument;
@@ -719,7 +719,7 @@ public class RegistrationCommand extends Commands {
 
 +   `LoginCommand`：这将实现`login`命令。命令的代码如下：
 
-```go
+```sql
 package org.learningRedis.web.sessionmgmt.commands;
 import java.util.HashMap;
 import java.util.Map;
@@ -771,7 +771,7 @@ public class LoginCommand extends Commands {
 
 +   `MyDataCommand`：这将实现`mydata`命令。命令的代码如下：
 
-```go
+```sql
 package org.learningRedis.web.sessionmgmt.commands;
 import java.util.Map;
 import org.learningRedis.web.Commands;
@@ -802,7 +802,7 @@ public class MyDataCommand extends Commands {
 
 +   `EditMyDataCommand`：这将实现`editmydata`命令。命令的代码如下：
 
-```go
+```sql
 package org.learningRedis.web.sessionmgmt.commands;
 import java.util.Map;
 import org.learningRedis.web.Commands;
@@ -836,7 +836,7 @@ public class EditMyDataCommand extends Commands {
 
 +   `BrowseCommand`：这将实现`browse`命令。命令的实现如下：
 
-```go
+```sql
 package org.learningRedis.web.sessionmgmt.commands;
 import org.learningRedis.web.Commands;
 import org.learningRedis.web.util.AnalyticsDBManager;
@@ -873,7 +873,7 @@ public class BrowseCommand extends Commands {
 
 +   `RecommendByProductCommand`：这将实现`recommendbyproduct`命令。命令的代码如下：
 
-```go
+```sql
 package org.learningRedis.web.analytics.commands;
 import java.util.List;
 import java.util.Map;
@@ -930,7 +930,7 @@ public class RecomendByProductCommand extends Commands {
 
 +   `Add2CartCommand`：这将实现`add2cart`命令。命令的实现如下：
 
-```go
+```sql
 package org.learningRedis.web.sessionmgmt.commands;
 import java.util.HashMap;
 import java.util.Map;
@@ -972,7 +972,7 @@ public class Add2CartCommand extends Commands {
 
 +   `ShowMyCartCommand`：这将实现`showmycart`命令。命令的实现如下：
 
-```go
+```sql
 package org.learningRedis.web.sessionmgmt.commands;
 import java.util.Map;
 import java.util.Set;
@@ -1016,7 +1016,7 @@ public class ShowMyCartCommand extends Commands {
 
 +   `EditCartCommand`：这将实现`editcart`命令。命令的实现如下：
 
-```go
+```sql
 package org.learningRedis.web.sessionmgmt.commands;
 import java.util.HashMap;
 import java.util.Map;
@@ -1058,7 +1058,7 @@ public class EditCartCommand extends Commands {
 
 +   `BuyCommand`：这将实现`browse`命令。命令的实现如下：
 
-```go
+```sql
 package org.learningRedis.web.sessionmgmt.commands;
 import org.learningRedis.web.Commands;
 import org.learningRedis.web.util.Argument;
@@ -1093,7 +1093,7 @@ public class BuyCommand extends Commands {
 
 +   `MyStatusCommand`：这将实现`stats`命令。命令的实现如下：
 
-```go
+```sql
 package org.learningRedis.web.analytics.commands;
 import java.util.Iterator;
 import java.util.Set;
@@ -1141,7 +1141,7 @@ public class MyStatusCommand extends Commands {
 
 +   `MyPurchaseHistoryCommand`：这将实现`mypurchasehistory`命令。命令的实现如下：
 
-```go
+```sql
 package org.learningRedis.web.sessionmgmt.commands;
 import java.util.List;
 import org.learningRedis.web.Commands;
@@ -1179,7 +1179,7 @@ public class MyPurchaseHistoryCommand extends Commands {
 
 +   `ReloginCommand`：这将实现`relogin`命令。命令的实现如下：
 
-```go
+```sql
 package org.learningRedis.web.sessionmgmt.commands;
 import org.learningRedis.web.Commands;
 import org.learningRedis.web.util.Argument;
@@ -1213,7 +1213,7 @@ public class ReloginCommand extends Commands {
 
 +   `LogoutCommand`：这将实现`logout`命令。命令的实现如下：
 
-```go
+```sql
 package org.learningRedis.web.sessionmgmt.commands;
 import org.learningRedis.web.Commands;
 import org.learningRedis.web.util.Argument;
@@ -1245,7 +1245,7 @@ public class LogoutCommand extends Commands {
 
 这个类是这个应用程序的支撑，它负责与数据库连接和管理连接池。它还有一些实用功能。实现如下代码片段所示：
 
-```go
+```sql
 package org.learningRedis.web.util;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -1280,7 +1280,7 @@ public class RedisDBManager {
 
 这个类扩展了`RedisDBManager`，负责向数据库发出与产品相关的功能调用。该类的实现如下：
 
-```go
+```sql
 package org.learningRedis.web.util;
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -1388,7 +1388,7 @@ public class ProductDBManager extends RedisDBManager {
 
 这个类扩展了`RedisDBManager`，负责向数据库发出与分析相关的功能调用。该类的实现如下：
 
-```go
+```sql
 package org.learningRedis.web.util;
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -1497,7 +1497,7 @@ public class AnalyticsDBManager extends RedisDBManager {
 
 这个类扩展了`RedisDBManager`，负责向数据库发出与购物车相关的功能调用。实现如下：
 
-```go
+```sql
 package org.learningRedis.web.util;
 import java.util.Map;
 import java.util.Set;
@@ -1578,7 +1578,7 @@ public class ShoppingCartDBManager extends RedisDBManager {
 
 这个类扩展了`RedisDBManager`，负责向数据库发出与用户相关的功能调用。实现如下：
 
-```go
+```sql
 package org.learningRedis.web.util;
 import java.util.Date;
 import java.util.HashMap;

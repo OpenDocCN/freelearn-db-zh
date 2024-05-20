@@ -78,7 +78,7 @@ MySQL 8 的每个发布都遵循命名约定，表示其状态。每个发布名
 
 1.  转到命令行并执行以下命令：
 
-```go
+```sql
  E:\Softwares\md5>md5.exe 
         E:\Softwares\mysql-installer-community-5.7.19.0.msi
  2578BFC3C30273CEE42D77583B8596B5 
@@ -111,13 +111,13 @@ MySQL 8 的每个发布都遵循命名约定，表示其状态。每个发布名
 
 1.  现在，是时候执行以下命令进行验证了：
 
-```go
+```sql
  cmd> gpg --verify package_name.asc
 ```
 
 对于 Microsoft Windows，还有一些 GUI 工具可用于完整性检查。其中最流行的之一是`Gpg4win`。要在 Linux 上执行相同的检查，我们有可用的命令，因为 RPM 软件包本身包含 GPG 签名和 MD5 校验和。执行以下命令以验证软件包：
 
-```go
+```sql
 cmd> rpm --checksig package_name.rpm
 ```
 
@@ -400,7 +400,7 @@ MySQL 安装程序包括`**M**ySQLinstallerConsole.exe`文件，它提供了使�
 
 如前所述，选项文件与普通文本文件相同；用户可以使用任何文本编辑器修改它。考虑一个例子，MySQL 8 安装目录和数据目录位于不同位置。在这种情况下，用户必须在`mysqld`部分的选项文件中提及两个目录的位置：
 
-```go
+```sql
  [mysqld]
  # set basedir to your installation path
  basedir=E:\\mysql
@@ -421,20 +421,20 @@ MySQL 8 在所有 Microsoft Windows 平台上都支持 TCP/IP 和管道。但默
 
 1.  **启动 MySQL 8 服务器**：此步骤描述了如何首次启动 MySQL 8 服务器。可以使用命令行或作为 Windows 服务启动。要使用命令行启动它，请执行以下命令。假设 MySQL 8 安装在`E:\MySQL\MySQL Server 8`文件夹下：
 
-```go
+```sql
  E:\> “E:\MySQL\MySQL Server 8\bin\mysqld”
 ```
 
 在执行上述命令后，用户可以看到一系列消息，帮助用户识别错误（如果存在）。命令提示符中的最后两行显示如下。它们表明 MySQL 8 服务已启动，并准备好接受服务器-客户端请求：
 
-```go
+```sql
  mysqld: ready for connections
  Version: '8.0.4' socket: '' port: 3306
 ```
 
 用户可以省略控制台以获取错误日志，因为 MySQL 8 会在数据目录下的单独日志文件中维护日志，扩展名为`.err`。启动 MySQL 8 服务器时，用户必须每次使用命令提示符执行相同的命令。要停止 MySQL 8 服务器，请执行以下命令：
 
-```go
+```sql
  E:\> “E:\MySQL\MySQL Server 8\bin\mysqladmin” -u root shutdown
 ```
 
@@ -462,7 +462,7 @@ MySQL 8 在所有 Microsoft Windows 平台上都支持 TCP/IP 和管道。但默
 
 1.  **将 MySQL 8 作为 Windows 服务启动**：建议将 MySQL 8 作为 Windows 服务使用，因为它将在 Windows 启动时启动，并在 Windows 停止时停止。在这种情况下，无需显式启动 MySQL 8 服务。使用 Microsoft Windows 服务实用程序来管理 MySQL 8 服务。要将 MySQL 服务器安装为服务，请使用以下命令：
 
-```go
+```sql
  E:\> “E:\MySQL\MySQL Server 8\bin\mysqld” --install
 ```
 
@@ -476,13 +476,13 @@ MySQL 8 在所有 Microsoft Windows 平台上都支持 TCP/IP 和管道。但默
 
 使用以下命令将 MySQL 服务设置为 Windows 服务，并引用文件`my-opts.conf`作为 MySQL 8 配置的选项文件：
 
-```go
+```sql
 E:\> “E:\MySQL\MySQL Server 8\bin\mysqld” --install MySQL --defaults-file=E:\my-opts.cnf
 ```
 
 到目前为止，我们已经讨论了 MySQL 8 服务作为 Windows 服务，但是还有一个带有`--install-manual`选项的命令可用于启动 MySQL 8 而不使用 Windows 服务。要删除 MySQL 8 服务，请使用`--remove`命令，如下所示：
 
-```go
+```sql
 E:\> “E:\MySQL\MySQL Server 8\bin\mysqld” --install-manual
 E:\> "E:\MySQL\MySQL Server 8\bin\mysqld" --remove
 ```
@@ -517,7 +517,7 @@ E:\> "E:\MySQL\MySQL Server 8\bin\mysqld" --remove
 
 1.  执行安装命令将 MySQL `Yum`仓库添加到您的`local`仓库中：
 
-```go
+```sql
  shell> sudo yum localinstall package_name.rpm
  shell> yum repolist enabled | grep "mysql.*-community.*"
 ```
@@ -526,20 +526,20 @@ E:\> "E:\MySQL\MySQL Server 8\bin\mysqld" --remove
 
 1.  **选择发布系列**：MySQL Yum 仓库包含各种发布系列供安装。执行以下命令以检查可用系列的列表：
 
-```go
+```sql
  shell> yum repolist all | grep mysql
 ```
 
 在 MySQL Yum 仓库中，默认情况下启用了最新的 GA 系列进行安装，但除此之外，其他开发系列也以禁用状态可用。对于开发系列的安装，请执行以下两个命令以禁用 GA 发布并启用所需的开发系列：
 
-```go
+```sql
  shell> sudo yum-config-manager --disable mysql57-community
  shell> sudo yum-config-manager --enable mysql80-community
 ```
 
 定义发布系列的另一种方式是在仓库文件中使用手动条目。例如，将以下条目添加到`/etc/yum.repos.d/mysql-community.repo`文件中：
 
-```go
+```sql
  mysql80-community]
  name=MySQL 8.0 Community Server
  baseurl=http://repo.mysql.com/yum/mysql-8.0-community/el/6/$basearch/
@@ -548,13 +548,13 @@ E:\> "E:\MySQL\MySQL Server 8\bin\mysqld" --remove
 
 在这里，`enabled=1`表示启用此系列，`enabled=0`表示禁用此系列。Yum 一次只允许一个启用的子仓库用于一个发布；如果启用了多个发布系列，则 Yum 仓库将只选择最新的系列。在保存配置文件中的更改后，执行以下命令以检查是否已选择正确的子仓库：
 
-```go
+```sql
  shell> yum repolist enabled | grep mysql
 ```
 
 1.  **安装 MySQL 8**：执行以下命令：
 
-```go
+```sql
  shell> sudo yum install mysql-community-server
 ```
 
@@ -562,7 +562,7 @@ E:\> "E:\MySQL\MySQL Server 8\bin\mysqld" --remove
 
 1.  **启动 MySQL 8 服务器**：第一个命令将启动 MySQL 服务，第二个命令显示 MySQL 服务的当前状态：
 
-```go
+```sql
  shell> sudo service mysqld start 
  shell> sudo service mysqld status
 ```
@@ -581,7 +581,7 @@ E:\> "E:\MySQL\MySQL Server 8\bin\mysqld" --remove
 
 RPM 软件包可从 Yum 仓库和 SLES 仓库获取，用于 MySQL 8。这是 MySQL 8 安装的推荐方式。RPM 软件包遵循`packagename-version-distribution-arch.rpm`的语法，其中 distribution 和 arch 分别表示 Linux 发行版和处理器。`RPM`软件包是所有必需软件包的捆绑包，它们彼此依赖。RPM 软件包遵循与 Yum 仓库安装中讨论的相同步骤。在基于 RPM 的系统中，MySQL 服务不会自动启动。要手动启动它，请执行以下命令：
 
-```go
+```sql
 shell> sudo service mysqld start
 ```
 
@@ -613,19 +613,19 @@ MySQL APT 仓库或 MySQL Developer Zone 的下载区域提供了 `Debian` 包�
 
 1.  使用以下命令解压包：
 
-```go
+```sql
  shell> tar -xvf mysql-server_MVER-DVER_CPU.deb-bundle.tar
 ```
 
 1.  可能需要 `Libaio1` 库，因此执行库安装命令：
 
-```go
+```sql
  shell> sudo apt-get install libaio1
 ```
 
 1.  执行以下命令对 MySQL 服务器进行预配置：
 
-```go
+```sql
  shell> sudo dpkg-preconfigure mysql-community-server_*.deb
 ```
 
@@ -633,7 +633,7 @@ MySQL APT 仓库或 MySQL Developer Zone 的下载区域提供了 `Debian` 包�
 
 1.  安装 MySQL 8 所需的依赖项：
 
-```go
+```sql
  shell>sudo apt-get -f install
 ```
 
@@ -653,7 +653,7 @@ MySQL 8 配置文件在 `Debian` 包中的以下路径下可用：
 
 在前面的部分中，我们已经看到了 MySQL 8 安装的不同方法。其中一些方法将自动为 MySQL 8 创建数据目录。对于通用二进制分发和源分发，必须创建数据目录。数据目录初始化可以通过以下两个命令之一执行：
 
-```go
+```sql
 E:\> bin\mysqld –-initialize 
 E:\> bin\mysqld --initialize-insecure
 ```
@@ -662,7 +662,7 @@ E:\> bin\mysqld --initialize-insecure
 
 另一个选项是使用命令行参数指定安装目录和数据目录，如下命令所示：
 
-```go
+```sql
 E:\> bin\mysqld --initialize --basedir E:\mysql --datadir :\mydata\data
 ```
 
@@ -686,14 +686,14 @@ E:\> bin\mysqld --initialize --basedir E:\mysql --datadir :\mydata\data
 
 1.  通过执行以下命令连接到 MySQL 8 服务器，使用自动生成的密码：
 
-```go
+```sql
  shell> mysql -u root -p
  Enter password: (enter the random root password here) 
 ```
 
 +   为`root`账户设置新密码：
 
-```go
+```sql
  mysql> ALTER USER 'root'@'localhost' IDENTIFIED BY 'newPassword';
 ```
 
@@ -701,13 +701,13 @@ E:\> bin\mysqld --initialize --basedir E:\mysql --datadir :\mydata\data
 
 1.  无需密码连接到 MySQL 8 服务器：
 
-```go
+```sql
  mysql -u root
 ```
 
 2. 为`root`账户设置新密码：
 
-```go
+```sql
  mysql> ALTER USER 'root'@'localhost' IDENTIFIED BY 'newPassword';
 ```
 
@@ -717,19 +717,19 @@ E:\> bin\mysqld --initialize --basedir E:\mysql --datadir :\mydata\data
 
 本节解释了如何启动 MySQL 8 服务器以及如何在启动过程中解决问题。在 Linux 系统上成功安装 MySQL 8 服务器后，执行以下命令启动 MySQL 8 服务：
 
-```go
+```sql
 shell> sudo service mysqld start
 ```
 
 要详细检查服务是否已启动，请参考日志文件。您可以使用 status 命令来检查 MySQL 8 服务的状态：
 
-```go
+```sql
 shell> sudo service mysqld status
 ```
 
 在收到服务启动/运行消息后，您可以使用以下命令连接到 MySQL 8：
 
-```go
+```sql
 shell> mysql -uroot -p
 ```
 
@@ -751,13 +751,13 @@ shell> mysql -uroot -p
 
 执行上述步骤后，现在您的 MySQL 8 服务已启动，并已连接到指定用户。现在，通过执行以下基本命令来检查您的 MySQL 8 服务器是否正常工作：
 
-```go
+```sql
 shell> bin/mysqladmin version
 ```
 
 该命令列出了与安装的 MySQL 服务器相关的所有信息，包括其版本详细信息、协议版本等。连接到 MySQL 8 后，执行以下命令以检查是否已正确从服务器检索到信息：
 
-```go
+```sql
 mysql>mysqlshow
 mysql>mysqlshow mysql
 ```
@@ -780,20 +780,20 @@ mysql>mysqlshow mysql
 
 1.  使用以下命令对加密的`InnoDB`表空间进行主密钥旋转：
 
-```go
+```sql
  ALTER INSTANCE ROTATE INNODB MASTER KEY;
 ```
 
 1.  使用`innodb_fast_shutdown`命令配置关闭参数：
 
-```go
+```sql
  SET GLOBAL innodb_fast_shutdown = 1; -- fast shutdown
  SET GLOBAL innodb_fast_shutdown = 0; -- slow shutdown
 ```
 
 1.  使用以下命令关闭旧的 MySQL 版本：
 
-```go
+```sql
  mysqladmin -u root -p shutdown
 ```
 
@@ -805,7 +805,7 @@ mysql>mysqlshow mysql
 
 1.  成功完成 MySQL 8 启动后，执行`mysql_upgrade`：
 
-```go
+```sql
  mysql_upgrade -u root -p
 ```
 
@@ -817,7 +817,7 @@ mysql>mysqlshow mysql
 
 1.  使用`mysqldump`命令导出数据：
 
-```go
+```sql
  mysqldump -u root -p --add-drop-table --routines --events --all-databases   --
           force > data-for-upgrade.sql
 ```
@@ -830,25 +830,25 @@ mysql>mysqlshow mysql
 
 1.  初始化`data`目录：
 
-```go
+```sql
  mysqld --initialize --datadir=/path/to/8.0-datadir
 ```
 
 1.  使用新的`data`目录启动 MySQL 8 服务器：
 
-```go
+```sql
  mysqld_safe --user=mysql --datadir=/path/to/8.0-datadir 
 ```
 
 1.  将 SQL 转储文件加载到新的`MySQL`数据库中：
 
-```go
+```sql
  mysql -u root -p --force < data-for-upgrade.sql
 ```
 
 1.  使用以下命令升级 MySQL：
 
-```go
+```sql
  mysql_upgrade -u root -p
 ```
 
@@ -858,13 +858,13 @@ mysql>mysqlshow mysql
 
 1.  执行以下命令以检查是否存在绝对数据类型或函数：
 
-```go
+```sql
  mysqlcheck -u root -p--all-databases--check-upgrade
 ```
 
 1.  使用以下命令检查本机分区支持：
 
-```go
+```sql
  SELECT TABLE_SCHEMA, TABLE_NAME
  FROM INFORMATION_SCHEMA.TABLES
  WHERE ENGINE NOT IN ('innodb', 'ndbcluster')
@@ -873,7 +873,7 @@ mysql>mysqlshow mysql
 
 此命令将列出使用不支持本机分区的存储引擎的表。在执行前述查询后，如果发现任何表，则删除表上的分区并更改存储引擎，如以下命令所示：
 
-```go
+```sql
  ALTER TABLE table_name ENGINE = INNODB;
  ALTER TABLE table_name REMOVE PARTITIONING;
 ```
@@ -882,7 +882,7 @@ mysql>mysqlshow mysql
 
 1.  使用以下代码检查外键约束名称是否不超过 64 个字符：
 
-```go
+```sql
  SELECT CONSTRAINT_SCHEMA, TABLE_NAME, CONSTRAINT_NAME
  FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS
  WHERE LENGTH(CONSTRAINT_NAME) > 64;
@@ -906,7 +906,7 @@ mysql>mysqlshow mysql
 
 1.  关闭后，从`data`目录中删除`InnoDB`重做日志文件，以避免降级问题：
 
-```go
+```sql
  rm ib_logfile*
 ```
 
@@ -914,13 +914,13 @@ mysql>mysqlshow mysql
 
 1.  通过指定`data`目录启动降级版本的 MySQL，使用以下命令：
 
-```go
+```sql
  mysqld_safe --user=mysql --datadir=/path/to/existing-datadir
 ```
 
 1.  执行`mysql_upgrade`命令：
 
-```go
+```sql
  mysql_upgrade -u root -p
 ```
 
@@ -936,7 +936,7 @@ mysql>mysqlshow mysql
 
 1.  使用以下代码对数据库进行转储：
 
-```go
+```sql
  mysqldump -u root -p --add-drop-table --routines --events
  --all-databases --force > data-for-downgrade.sql
 
@@ -944,37 +944,37 @@ mysql>mysqlshow mysql
 
 1.  关闭 MySQL 服务器，如下所示：
 
-```go
+```sql
  mysqladmin -u root -p shutdown
 ```
 
 1.  将新的`data`目录初始化为旧的 MySQL 版本，使用以下代码：
 
-```go
+```sql
  mysqld --initialize --user=mysql
 ```
 
 1.  使用新的`data`目录启动旧版 MySQL，使用以下代码：
 
-```go
+```sql
  mysqld_safe --user=mysql --datadir=/path/to/new-datadir
 ```
 
 1.  将转储加载到旧的 MySQL 服务器中，如下所示：
 
-```go
+```sql
  mysql -u root -p --force < data-for-upgrade.sql
 ```
 
 1.  执行`mysql_upgrade`：
 
-```go
+```sql
  mysql_upgrade -u root -p
 ```
 
 1.  重新启动服务器以应用所有更改，使用以下代码：
 
-```go
+```sql
  mysqladmin -u root -p shutdown
  mysqld_safe --user=mysql --datadir=/path/to/new-datadir
 ```
@@ -985,7 +985,7 @@ mysql>mysqlshow mysql
 
 +   **系统表更改**：MySQL 5.7 为系统表管理单独的表空间，而在 MySQL 8 中，系统表迁移到一个名为`mysql.ibd`的单个表空间文件中。因此，在降级到 MySQL 5.7 之前，使用以下命令将系统表移回单独的表空间文件：
 
-```go
+```sql
  ALTER TABLE mysql.columns_priv TABLESPACE=innodb_file_per_table; 
         ALTER TABLE mysql.component TABLESPACE=innodb_file_per_table; 
         ALTER TABLE mysql.db TABLESPACE=innodb_file_per_table; 
@@ -1022,14 +1022,14 @@ mysql>mysqlshow mysql
 
 在 MySQL 8.0.2 中，六个系统表的存储引擎从 MyISAM 更改为 InnoDB。它们的名称分别是`columns_priv`、`db`、`procs_priv`、`tables_priv`和`user`。因此，在降级之前，通过执行以下命令更改这些表的存储引擎。对于其余的表也应用相同的命令：
 
-```go
+```sql
  ALTER TABLE mysql.columns_priv ENGINE='MyISAM' 
           STATS_PERSISTENT=DEFAULT
 ```
 
 在 MySQL 8.0.2 中，通过添加两个表来更改了`mysql.usertable`，因此，在降级到 MySQL 5.7 之前，从表中删除这些列：
 
-```go
+```sql
  ALTER TABLE mysql.user drop Create_role_priv;
  ALTER TABLE mysql.user drop Drop_role_priv;
 ```

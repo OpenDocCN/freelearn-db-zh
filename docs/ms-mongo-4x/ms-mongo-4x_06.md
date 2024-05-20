@@ -26,25 +26,25 @@
 
 使用第二章中描述的过程，*模式设计和数据建模*，我们假设我们有一个`@collection`实例变量，指向`mongo_book`数据库中`127.0.0.1:27017`默认数据库中的`books`集合：
 
-```go
+```sql
 @collection = Mongo::Client.new([ '127.0.0.1:27017' ], :database => 'mongo_book').database[:books]
 ```
 
 我们插入一个具有我们定义的单个文档，如下所示：
 
-```go
+```sql
 document = { isbn: '101', name: 'Mastering MongoDB', price: 30}
 ```
 
 这可以通过一行代码执行如下：
 
-```go
+```sql
 result = @collection.insert_one(document)
 ```
 
 生成的对象是`Mongo::Operation::Result`类，其内容与我们在 shell 中看到的内容相似，如下面的代码所示：
 
-```go
+```sql
 {"n"=>1, "ok"=>1.0}
 ```
 
@@ -52,7 +52,7 @@ result = @collection.insert_one(document)
 
 在一步中创建多个文档与此类似。对于具有`isbn 102`和`103`的两个文档，并且使用`insert_many`而不是`insert_one`，我们有以下代码：
 
-```go
+```sql
 documents = [ { isbn: '102', name: 'MongoDB in 7 years', price: 50 },
             { isbn: '103', name: 'MongoDB for experts', price: 40 } ]
 result = @collection.insert_many(documents)
@@ -66,13 +66,13 @@ result = @collection.insert_many(documents)
 
 查找文档的工作方式与创建它们的方式相同，即在集合级别：
 
-```go
+```sql
 @collection.find( { isbn: '101' } )
 ```
 
 可以链接多个搜索条件，并且相当于 SQL 中的`AND`运算符：
 
-```go
+```sql
 @collection.find( { isbn: '101', name: 'Mastering MongoDB' } )
 ```
 
@@ -102,7 +102,7 @@ mongo-ruby-driver API 提供了几个查询选项来增强查询；最常用的�
 
 `Find()` 返回一个包含结果集的游标，我们可以像其他对象一样在 Ruby 中使用 `.each` 进行迭代：
 
-```go
+```sql
 result = @collection.find({ isbn: '101' })
 result.each do |doc|
   puts doc.inspect
@@ -111,7 +111,7 @@ end
 
 我们的 `books` 集合的输出如下：
 
-```go
+```sql
 {"_id"=>BSON::ObjectId('592149c4aabac953a3a1e31e'), "isbn"=>"101", "name"=>"Mastering MongoDB", "price"=>30.0, "published"=>2017-06-25 00:00:00 UTC}
 ```
 
@@ -119,20 +119,20 @@ end
 
 `find()` 默认使用 `AND` 运算符来匹配多个字段。如果我们想使用 `OR` 运算符，我们的查询需要如下所示：
 
-```go
+```sql
 result = @collection.find('$or' => [{ isbn: '101' }, { isbn: '102' }]).to_a
 puts result
 ```
 
 前面代码的输出如下：
 
-```go
+```sql
 {"_id"=>BSON::ObjectId('592149c4aabac953a3a1e31e'), "isbn"=>"101", "name"=>"Mastering MongoDB", "price"=>30.0, "published"=>2017-06-25 00:00:00 UTC}{"_id"=>BSON::ObjectId('59214bc1aabac954263b24e0'), "isbn"=>"102", "name"=>"MongoDB in 7 years", "price"=>50.0, "published"=>2017-06-26 00:00:00 UTC}
 ```
 
 在前面的示例中，我们也可以使用 `$and` 而不是 `$or`：
 
-```go
+```sql
 result = @collection.find('$and' => [{ isbn: '101' }, { isbn: '102' }]).to_a
 puts result
 ```
@@ -141,7 +141,7 @@ puts result
 
 一个有趣且难以发现的 bug 是如果我们多次定义相同的键，就像以下代码中一样：
 
-```go
+```sql
 result = @collection.find({ isbn: '101', isbn: '102' })
 puts result
 {"_id"=>BSON::ObjectId('59214bc1aabac954263b24e0'), "isbn"=>"102", "name"=>"MongoDB in 7 years", "price"=>50.0, "published"=>2017-06-26 00:00:00 UTC}
@@ -149,7 +149,7 @@ puts result
 
 相反的顺序将导致返回带有 `isbn 101` 的文档：
 
-```go
+```sql
 result = @collection.find({ isbn: '102', isbn: '101' })
 puts result
 {"_id"=>BSON::ObjectId('592149c4aabac953a3a1e31e'), "isbn"=>"101", "name"=>"Mastering MongoDB", "price"=>30.0, "published"=>2017-06-25 00:00:00 UTC}
@@ -161,7 +161,7 @@ puts result
 
 在 mongo-ruby-driver 中访问嵌入式文档就像使用点表示法一样简单：
 
-```go
+```sql
 result = @collection.find({'meta.authors': 'alex giamas'}).to_a
 puts result
 "_id"=>BSON::ObjectId('593c24443c8ca55b969c4c54'), "isbn"=>"201", "name"=>"Mastering MongoDB, 2nd Edition", "meta"=>{"authors"=>"alex giamas"}}
@@ -173,7 +173,7 @@ puts result
 
 使用 mongo-ruby-driver 更新文档是通过查找它们进行链接的。使用我们的示例 `books` 集合，我们可以执行以下操作：
 
-```go
+```sql
 @collection.update_one( { 'isbn': 101}, { '$set' => { name: 'Mastering MongoDB, 2nd Edition' } } )
 ```
 
@@ -185,7 +185,7 @@ puts result
 
 假设 Ruby 版本 >=2.2，键可以是带引号或不带引号的；但是，以 `$` 开头的键需要按如下方式带引号：
 
-```go
+```sql
 @collection.update( { isbn: '101'}, { "$set": { name: "Mastering MongoDB, 2nd edition" } } )
 ```
 
@@ -211,7 +211,7 @@ puts result
 
 例如，对于我们之前使用的`books`集合，我们可以发出以下代码：
 
-```go
+```sql
 @collection.find( { isbn: '101' } ).delete_one
 ```
 
@@ -221,7 +221,7 @@ puts result
 
 如果我们想要删除与我们的`find()`查询匹配的所有文档，我们必须使用`delete_many`，如下所示：
 
-```go
+```sql
 @collection.find( { price: { $gte: 30 } ).delete_many
 ```
 
@@ -231,7 +231,7 @@ puts result
 
 我们可以使用`BulkWrite` API 进行批量操作。在我们之前插入多个文档的示例中，操作如下：
 
-```go
+```sql
 @collection.bulk_write([ { insertMany: documents
                      }],
                    ordered: true)
@@ -255,7 +255,7 @@ puts result
 
 在`bulk_write`命令的第一个参数中包含多个操作也是可能的，也是一个完全有效的用例。这允许我们在有相互依赖的操作并且我们想要根据业务逻辑批量处理它们的情况下按照逻辑顺序发出命令。任何错误都将停止`ordered:true`批量写入，我们将需要手动回滚我们的操作。一个值得注意的例外是`writeConcern`错误，例如，请求我们的副本集成员中的大多数确认我们的写入。在这种情况下，批量写入将继续进行，我们可以在`writeConcernErrors`结果字段中观察到错误：
 
-```go
+```sql
 old_book = @collection.findOne(name: 'MongoDB for experts')
 new_book = { isbn: 201, name: 'MongoDB for experts, 2nd Edition', price: 55 }
 @collection.bulk_write([ {deleteOne: old_book}, { insertOne: new_book
@@ -277,19 +277,19 @@ new_book = { isbn: 201, name: 'MongoDB for experts, 2nd Edition', price: 55 }
 
 使用类似于**Active Record**（**AR**）的 DSL 来查找文档。与使用关系数据库的 AR 一样，Mongoid 将一个类分配给一个 MongoDB 集合（表），并将任何对象实例分配给一个文档（关系数据库中的行）：
 
-```go
+```sql
 Book.find('592149c4aabac953a3a1e31e')
 ```
 
 这将通过`ObjectId`查找文档并返回具有`isbn 101`的文档，与通过名称属性进行的查询一样：
 
-```go
+```sql
 Book.where(name: 'Mastering MongoDB')
 ```
 
 与通过属性动态生成的 AR 查询类似，我们可以使用辅助方法：
 
-```go
+```sql
 Book.find_by(name: 'Mastering MongoDB')
 ```
 
@@ -297,7 +297,7 @@ Book.find_by(name: 'Mastering MongoDB')
 
 我们应该启用`QueryCache`以避免多次命中数据库相同的查询，如下所示：
 
-```go
+```sql
 Mongoid::QueryCache.enabled = true
 ```
 
@@ -307,7 +307,7 @@ Mongoid::QueryCache.enabled = true
 
 我们可以使用类方法在 Mongoid 中范围查询，如下所示：
 
-```go
+```sql
 Class Book
 ...
   def self.premium
@@ -318,7 +318,7 @@ End
 
 然后我们将使用这个查询：
 
-```go
+```sql
 Book.premium
 ```
 
@@ -328,7 +328,7 @@ Book.premium
 
 用于创建文档的 Ruby 接口类似于活动记录：
 
-```go
+```sql
 Book.where(isbn: 202, name: 'Mastering MongoDB, 3rd Edition').create
 ```
 
@@ -336,7 +336,7 @@ Book.where(isbn: 202, name: 'Mastering MongoDB, 3rd Edition').create
 
 我们可以使用感叹号版本来强制引发异常，如果保存文档失败：
 
-```go
+```sql
 Book.where(isbn: 202, name: 'Mastering MongoDB, 3rd Edition').create!
 ```
 
@@ -344,7 +344,7 @@ Book.where(isbn: 202, name: 'Mastering MongoDB, 3rd Edition').create!
 
 要更新文档，我们可以使用`update`或`update_all`。使用`update`将仅更新查询部分检索到的第一个文档，而`update_all`将更新所有文档：
 
-```go
+```sql
 Book.where(isbn: 202).update(name: 'Mastering MongoDB, THIRD Edition')
 Book.where(price: { '$gt': 20 }).update_all(price_range: 'premium')
 ```
@@ -363,7 +363,7 @@ PyMongo 是 MongoDB 官方支持的 Python 驱动程序。在本节中，我们�
 
 Python 驱动程序提供了与 Ruby 和 PHP 一样的 CRUD 方法。在第二章“模式设计和数据建模”之后，指向我们的`books`集合的`books`变量，我们将编写以下代码块：
 
-```go
+```sql
 from pymongo import MongoClient
 from pprint import pprint
 
@@ -410,14 +410,14 @@ from pprint import pprint
 
 我们使用`pprint`库对`find()`结果进行漂亮打印。通过使用以下代码来迭代结果集的内置方式：
 
-```go
+```sql
 for document in results:
    print(document)
 ```
 
 删除文档的工作方式与创建它们类似。我们可以使用`delete_one`来删除第一个实例，或者使用`delete_many`来删除匹配查询的所有实例：
 
-```go
+```sql
 >>> result = books.delete_many({ "isbn": "101" })
 >>> print(result.deleted_count)
 1
@@ -429,7 +429,7 @@ for document in results:
 
 要删除集合，我们可以使用`drop()`：
 
-```go
+```sql
 >>> books.delete_many({})
 >>> books.drop()
 ```
@@ -438,7 +438,7 @@ for document in results:
 
 要根据顶级属性查找文档，我们可以简单地使用字典：
 
-```go
+```sql
 >>> books.find({"name": "Mastering MongoDB"})
 
 [{u'_id': ObjectId('592149c4aabac953a3a1e31e'),
@@ -450,7 +450,7 @@ for document in results:
 
 要在嵌入文档中查找文档，我们可以使用点表示法。在下面的示例中，我们使用`meta.authors`来访问`meta`文档内的`authors`嵌入文档：
 
-```go
+```sql
 >>> result = list(books.find({"meta.authors": {"$regex": "aLEx", "$options": "i"}}))
 >>> pprint(result)
 
@@ -464,7 +464,7 @@ for document in results:
 
 还支持比较运算符，完整列表将在本章后面的“比较运算符”部分中给出：
 
-```go
+```sql
 >>> result = list(books.find({ "price": {  "$gt":40 } }))
 >>> pprint(result)
 
@@ -476,7 +476,7 @@ for document in results:
 
 在我们的查询中添加多个字典会导致逻辑`AND`查询：
 
-```go
+```sql
 >>> result = list(books.find({"name": "Mastering MongoDB", "isbn": "101"}))
 >>> pprint(result)
 
@@ -489,7 +489,7 @@ for document in results:
 
 对于同时具有`isbn=101`和`name=Mastering MongoDB`的书籍，要使用`$or`和`$and`等逻辑运算符，我们必须使用以下语法：
 
-```go
+```sql
 >>> result = list(books.find({"$or": [{"isbn": "101"}, {"isbn": "102"}]}))
 >>> pprint(result)
 
@@ -507,7 +507,7 @@ for document in results:
 
 对于具有`isbn`为`101`或`102`的书籍，如果我们想要结合`AND`和`OR`运算符，我们必须使用`$and`运算符，如下所示：
 
-```go
+```sql
 >>> result = list(books.find({"$or": [{"$and": [{"name": "Mastering MongoDB", "isbn": "101"}]}, {"$and": [{"name": "MongoDB in 7 years", "isbn": "102"}]}]}))
 >>> pprint(result)
 [{u'_id': ObjectId('592149c4aabac953a3a1e31e'),
@@ -536,7 +536,7 @@ for document in results:
 
 此操作在搜索阶段匹配一个文档，并根据要应用于匹配文档的操作修改一个文档：
 
-```go
+```sql
 >>> result = books.update_one({"isbn": "101"}, {"$set": {"price": 100}})
 >>> print(result.matched_count)
 1
@@ -570,7 +570,7 @@ PyMODM 是一个核心 ODM，提供简单且可扩展的功能。它由 MongoDB 
 
 可以使用单行代码创建一个新的`user`对象，如第二章*模式设计和数据建模*中所定义的：
 
-```go
+```sql
 >>> user = User('alexgiamas@packt.com', 'Alex', 'Giamas').save()
 ```
 
@@ -578,13 +578,13 @@ PyMODM 是一个核心 ODM，提供简单且可扩展的功能。它由 MongoDB 
 
 我们也可以使用关键字参数或两者的混合，如下所示：
 
-```go
+```sql
 >>> user = User(email='alexgiamas@packt.com', 'Alex', last_name='Giamas').save()
 ```
 
 可以通过将用户数组传递给`bulk_create()`来进行批量保存：
 
-```go
+```sql
 >>> users = [ user1, user2,...,userN]
 >>>  User.bulk_create(users)
 ```
@@ -593,14 +593,14 @@ PyMODM 是一个核心 ODM，提供简单且可扩展的功能。它由 MongoDB 
 
 我们可以通过直接访问属性并再次调用`save()`来修改文档：
 
-```go
+```sql
 >>> user.first_name = 'Alexandros'
 >>> user.save()
 ```
 
 如果我们想要更新一个或多个文档，我们必须使用`raw()`来过滤将受影响的文档，并链接`update()`来设置新值：
 
-```go
+```sql
 >>> User.objects.raw({'first_name': {'$exists': True}})
               .update({'$set': {'updated_at': datetime.datetime.now()}})
 ```
@@ -611,7 +611,7 @@ PyMODM 是一个核心 ODM，提供简单且可扩展的功能。它由 MongoDB 
 
 删除 API 与更新 API 类似-通过使用`QuerySet`查找受影响的文档，然后链接`.delete()`方法来删除它们：
 
-```go
+```sql
 >>> User.objects.raw({'first_name': {'$exists': True}}).delete()
 ```
 
@@ -653,7 +653,7 @@ PyMODM 是一个核心 ODM，提供简单且可扩展的功能。它由 MongoDB 
 
 以下命令将插入一个包含两个键/值对数组的单个`$document`：
 
-```go
+```sql
 $document = array( "isbn" => "401", "name" => "MongoDB and PHP" );
 $result = $collection->insertOne($document);
 var_dump($result);
@@ -661,7 +661,7 @@ var_dump($result);
 
 `var_dump($result)`命令的输出如下所示：
 
-```go
+```sql
 MongoDB\InsertOneResult Object
 (
    [writeResult:MongoDB\InsertOneResult:private] => MongoDB\Driver\WriteResult Object
@@ -705,7 +705,7 @@ MongoDB\InsertOneResult Object
 
 我们还可以使用`->insertMany()`方法一次插入多个文档，如下所示：
 
-```go
+```sql
 $documentAlpha = array( "isbn" => "402", "name" => "MongoDB and PHP, 2nd Edition" );$documentBeta  = array( "isbn" => "403", "name" => "MongoDB and PHP, revisited" );
 $result = $collection->insertMany([$documentAlpha, $documentBeta]);
 
@@ -714,7 +714,7 @@ print_r($result);
 
 结果如下所示：
 
-```go
+```sql
 (
    [writeResult:MongoDB\InsertManyResult:private] => MongoDB\Driver\WriteResult Object
        (
@@ -758,7 +758,7 @@ print_r($result);
 
 再次，`$result->getInsertedCount()`将返回`2`，而`$result->getInsertedIds()`将返回一个包含两个新创建的`ObjectIds`的数组：
 
-```go
+```sql
 array(2) {
  [0]=>
  object(MongoDB\BSON\ObjectID)#13 (1) {
@@ -775,7 +775,7 @@ array(2) {
 
 删除文档与插入文档类似，但是使用`deleteOne()`和`deleteMany()`方法；`deleteMany()`的示例如下所示：
 
-```go
+```sql
 $deleteQuery = array( "isbn" => "401");
 $deleteResult = $collection->deleteMany($deleteQuery);
 print($deleteResult->getDeletedCount());
@@ -783,7 +783,7 @@ print($deleteResult->getDeletedCount());
 
 以下代码块显示了输出：
 
-```go
+```sql
 MongoDB\DeleteResult Object
 (
    [writeResult:MongoDB\DeleteResult:private] => MongoDB\Driver\WriteResult Object
@@ -819,7 +819,7 @@ MongoDB\DeleteResult Object
 
 新的 PHP 驱动程序支持`BulkWrite`接口，以最小化对 MongoDB 的网络调用：
 
-```go
+```sql
 $manager = new MongoDB\Driver\Manager('mongodb://localhost:27017');
 $bulk = new MongoDB\Driver\BulkWrite(array("ordered" => true));
 $bulk->insert(array( "isbn" => "401", "name" => "MongoDB and PHP" ));
@@ -833,7 +833,7 @@ print_r($result);
 
 结果如下所示：
 
-```go
+```sql
 MongoDB\Driver\WriteResult Object
 (
    [nInserted] => 3
@@ -865,7 +865,7 @@ MongoDB\Driver\WriteResult Object
 
 查询接口类似于插入和删除，使用`findOne()`和`find()`方法来检索查询的第一个结果或所有结果：
 
-```go
+```sql
 $document = $collection->findOne( array("isbn" => "401") );
 $cursor = $collection->find( array( "name" => new MongoDB\BSON\Regex("mongo", "i") ) );
 ```
@@ -874,7 +874,7 @@ $cursor = $collection->find( array( "name" => new MongoDB\BSON\Regex("mongo", "i
 
 使用`.`符号可以查询嵌入文档，就像我们在本章前面检查的其他语言一样：
 
-```go
+```sql
 $cursor = $collection->find( array('meta.price' => 50) );
 ```
 
@@ -882,7 +882,7 @@ $cursor = $collection->find( array('meta.price' => 50) );
 
 与 Ruby 和 Python 类似，在 PHP 中，我们可以使用比较运算符进行查询，如下面的代码所示：
 
-```go
+```sql
 $cursor = $collection->find( array( 'price' => array('$gte'=> 60) ) );
 ```
 
@@ -890,7 +890,7 @@ PHP 驱动程序支持的比较运算符的完整列表可在本章末尾找到�
 
 使用多个键值对进行查询是隐式的`AND`，而使用`$or`，`$in`，`$nin`或`AND`（`$and`）与`$or`组合的查询可以通过嵌套查询实现：
 
-```go
+```sql
 $cursor = $collection->find( array( '$or' => array(
                                             array("price" => array( '$gte' => 60)),
                                             array("price" => array( '$lte' => 20))
@@ -907,7 +907,7 @@ $cursor = $collection->find( array( '$or' => array(
 
 我们可以使用本章末尾解释的任何更新操作符来进行原地更新，或者指定一个新文档来完全替换查询中的文档：
 
-```go
+```sql
 $result = $collection->updateOne(  array( "isbn" => "401"),
    array( '$set' => array( "price" => 39 ) )
 );
@@ -925,7 +925,7 @@ $result = $collection->updateOne(  array( "isbn" => "401"),
 
 创建文档是一个两步过程。首先，我们创建我们的文档并设置属性值：
 
-```go
+```sql
 $book = new Book();
 $book->setName('MongoDB with Doctrine');
 $book->setPrice(45);
@@ -933,25 +933,25 @@ $book->setPrice(45);
 
 接着，我们要求 Doctrine 在下一次`flush()`调用中保存`$book`：
 
-```go
+```sql
 $dm->persist($book);
 ```
 
 我们可以通过手动调用`flush()`来强制保存，如下所示：
 
-```go
+```sql
 $dm->flush();
 ```
 
 在这个例子中，`$dm`是一个`DocumentManager`对象，我们用它来连接到我们的 MongoDB 实例，如下所示：
 
-```go
+```sql
 $dm = DocumentManager::create(new Connection(), $config);
 ```
 
 更新文档就像给属性赋值一样简单：
 
-```go
+```sql
 $book->price = 39;
 $book->persist($book);
 ```
@@ -988,7 +988,7 @@ Doctrine 提供了几个围绕原子更新的辅助方法，列举如下：
 
 `update`默认会更新查询找到的第一个文档。如果我们想要更改多个文档，我们需要使用`->updateMany()`：
 
-```go
+```sql
 $dm->createQueryBuilder('Book')
    ->updateMany()
    ->field('price')->set(69)
@@ -1003,13 +1003,13 @@ $dm->createQueryBuilder('Book')
 
 删除文档与创建文档类似，如下面的代码块所示：
 
-```go
+```sql
 $dm->remove($book);
 ```
 
 最好使用`QueryBuilder`接口来删除多个文档，我们将在下一节中进一步探讨：
 
-```go
+```sql
 $qb = $dm->createQueryBuilder('Book');
 $qb->remove()
    ->field('price')->equals(50)
@@ -1021,7 +1021,7 @@ $qb->remove()
 
 Doctrine 为 MongoDB 提供了一个`QueryBuilder`接口来构建查询。鉴于我们已经在第二章*模式设计和数据建模*中描述了我们的模型，我们可以这样做来获取一个名为`$db`的`QueryBuilder`接口的实例，获取默认的查找所有查询，并执行它，如下所示：
 
-```go
+```sql
 $qb = $dm->createQueryBuilder('Book');
 $query = $qb->getQuery();
 $books = $query->execute();
@@ -1091,7 +1091,7 @@ $books = $query->execute();
 
 考虑以下查询作为示例：
 
-```go
+```sql
 $qb = $dm->createQueryBuilder('Book')
                 ->field('price')->lt(30);
 ```
@@ -1102,7 +1102,7 @@ $qb = $dm->createQueryBuilder('Book')
 
 要嵌套多个`OR`运算符与外部`AND`查询，以及其他同样复杂的情况，需要使用`->expr()`将嵌套的`OR`作为表达式进行评估：
 
-```go
+```sql
 $expression = $qb->expr()->field('name')->equals('MongoDB with Doctrine')
 ```
 
@@ -1161,7 +1161,7 @@ $expression = $qb->expr()->field('name')->equals('MongoDB with Doctrine')
 
 MongoDB 提供了丰富的接口，用于使用正则表达式进行查询。在其最简单的形式中，我们可以通过修改查询字符串来使用正则表达式：
 
-```go
+```sql
 > db.books.find({"name": /mongo/})
 ```
 
@@ -1178,7 +1178,7 @@ MongoDB 使用**Perl Compatible Regular Expression**（**PCRE**）版本 8.39，
 
 在我们的先前示例中，如果我们想搜索`mongo`、`Mongo`、`MONGO`以及任何其他不区分大小写的变体，我们需要使用`i`选项，如下所示：
 
-```go
+```sql
 > db.books.find({"name": /mongo/i})
 ```
 
@@ -1186,7 +1186,7 @@ MongoDB 使用**Perl Compatible Regular Expression**（**PCRE**）版本 8.39，
 
 使用`$regex`进行相同的查询将写成如下形式：
 
-```go
+```sql
 > db.books.find({'name': { '$regex': /mongo/ } })
 > db.books.find({'name': { '$regex': /mongo/i } })
 ```
@@ -1204,7 +1204,7 @@ MongoDB 使用**Perl Compatible Regular Expression**（**PCRE**）版本 8.39，
 
 以以下代码块为例：
 
-```go
+```sql
 > db.books.find({'name': { '$regex': /mongo/ } })
 > db.books.find({'name': { '$regex': /^mongo.*/ } })
 ```
@@ -1233,7 +1233,7 @@ MongoDB 不支持事务意味着我们在 RDBMS 中认为理所当然的几个�
 
 `snapshot()`由官方驱动程序和 shell 支持，通过将其附加到返回游标的操作中：
 
-```go
+```sql
 > db.books.find().snapshot()
 ```
 
@@ -1245,7 +1245,7 @@ MongoDB 不支持事务意味着我们在 RDBMS 中认为理所当然的几个�
 
 如果我们想要在进行`update`、`insert`或`delete`多个文档时，不让其他线程在操作进行时看到操作的结果，我们可以使用`$isolated`操作符：
 
-```go
+```sql
 > db.books.remove( { price: { $gt: 30 }, $isolated: 1 } )
 ```
 
@@ -1261,7 +1261,7 @@ MongoDB 不支持事务意味着我们在 RDBMS 中认为理所当然的几个�
 
 这将导致我们的磁盘有未使用的空间，但不会为操作系统释放。如果我们想要收回它，我们可以使用`compact()`来收回任何未使用的空间：
 
-```go
+```sql
 > db.books.compact()
 ```
 
@@ -1311,7 +1311,7 @@ MongoDB 不支持事务意味着我们在 RDBMS 中认为理所当然的几个�
 
 我们将使用以下示例 Python 代码：
 
-```go
+```sql
 from pymongo import MongoClient
 
 class MongoExamples:
@@ -1334,7 +1334,7 @@ if __name__ == '__main__':
 
 然后，在另一个终端中，我们使用以下代码连接到我们的 MongoDB 副本集：
 
-```go
+```sql
 > mongo
 > use streams
 > db.signals.insert({value: 114.3, signal:1})
@@ -1342,7 +1342,7 @@ if __name__ == '__main__':
 
 回到我们的第一个终端窗口，我们现在可以观察到输出类似于以下代码块：
 
-```go
+```sql
 {'_id': {'_data': '825BB7A25E0000000129295A1004A34408FB07864F8F960BF14453DFB98546645F696400645BB7A25EE10ED33145BCF7A70004'}, 'operationType': 'insert', 'clusterTime': Timestamp(1538761310, 1), 'fullDocument': {'_id': ObjectId('5bb7a25ee10ed33145bcf7a7'), 'value': 114.3, 'signal': 1.0}, 'ns': {'db': 'streams', 'coll': 'signals'}, 'documentKey': {'_id': ObjectId('5bb7a25ee10ed33145bcf7a7')}}
 ```
 
@@ -1350,13 +1350,13 @@ if __name__ == '__main__':
 
 例如，如果我们回到 mongo shell，我们可以发出以下代码：
 
-```go
+```sql
 > db.a_random_collection.insert({test: 'bar'})
 ```
 
 Python 代码输出应该类似于以下代码：
 
-```go
+```sql
 {'_id': {'_data': '825BB7A3770000000229295A10044AB37F707D104634B646CC5810A40EF246645F696400645BB7A377E10ED33145BCF7A80004'}, 'operationType': 'insert', 'clusterTime': Timestamp(1538761591, 2), 'fullDocument': {'_id': ObjectId('5bb7a377e10ed33145bcf7a8'), 'test': 'bar'}, 'ns': {'db': 'streams', 'coll': 'a_random_collection'}, 'documentKey': {'_id': ObjectId('5bb7a377e10ed33145bcf7a8')}}
 ```
 
@@ -1364,7 +1364,7 @@ Python 代码输出应该类似于以下代码：
 
 然后，我们可以将我们的代码的第 11 行更改为以下内容：
 
-```go
+```sql
 > with self.signals.watch() as stream:
 ```
 
@@ -1372,7 +1372,7 @@ Python 代码输出应该类似于以下代码：
 
 PyMongo 的`watch`命令可以采用几个参数，如下所示：
 
-```go
+```sql
 watch(pipeline=None, full_document='default', resume_after=None, max_await_time_ms=None, batch_size=None, collation=None, start_at_operation_time=None, session=None)
 ```
 
@@ -1380,7 +1380,7 @@ watch(pipeline=None, full_document='default', resume_after=None, max_await_time_
 
 +   `Pipeline`：这是一个可选参数，我们可以使用它来定义要在每个与`watch()`匹配的文档上执行的聚合管道。因为更改流本身使用聚合管道，我们可以将事件附加到它。我们可以使用的聚合管道事件如下：
 
-```go
+```sql
 $match
 $project
 $addFields
@@ -1400,7 +1400,7 @@ $redact
 
 以下文档显示了更改事件响应可能包括或不包括的所有可能字段，具体取决于实际发生的更改：
 
-```go
+```sql
 {  _id : { <BSON Object> },
   "operationType" : "<operation>",
   "fullDocument" : { <document> },

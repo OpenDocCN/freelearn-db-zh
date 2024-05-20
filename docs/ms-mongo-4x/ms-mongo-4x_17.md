@@ -102,7 +102,7 @@ MongoDB 的分片设置和操作非常简单，这也是它多年来取得巨大
 
 如果我们想在任何其他时间更改主分片，我们可以发出以下命令：
 
-```go
+```sql
 > db.runCommand( { movePrimary : "mongo_books", to : "UK_based" } )
 ```
 
@@ -146,7 +146,7 @@ MongoDB 使用块来分割分片集合中的数据。如果我们从头开始引
 
 在我们的示例中，`mongo_books`数据库和`books`集合如下：
 
-```go
+```sql
 > db.runCommand( { split : "mongo_books.books", middle : { id : 50 } } )
 ```
 
@@ -186,7 +186,7 @@ MongoDB 使用块来分割分片集合中的数据。如果我们从头开始引
 
 对于我们的示例数据库和集合，分别是`mongo_books`和`books`，我们有以下内容：
 
-```go
+```sql
 > sh.shardCollection("mongo_books.books", { id: 1 } )
 ```
 
@@ -202,7 +202,7 @@ MongoDB 使用块来分割分片集合中的数据。如果我们从头开始引
 
 对于我们的示例数据库和集合（分别是`mongo_books`和`books`），我们有以下内容：
 
-```go
+```sql
 > sh.shardCollection("mongo_books.books", { id: "hashed" } )
 ```
 
@@ -312,7 +312,7 @@ MongoDB 需要不断执行的核心任务之一是在分片之间平衡数据。
 
 要手动移动一个分片，我们需要在连接到`mongos`和`admin`数据库后发出以下命令：
 
-```go
+```sql
 > db.runCommand( { moveChunk : 'mongo_books.books' ,
  find : {id: 50},
  to : 'shard1.packtdb.com' } )
@@ -322,7 +322,7 @@ MongoDB 需要不断执行的核心任务之一是在分片之间平衡数据。
 
 我们还可以更明确地定义我们要移动的分片的边界。现在的语法如下：
 
-```go
+```sql
 > db.runCommand( { moveChunk : 'mongo_books.books' ,
  bounds :[ { id : <minValue> } ,
  { id : <maxValue> } ],
@@ -341,7 +341,7 @@ MongoDB 需要不断执行的核心任务之一是在分片之间平衡数据。
 
 然后我们发出以下命令将我们的全局`chunksize`更改为`16` MB：
 
-```go
+```sql
 > db.settings.save( { _id:"chunksize", value: 16 } )
 ```
 
@@ -369,13 +369,13 @@ MongoDB 需要不断执行的核心任务之一是在分片之间平衡数据。
 
 1.  通过 shell 连接到您的`mongos`路由器并运行以下命令：
 
-```go
+```sql
 > sh.status(true)
 ```
 
 1.  使用以下代码标识具有`jumbo`的块：
 
-```go
+```sql
 databases:
 …
 mongo_books.books
@@ -389,7 +389,7 @@ chunks:
 
 1.  调用`splitAt()`或`splitFind()`手动在`mongo_books`数据库的`books`集合上拆分`id`等于`8`的块，使用以下代码：
 
-```go
+```sql
 > sh.splitAt( "mongo_books.books", { id: 8 })
 ```
 
@@ -397,7 +397,7 @@ chunks:
 
 或者，如果我们想让 MongoDB 找到拆分块的位置，我们可以使用`splitFind`，如下所示：
 
-```go
+```sql
 > sh.splitFind("mongo_books.books", {id: 7})
 ```
 
@@ -407,7 +407,7 @@ chunks:
 
 1.  如果前面的操作不成功，那么只有在这种情况下，我们应该首先尝试停止平衡器，同时验证输出并等待任何待处理的迁移完成，如下所示：
 
-```go
+```sql
 > sh.stopBalancer()
 > sh.getBalancerState() > use config
 while( sh.isBalancerRunning() ) {
@@ -422,7 +422,7 @@ while( sh.isBalancerRunning() ) {
 
 1.  然后在`mongos`路由器的`config`数据库中更新`chunks`集合，如下所示：
 
-```go
+```sql
 > db.getSiblingDB("config").chunks.update(
  { ns: "mongo_books.books", min: { id: 7 }, jumbo: true },
  { $unset: { jumbo: "" } }
@@ -433,13 +433,13 @@ while( sh.isBalancerRunning() ) {
 
 1.  完成所有这些操作后，我们重新启用平衡器，如下所示：
 
-```go
+```sql
 > sh.setBalancerState(true)
 ```
 
 1.  然后，我们连接到`admin`数据库，将新配置刷新到所有节点，如下所示：
 
-```go
+```sql
 > db.adminCommand({ flushRouterConfig: 1 } )
 ```
 
@@ -455,7 +455,7 @@ while( sh.isBalancerRunning() ) {
 
 要找到空块，我们需要连接到要检查的数据库（在我们的情况下是`mongo_books`），并使用`runCommand`，设置`dataSize`如下：
 
-```go
+```sql
 > use mongo_books
 > db.runCommand({
  "dataSize": "mongo_books.books",
@@ -471,13 +471,13 @@ while( sh.isBalancerRunning() ) {
 
 如果我们的查询边界（在我们的情况下是*chunkB*的边界）没有返回任何文档，结果将类似于以下内容：
 
-```go
+```sql
 { "size" : 0, "numObjects" : 0, "millis" : 0, "ok" : 1 }
 ```
 
 现在我们知道*chunkB*没有数据，我们可以像这样将它与另一个数据块（在我们的情况下，只能是*chunkA*）合并：
 
-```go
+```sql
 > db.runCommand( { mergeChunks: "mongo_books.books",
  bounds: [ { "id": -12 },
  { id: 0 } ]
@@ -486,7 +486,7 @@ while( sh.isBalancerRunning() ) {
 
 成功后，这将返回 MongoDB 的默认`ok`状态消息，如下所示：
 
-```go
+```sql
 { "ok" : 1 }
 ```
 
@@ -496,7 +496,7 @@ while( sh.isBalancerRunning() ) {
 
 向我们的集群添加一个新的分片就像连接到`mongos`，连接到`admin`数据库，并使用以下命令调用`runCommand`一样简单：
 
-```go
+```sql
 > db.runCommand( {
 addShard: "mongo_books_replica_set/rs01.packtdb.com:27017", maxSize: 18000, name: "packt_mongo_shard_UK"
 } )
@@ -510,14 +510,14 @@ addShard: "mongo_books_replica_set/rs01.packtdb.com:27017", maxSize: 18000, name
 
 1.  首先，我们需要确保负载均衡器已启用，使用`sh.getBalancerState()`。然后，在使用`sh.status()`、`db.printShardingStatus()`或`listShards admin`命令中任何一个来识别我们想要移除的分片后，我们连接到`admin`数据库并按以下方式调用`removeShard`：
 
-```go
+```sql
 > use admin
 > db.runCommand( { removeShard: "packt_mongo_shard_UK" } )
 ```
 
 输出应该包含以下内容：
 
-```go
+```sql
 ...
  "msg" : "draining started successfully",
  "state" : "started",
@@ -526,7 +526,7 @@ addShard: "mongo_books_replica_set/rs01.packtdb.com:27017", maxSize: 18000, name
 
 1.  然后，如果我们再次调用相同的命令，我们会得到以下结果：
 
-```go
+```sql
 > db.runCommand( { removeShard: "packt_mongo_shard_UK" } )
 …
 "msg" : "draining ongoing",
@@ -546,7 +546,7 @@ addShard: "mongo_books_replica_set/rs01.packtdb.com:27017", maxSize: 18000, name
 
 1.  我们可以通过查看`removeShard()`结果中的以下部分来确定是否需要执行此操作：
 
-```go
+```sql
 ...
 "note" : "you need to drop or movePrimary these databases",
  "dbsToMove" : [
@@ -561,26 +561,26 @@ addShard: "mongo_books_replica_set/rs01.packtdb.com:27017", maxSize: 18000, name
 
 1.  在继续之前，请确保结果包含以下内容：
 
-```go
+```sql
  ..."remaining" : {
  "chunks" : NumberLong(0) }...
 ```
 
 1.  只有在我们确保要移动的数据块已经减少到零后，我们才能安全地运行以下命令：
 
-```go
+```sql
 > db.runCommand( { movePrimary: "mongo_books", to: "packt_mongo_shard_EU" })
 ```
 
 1.  这个命令将调用一个阻塞操作，当它返回时，应该有以下结果：
 
-```go
+```sql
 { "primary" : "packt_mongo_shard_EU", "ok" : 1 }
 ```
 
 1.  在我们完成所有操作后再次调用相同的`removeShard()`命令应该返回以下结果：
 
-```go
+```sql
 > db.runCommand( { removeShard: "packt_mongo_shard_UK" } )
 
 ... "msg" : "removeshard completed successfully",
@@ -638,7 +638,7 @@ addShard: "mongo_books_replica_set/rs01.packtdb.com:27017", maxSize: 18000, name
 
 例如，在我们的`User`集合上使用`{ _id，email，address }`的复合分片键，我们可以使用以下任何查询进行有针对性的操作：
 
-```go
+```sql
 > db.User.find({_id: 1})
 > db.User.find({_id: 1, email: 'alex@packt.com'})
 > db.User.find({_id: 1, email: 'janluc@packt.com', address: 'Linwood Dunn'})
@@ -685,7 +685,7 @@ addShard: "mongo_books_replica_set/rs01.packtdb.com:27017", maxSize: 18000, name
 
 使用 Ruby 连接到分片集群与连接到副本集没有区别。使用官方的 Ruby 驱动程序，我们必须配置`client`对象以定义一组`mongos`服务器，如下面的代码所示：
 
-```go
+```sql
 client = Mongo::Client.new('mongodb://key:password@mongos-server1-host:mongos-server1-port,mongos-server2-host:mongos-server2-port/admin?ssl=true&authSource=admin')
 ```
 

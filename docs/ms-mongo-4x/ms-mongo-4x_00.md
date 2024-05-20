@@ -84,14 +84,14 @@ MongoDB 已经发展成为事实上的 NoSQL 数据库，拥有数百万用户�
 
 代码块设置如下：
 
-```go
+```sql
 db.account.find( { "balance" : { $type : 16 } } );
 db.account.find( { "balance" : { $type : "integer" } } );
 ```
 
 任何命令行输入或输出都以以下方式书写：
 
-```go
+```sql
 > db.types.insert({"a":4})
 WriteResult({ "nInserted" : 1 })
 ```

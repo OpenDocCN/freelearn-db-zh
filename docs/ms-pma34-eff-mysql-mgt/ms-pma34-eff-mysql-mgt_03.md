@@ -50,7 +50,7 @@ phpMyAdmin 界面由各种面板和窗口组成，每个面板都有特定的功
 
 这些指令包含控制显示哪些信息的格式字符串。例如，这是其中一个指令的默认值：
 
-```go
+```sql
 $cfg['TitleTable'] = '@HTTP_HOST@ / @VSERVER@ / @DATABASE@ / @TABLE@ | @PHPMYADMIN@';
 
 ```
@@ -61,7 +61,7 @@ $cfg['TitleTable'] = '@HTTP_HOST@ / @VSERVER@ / @DATABASE@ / @TABLE@ | @PHPMYADM
 
 通常，计算机按词法顺序对项目进行排序，这会导致对表列表的以下结果：
 
-```go
+```sql
 table1
 table10
 table2
@@ -71,7 +71,7 @@ table3
 
 phpMyAdmin 默认实现**自然排序**，由`$cfg['NaturalOrder']`设置为`TRUE`来指定。因此导航和主面板中的数据库和表列表按以下方式排序：
 
-```go
+```sql
 table1
 table2
 table3
@@ -85,7 +85,7 @@ table10
 
 例如，创建一个包含以下内容的`config.footer.inc.php`：
 
-```go
+```sql
 <hr />
 <em>All the information on this page is confidential.</em>
 
@@ -139,7 +139,7 @@ phpMyAdmin 中提供了一个主题系统。颜色参数和各种图标位于`th
 
 我们还可以通过设置`$cfg['Lang']`参数的值（比如`'fr'`表示法语）来强制使用单一语言。另一个参数`$cfg['FilterLanguages']`也是可用的。假设我们想要缩短可用语言列表，只显示**英语**和**法语**，因为这些是 phpMyAdmin 实例的用户专门使用的语言。这可以通过构建一个正则表达式来实现，指示我们想要显示的语言基于这些语言的 ISO 639 代码。继续我们的例子，我们会使用：
 
-```go
+```sql
 $cfg['FilterLanguages'] = '^(fr|en)';
 
 ```
@@ -152,7 +152,7 @@ $cfg['FilterLanguages'] = '^(fr|en)';
 
 在一些页面上，你会看到一个小加号，后面跟着一个控制标签——要么是**选项**，要么是**详情**。点击标签会打开一个滑块，显示界面的一个部分，这部分在日常工作中很少使用。由于很少有人愿意立即看到整个界面而牺牲屏幕空间，因此有一个配置参数来控制滑块的初始设置方式：
 
-```go
+```sql
 $cfg['InitialSlidersState'] = 'closed';
 
 ```
@@ -165,7 +165,7 @@ $cfg['InitialSlidersState'] = 'closed';
 
 为了指定可以看到的内容列表，使用`only_db`参数。它可以包含一个数据库名称或一个数据库名称列表。只有这些数据库将在导航面板中显示：
 
-```go
+```sql
 $cfg['Servers'][$i]['only_db'] = 'payroll';
 $cfg['Servers'][$i]['only_db'] = array('payroll', 'hr);
 
@@ -175,14 +175,14 @@ $cfg['Servers'][$i]['only_db'] = array('payroll', 'hr);
 
 `only_db`的另一个特性是，你可以使用它来不限制列表，而是强调将显示在列表顶部的某些名称。在这里，`myspecial`数据库名称将首先显示，然后是所有其他名称：
 
-```go
+```sql
 $cfg['Servers'][$i]['only_db'] = array('myspecial', '*');
 
 ```
 
 我们还可以使用`hide_db`参数指定哪些数据库名称必须被隐藏。它包含一个正则表达式（[`en.wikipedia.org/wiki/Regular_expression`](http://en.wikipedia.org/wiki/Regular_expression)），表示要排除的内容。如果我们不希望用户看到任何以`'secret'`开头的数据库，我们会使用：
 
-```go
+```sql
 $cfg['Servers'][$i]['hide_db'] = '^secret';
 
 ```
@@ -219,7 +219,7 @@ $cfg['Servers'][$i]['hide_db'] = '^secret';
 
 以下参数定义了默认连接排序规则和字符集：
 
-```go
+```sql
 $cfg['DefaultConnectionCollation'] = 'utf8_unicode_ci';
 
 ```
@@ -288,7 +288,7 @@ MySQL 服务器始终至少有一个数据库（名为**mysql**），但可能�
 
 此功能由以下参数控制：
 
-```go
+```sql
 $cfg['LeftFrameDBTree'] = TRUE;
 $cfg['LeftFrameDBSeparator'] = '_';
 
@@ -296,7 +296,7 @@ $cfg['LeftFrameDBSeparator'] = '_';
 
 `$cfg['LeftFrameDBTree']`中的`TRUE`的默认值确保了此功能的激活。分隔符的常用值是`'_'`。如果我们需要多个字符集作为分隔符，我们只需使用一个数组：
 
-```go
+```sql
 $cfg['LeftFrameDBSeparator'] = array('_', '+');
 
 ```
@@ -329,7 +329,7 @@ $cfg['LeftFrameDBSeparator'] = array('_', '+');
 
 `$cfg['LeftDefaultTabTable']`参数控制此操作。它的默认值是`'tbl_structure.php'`，这是显示表格结构的脚本。此参数的其他可能值在`Documentation.html`中列出。如果我们更喜欢设置，其中单击表格名称会在**结构**页面中打开它，而单击快速访问图标会导航到**浏览**页面，我们必须设置这些指令：
 
-```go
+```sql
 $cfg['LeftDefaultTabTable'] = 'sql.php';
 $cfg['DefaultTabTable'] = 'tbl_structure.php';
 
@@ -371,7 +371,7 @@ MySQL 的数据结构基于两个级别——数据库和表格。这不允许�
 
 如果我们可以访问数百甚至数千个数据库，或者在同一个数据库中有数百个表，那么要使用界面将会很困难。这里显示了两个参数及其默认值，它们通过添加页面选择器和导航链接来限制显示的数据库和表的数量：
 
-```go
+```sql
 $cfg['MaxDbList'] = 100;
 $cfg['MaxTableList'] = 250;
 
@@ -387,14 +387,14 @@ $cfg['MaxTableList'] = 250;
 
 三个配置参数会影响数据库名称检索和表计数的速度。第一个是：
 
-```go
+```sql
 $cfg['Servers'][$i]['ShowDatabasesCommand'] = 'SHOW DATABASES';
 
 ```
 
 每当 phpMyAdmin 需要从服务器获取数据库列表时，它都会使用此参数中列出的命令。默认命令`SHOW DATABASES`在普通情况下是可以的。但是，在具有许多数据库的服务器上，通过尝试其他命令，例如以下之一，可以观察到速度的提高：
 
-```go
+```sql
 SHOW DATABASES LIKE '#user#\_%'
 SELECT DISTINCT TABLE_SCHEMA FROM information_schema.SCHEMA_PRIVILEGES'
 SELECT SCHEMA_NAME FROM information_schema.SCHEMATA
@@ -537,7 +537,7 @@ SELECT SCHEMA_NAME FROM information_schema.SCHEMATA
 
 负责`config.inc.php`的人对用户偏好中可以更改哪些设置有最终决定权。为了禁止某些设置，我们使用`$cfg['UserprefsDisallow']`指令。我们将一个包含代表要禁止的`$cfg`中的键的数组放入其中。例如，我们将此指令设置为：
 
-```go
+```sql
 $cfg['UserprefsDisallow'] = array('AjaxEnable', 'MaxDbList');
 
 ```

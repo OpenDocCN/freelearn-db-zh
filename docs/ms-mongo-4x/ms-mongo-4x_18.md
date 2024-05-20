@@ -60,7 +60,7 @@ MongoDB 成功的一个重要原因是其 ORM/ODM 的日益流行。特别是对
 
 +   带有数组的书籍文档：
 
-```go
+```sql
 {
 Isbn: '1001',
 Title: 'Mastering MongoDB',
@@ -73,7 +73,7 @@ Reviews: [
 
 +   嵌入文档的书籍：
 
-```go
+```sql
 {
 Isbn: '1001',
 Title: 'Mastering MongoDB',
@@ -135,13 +135,13 @@ Reviews:
 
 我们可以将以下两个有用的实用程序链接到我们的查询中：
 
-```go
+```sql
 > db.collection.find(query).maxTimeMS(999)
 ```
 
 我们的`query`将最多花费`999`毫秒的时间，然后返回超过时间限制的错误：
 
-```go
+```sql
 > db.collection.find(query).maxScan(1000)
 ```
 
@@ -163,7 +163,7 @@ Reviews:
 
 每个数据库（除了本地开发服务器，也许）都应该在`mongod.conf`文件中设置如下内容：
 
-```go
+```sql
 auth = true
 ```
 
@@ -171,14 +171,14 @@ auth = true
 
 REST 和 HTTP 状态接口应通过向`mongod.conf`添加以下行来禁用：
 
-```go
+```sql
 nohttpinterface = true
 rest = false
 ```
 
 访问应该仅限于应用服务器和 MongoDB 服务器之间的通信，并且仅限于所需的接口。使用`bind_ip`，我们可以强制 MongoDB 监听特定接口，而不是默认绑定到每个可用接口的行为：
 
-```go
+```sql
 bind_ip = 10.10.0.10,10.10.0.20
 ```
 

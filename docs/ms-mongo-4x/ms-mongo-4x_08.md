@@ -268,19 +268,19 @@
 
 表达式可以根据布尔真值测试将不同的数据输出到我们管道中的下一阶段：
 
-```go
+```sql
 $cond
 ```
 
 `$cond`短语将评估格式为`if...then...else`的表达式，并根据`if`语句的结果返回`then`语句或`else`分支的值。输入可以是三个命名参数或有序列表中的三个表达式。
 
-```go
+```sql
 $ifNull
 ```
 
 `$ifNull`短语将评估一个表达式，并在其不为 null 时返回第一个表达式，如果第一个表达式为 null，则返回第二个表达式。Null 可以是一个缺失的字段或一个具有未定义值的字段：
 
-```go
+```sql
 $switch
 ```
 
@@ -290,7 +290,7 @@ $switch
 
 在 MongoDB 4.0 中引入的类型转换运算符允许我们将值转换为指定的类型。命令的通用语法如下：
 
-```go
+```sql
 {
    $convert:
       {
@@ -304,7 +304,7 @@ $switch
 
 在此语法中，`input`和`to`（唯一的强制参数）可以是任何有效的表达式。在其最简单的形式中，我们可以，例如，有以下内容：
 
-```go
+```sql
 $convert: { input: "true", to: "bool" } 
 ```
 
@@ -334,7 +334,7 @@ MongoDB 还为最常见的`$convert`操作提供了一些辅助函数。这些�
 
 这些更简单易用。我们可以将前面的示例重写为以下形式：
 
-```go
+```sql
 { $toBool: "true" }
 ```
 
@@ -410,7 +410,7 @@ MongoDB 还为最常见的`$convert`操作提供了一些辅助函数。这些�
 
 以下代码显示了区块的输出数据：
 
-```go
+```sql
 > db.blocks.findOne()
 {
 "_id" : ObjectId("595368fbcedea89d3f4fb0ca"),
@@ -440,7 +440,7 @@ MongoDB 还为最常见的`$convert`操作提供了一些辅助函数。这些�
 
 以下代码显示了交易的输出数据：
 
-```go
+```sql
 > db.transactions.findOne()
 {
 "_id" : ObjectId("59535748cedea89997e8385a"),
@@ -476,7 +476,7 @@ MongoDB 还为最常见的`$convert`操作提供了一些辅助函数。这些�
 
 以下是一些示例 Python 代码：
 
-```go
+```sql
    def top_ten_addresses_from(self):
        pipeline = [
            {"$group": {"_id": "$from", "count": {"$sum": 1}}},
@@ -490,7 +490,7 @@ MongoDB 还为最常见的`$convert`操作提供了一些辅助函数。这些�
 
 前面代码的输出如下：
 
-```go
+```sql
 {u'count': 38, u'_id': u'miningpoolhub_1'}
 {u'count': 31, u'_id': u'Ethermine'}
 {u'count': 30, u'_id': u'0x3c540be890df69eca5f0099bbedd5d667bd693f3'}
@@ -505,7 +505,7 @@ MongoDB 还为最常见的`$convert`操作提供了一些辅助函数。这些�
 
 现在我们找到了交易结束的前十个地址。就像我们对`from`所做的那样，对`to`地址的计算也完全相同，只是使用`to`字段而不是`from`进行分组，如下面的代码所示：
 
-```go
+```sql
    def top_ten_addresses_to(self):
        pipeline = [
            {"$group": {"_id": "$to", "count": {"$sum": 1}}},
@@ -519,7 +519,7 @@ MongoDB 还为最常见的`$convert`操作提供了一些辅助函数。这些�
 
 前面代码的输出如下：
 
-```go
+```sql
 {u'count': 33, u'_id': u'0x6090a6e47849629b7245dfa1ca21d94cd15878ef'}
 {u'count': 30, u'_id': u'0x4b9e0d224dabcc96191cace2d367a8d8b75c9c81'}
 {u'count': 25, u'_id': u'0x69ea6b31ef305d6b99bb2d4c9d99456fa108b02a'}
@@ -534,7 +534,7 @@ MongoDB 还为最常见的`$convert`操作提供了一些辅助函数。这些�
 
 让我们找到每笔交易的平均值，并统计标准偏差。在这个示例中，我们使用`$avg`和`$stdDevPop`操作符来计算`value`字段的统计数据。使用简单的`$group`操作，我们输出一个具有我们选择的 ID（这里是`value`）和`averageValues`的单个文档，如下面的代码所示：
 
-```go
+```sql
    def average_value_per_transaction(self):
        pipeline = [
            {"$group": {"_id": "value", "averageValues": {"$avg": "$value"}, "stdDevValues": {"$stdDevPop": "$value"}}},
@@ -546,13 +546,13 @@ MongoDB 还为最常见的`$convert`操作提供了一些辅助函数。这些�
 
 前面代码的输出如下：
 
-```go
+```sql
 {u'averageValues': 5.227238976440972, u'_id': u'value', u'stdDevValues': 38.90322689649576}
 ```
 
 让我们找到每笔交易所需的平均费用，返回有关偏差的统计数据。平均费用类似于平均值，只是将`$value`替换为`$txfee`，如下面的代码所示：
 
-```go
+```sql
    def average_fee_per_transaction(self):
        pipeline = [
            {"$group": {"_id": "value", "averageFees": {"$avg": "$txfee"}, "stdDevValues": {"$stdDevPop": "$txfee"}}},
@@ -564,7 +564,7 @@ MongoDB 还为最常见的`$convert`操作提供了一些辅助函数。这些�
 
 前面代码片段的输出如下：
 
-```go
+```sql
 {u'_id': u'value', u'averageFees': 320842.0729166667, u'stdDevValues': 1798081.7305142984} 
 ```
 
@@ -572,7 +572,7 @@ MongoDB 还为最常见的`$convert`操作提供了一些辅助函数。这些�
 
 为了找出交易最活跃的小时，我们使用`$hour`运算符从我们存储了`datetime`值并称为`timestamp`的`ISODate()`字段中提取`hour`字段，如下面的代码所示：
 
-```go
+```sql
    def active_hour_of_day_transactions(self):
        pipeline = [
            {"$group": {"_id": {"$hour": "$timestamp"}, "transactions": {"$sum": 1}}},
@@ -586,13 +586,13 @@ MongoDB 还为最常见的`$convert`操作提供了一些辅助函数。这些�
 
 输出如下：
 
-```go
+```sql
 {u'_id': 11, u'transactions': 34} 
 ```
 
 以下代码将计算一天中交易价值最高的小时的交易总值：
 
-```go
+```sql
   def active_hour_of_day_values(self):
  pipeline = [
  {"$group": {"_id": {"$hour": "$timestamp"}, "transaction_values": {"$sum": "$value"}}},
@@ -606,13 +606,13 @@ MongoDB 还为最常见的`$convert`操作提供了一些辅助函数。这些�
 
 上述代码的输出如下：
 
-```go
+```sql
 {u'transaction_values': 33.17773841, u'_id': 20} 
 ```
 
 让我们找出网络活动最频繁的一天是一周中的哪一天，根据交易数量或交易价值。与一天中的小时一样，我们使用`$dayOfWeek`运算符从`ISODate()`对象中提取一周中的哪一天，如下面的代码所示。按照美国的惯例，星期天为一，星期六为七：
 
-```go
+```sql
    def active_day_of_week_transactions(self):
        pipeline = [
            {"$group": {"_id": {"$dayOfWeek": "$timestamp"}, "transactions": {"$sum": 1}}},
@@ -627,13 +627,13 @@ MongoDB 还为最常见的`$convert`操作提供了一些辅助函数。这些�
 
 上述代码的输出如下：
 
-```go
+```sql
 {u'_id': 3, u'transactions': 92} 
 ```
 
 以下代码将计算一周中交易价值最高的一天的交易总值：
 
-```go
+```sql
   def active_day_of_week_values(self):
        pipeline = [
            {"$group": {"_id": {"$dayOfWeek": "$timestamp"}, "transaction_values": {"$sum": "$value"}}},
@@ -642,7 +642,7 @@ MongoDB 还为最常见的`$convert`操作提供了一些辅助函数。这些�
        ]
 ```
 
-```go
+```sql
        result = self.collection.aggregate(pipeline)
  for res in result:
  print(res)
@@ -650,7 +650,7 @@ MongoDB 还为最常见的`$convert`操作提供了一些辅助函数。这些�
 
 上述代码的输出如下：
 
-```go
+```sql
 
  {u'transaction_values': 547.62439312, u'_id': 2} 
 ```
@@ -673,7 +673,7 @@ MongoDB 还为最常见的`$convert`操作提供了一些辅助函数。这些�
 
 通过对`number_transactions`字段进行平均，我们可以得到每个区块的交易数量，如下面的代码所示：
 
-```go
+```sql
    def average_number_transactions_total_block(self):
        pipeline = [
            {"$group": {"_id": "average_transactions_per_block", "count": {"$avg": "$number_transactions"}}},
@@ -685,14 +685,14 @@ MongoDB 还为最常见的`$convert`操作提供了一些辅助函数。这些�
 
 上述代码的输出如下：
 
-```go
+```sql
  {u'count': 39.458333333333336, u'_id': u'average_transactions_per_block'}
 
 ```
 
 而使用以下代码，我们可以得到每个区块的内部交易的平均数量：
 
-```go
+```sql
   def average_number_transactions_internal_block(self):
        pipeline = [
            {"$group": {"_id": "average_transactions_internal_per_block", "count": {"$avg": "$number_internal_transactions"}}},
@@ -704,13 +704,13 @@ MongoDB 还为最常见的`$convert`操作提供了一些辅助函数。这些�
 
 上述代码的输出如下：
 
-```go
+```sql
 {u'count': 8.0, u'_id': u'average_transactions_internal_per_block'}
 ```
 
 每个区块使用的平均燃气量可以通过以下方式获得：
 
-```go
+```sql
 def average_gas_block(self):
        pipeline = [
            {"$group": {"_id": "average_gas_used_per_block",
@@ -723,13 +723,13 @@ def average_gas_block(self):
 
 输出如下：
 
-```go
+```sql
 {u'count': 2563647.9166666665, u'_id': u'average_gas_used_per_block'} 
 ```
 
 每个区块的平均难度及其偏差可以通过以下方式获得：
 
-```go
+```sql
   def average_difficulty_block(self):
        pipeline = [
            {"$group": {"_id": "average_difficulty_per_block",
@@ -742,7 +742,7 @@ def average_gas_block(self):
 
 输出如下：
 
-```go
+```sql
 {u'count': 881676386932100.0, u'_id': u'average_difficulty_per_block', u'stddev': 446694674991.6385} 
 ```
 
@@ -754,7 +754,7 @@ def average_gas_block(self):
 
 在这些文档中，我们已经在一个名为`tags`的数组中标记了这些属性，如下所示：
 
-```go
+```sql
 {
  "_id" : ObjectId("59554977cedea8f696a416dd"),
  "to" : "0x4b9e0d224dabcc96191cace2d367a8d8b75c9c81",
@@ -775,7 +775,7 @@ def average_gas_block(self):
 
 通过聚合框架进行此操作的方式如下所示：
 
-```go
+```sql
 def scam_or_ico_aggregation(self):
  pipeline = [
  {"$match": {"timestamp": {"$gte": datetime.datetime(2017,6,1), "$lte": datetime.datetime(2017,7,1)}}},
@@ -812,13 +812,13 @@ def scam_or_ico_aggregation(self):
 
 由于我们使用了`$out`运算符，在命令行中将得不到任何结果。如果我们注释掉`{"$out": "scam_ico_documents"}`，我们将得到以下类似的文档：
 
-```go
+```sql
 {u'from': u'miningpoolhub_1', u'tags': u'scam', u'report_period': u'June 2017', u'value': 0.52415349, u'to': u'0xdaf112bcbd38d231b1be4ae92a72a41aa2bb231d', u'txhash': u'0xe11ea11df4190bf06cbdaf19ae88a707766b007b3d9f35270cde37ceccba9a5c', u'txfee': 21.0, u'block': 3923785}
 ```
 
 我们数据库中的最终结果将如下所示：
 
-```go
+```sql
 {
  "_id" : ObjectId("5955533be9ec57bdb074074e"),
  "to" : "0x4b9e0d224dabcc96191cace2d367a8d8b75c9c81",
@@ -834,7 +834,7 @@ def scam_or_ico_aggregation(self):
 
 现在，我们在`scam_ico_documents`集合中有了明确定义的文档，我们可以很容易地进行进一步的分析。这种分析的一个例子是在一些骗子上附加更多信息。幸运的是，我们的数据科学家已经提供了一些额外的信息，我们已经提取到一个新的集合`scam_details`中，它看起来是这样的：
 
-```go
+```sql
 {
  "_id" : ObjectId("5955510e14ae9238fe76d7f0"),
  "scam_address" : "0x3c540be890df69eca5f0099bbedd5d667bd693f3",
@@ -844,7 +844,7 @@ def scam_or_ico_aggregation(self):
 
 现在，我们可以创建一个新的聚合管道作业，将我们的`scam_ico_documents`与`scam_details`集合连接起来，并将这些扩展结果输出到一个新的集合中，名为`scam_ico_documents_extended`，就像这样：
 
-```go
+```sql
 def scam_add_information(self):
  client = MongoClient()
  db = client.mongo_book
@@ -869,7 +869,7 @@ def scam_add_information(self):
 
 现在这些文档看起来是这样的：
 
-```go
+```sql
 > db.scam_ico_documents_extended.findOne()
  {
  "_id" : ObjectId("5955533be9ec57bdb074074e"),

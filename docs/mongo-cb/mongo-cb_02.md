@@ -34,7 +34,7 @@
 
 1.  从 shell 中使用以下命令执行要导入的文件：
 
-```go
+```sql
 $ mongoimport --type csv -d test -c postalCodes --headerline --drop pincodes.csv
 
 ```
@@ -43,7 +43,7 @@ $ mongoimport --type csv -d test -c postalCodes --headerline --drop pincodes.csv
 
 1.  在 shell 中，执行以下命令：
 
-```go
+```sql
 > db.postalCodes.count()
 
 ```
@@ -64,7 +64,7 @@ $ mongoimport --type csv -d test -c postalCodes --headerline --drop pincodes.csv
 
 如果导入成功，您应该在控制台上看到类似以下内容的输出：
 
-```go
+```sql
 2015-05-19T06:51:54.131+0000	connected to: localhost
 2015-05-19T06:51:54.132+0000	dropping: test.postalCodes
 2015-05-19T06:51:54.810+0000	imported 39732 documents
@@ -93,35 +93,35 @@ $ mongoimport --type csv -d test -c postalCodes --headerline --drop pincodes.csv
 
 1.  让我们首先找到集合中文档的数量：
 
-```go
+```sql
 > db.postalCodes.count()
 
 ```
 
 1.  让我们从`postalCodes`集合中找到一个文档：
 
-```go
+```sql
 > db.postalCodes.findOne()
 
 ```
 
 1.  现在，我们按如下方式在集合中找到多个文档：
 
-```go
+```sql
 > db.postalCodes.find().pretty()
 
 ```
 
 1.  前面的查询检索了前 20 个文档的所有键，并在 shell 上显示它们。在结果的末尾，您会注意到一行，上面写着`键入"it"以获取更多内容`。通过键入`"it"`，mongo shell 将遍历结果游标。现在让我们做一些事情；我们将只显示`city`、`state`和`pincode`字段。此外，我们想显示集合中编号为 91 到 100 的文档。让我们看看如何做到这一点：
 
-```go
+```sql
 > db.postalCodes.find({}, {_id:0, city:1, state:1, pincode:1}).skip(90).limit(10)
 
 ```
 
 1.  让我们再进一步，编写一个稍微复杂的查询，在其中按照城市名称找到古吉拉特邦的前 10 个城市，并且与上一个查询类似，我们只选择`city`、`state`和`pincode`字段：
 
-```go
+```sql
 > db.postalCodes.find({state:'Gujarat'},{_id:0, city:1, state:1, pincode:1}).sort({city:1}).limit(10)
 
 ```
@@ -140,7 +140,7 @@ $ mongoimport --type csv -d test -c postalCodes --headerline --drop pincodes.csv
 
 现在我们将在 mongo shell 上执行以下查询：
 
-```go
+```sql
 > db.postalCodes.find({}, {_id:0, city:1, state:1, pincode:1}).skip(90).limit(10) 
 
 ```
@@ -173,14 +173,14 @@ $ mongoimport --type csv -d test -c postalCodes --headerline --drop pincodes.csv
 
 1.  启动 MongoDB shell 并预加载脚本：
 
-```go
+```sql
 $ mongo --shell updAndDelTest.js
 
 ```
 
 1.  使用启动的 shell 和加载的脚本，在 shell 中执行以下操作：
 
-```go
+```sql
 > prepareTestData()
 
 ```
@@ -189,7 +189,7 @@ $ mongo --shell updAndDelTest.js
 
 1.  为了了解集合的情况，让我们查询如下：
 
-```go
+```sql
 > db.updAndDelTest.find({}, {_id:0})
 
 ```
@@ -198,21 +198,21 @@ $ mongo --shell updAndDelTest.js
 
 1.  我们将首先更新一些文档并观察结果。执行以下更新：
 
-```go
+```sql
 > db.updAndDelTest.update({x:1}, {$set:{y:0}})
 
 ```
 
 1.  执行以下`find`命令并观察结果；我们应该得到 10 个文档。对于每个文档，注意`y`的值。
 
-```go
+```sql
 > db.updAndDelTest.find({x:1}, {_id:0})
 
 ```
 
 1.  我们现在将执行以下更新：
 
-```go
+```sql
 > db.updAndDelTest.update({x:1}, {$set:{y:0}}, {multi:true})
 
 ```
@@ -221,14 +221,14 @@ $ mongo --shell updAndDelTest.js
 
 1.  我们现在将看看删除是如何工作的。我们将再次选择`x`为`1`的文档进行删除测试。让我们从集合中删除所有`x`为`1`的文档：
 
-```go
+```sql
 > db.updAndDelTest.remove({x:1})
 
 ```
 
 1.  执行以下`find`命令并观察结果。我们将不会得到任何结果。似乎`remove`操作已删除所有`x`为`1`的文档。
 
-```go
+```sql
 > db.updAndDelTest.find({x:1}, {_id:0})
 
 ```
@@ -263,7 +263,7 @@ $ mongo --shell updAndDelTest.js
 
 1.  执行以下查询以查看此查询的计划：
 
-```go
+```sql
 > db.postalCodes.find({state:'Maharashtra'}).explain('executionStats')
 
 ```
@@ -272,7 +272,7 @@ $ mongo --shell updAndDelTest.js
 
 1.  让我们再次执行相同的查询，但这次，我们将结果限制为仅 100 个结果：
 
-```go
+```sql
 > db.postalCodes.find({state:'Maharashtra'}).limit(100).explain()
 
 ```
@@ -281,14 +281,14 @@ $ mongo --shell updAndDelTest.js
 
 1.  我们现在在`state`和`pincode`字段上创建索引，如下所示：
 
-```go
+```sql
 > db.postalCodes.createIndex({state:1, pincode:1})
 
 ```
 
 1.  执行以下查询：
 
-```go
+```sql
 > db.postalCodes.find({state:'Maharashtra'}).explain()
 
 ```
@@ -297,7 +297,7 @@ $ mongo --shell updAndDelTest.js
 
 1.  因为我们只想要邮政编码，所以我们修改查询如下并查看其计划：
 
-```go
+```sql
 > db.postalCodes.find({state:'Maharashtra'}, {pincode:1, _id:0}).explain()
 
 ```
@@ -312,14 +312,14 @@ $ mongo --shell updAndDelTest.js
 
 好的，让我们看看我们执行的第一步并分析输出：
 
-```go
+```sql
 db.postalCodes.find({state:'Maharashtra'}).explain()
 
 ```
 
 在我的机器上的输出如下：（我现在跳过了不相关的字段。）
 
-```go
+```sql
 {
         "stage" : "COLLSCAN",
 ...
@@ -340,7 +340,7 @@ db.postalCodes.find({state:'Maharashtra'}).explain()
 
 到目前为止，就性能而言，查询看起来并不太好，有很大的改进空间。为了演示应用于查询的限制如何影响查询计划，我们可以再次找到没有索引但有限制子句的查询计划，如下所示：
 
-```go
+```sql
 > db.postalCodes.find({state:'Maharashtra'}).limit(100).explain()
 
 {
@@ -363,7 +363,7 @@ db.postalCodes.find({state:'Maharashtra'}).explain()
 
 接着，我们在 state 和 pincode 字段上创建了一个复合索引。在这种情况下，索引的顺序是升序（因为值为 1），除非我们计划执行多键排序，否则这并不重要。这是一个决定性因素，决定了结果是否可以仅使用索引进行排序，还是 mongo 需要在返回结果之前在内存中对其进行排序。就查询计划而言，我们可以看到有了显著的改进：
 
-```go
+```sql
 {
 "executionStages" : {
  "stage" : "FETCH",
@@ -395,14 +395,14 @@ db.postalCodes.find({state:'Maharashtra'}).explain()
 
 执行以下命令：
 
-```go
+```sql
 db.postalCodes.find({state:'Maharashtra'}, {pincode:1, _id:0}).explain()
 
 ```
 
 这给我们带来了以下计划：
 
-```go
+```sql
 {
 "executionStages" : {
  "stage" : "PROJECTION",
@@ -457,7 +457,7 @@ Mongo 为文档的数组字段中的每个元素创建一个索引条目。因�
 
 我们的邮政编码测试数据太小，无法展示在大型集合上创建索引时遇到的问题。我们需要更多的数据，因此，我们将开始创建一些数据来模拟在创建索引过程中遇到的问题。这些数据没有实际意义，但足够测试概念。在其中一个已启动的 shell 中复制以下内容并执行：（这是一个相当容易输入的片段。）
 
-```go
+```sql
 for(i = 0; i < 5000000 ; i++) {
   doc = {}
   doc._id = i
@@ -468,7 +468,7 @@ for(i = 0; i < 5000000 ; i++) {
 
 这个集合中的文档看起来是这样的：
 
-```go
+```sql
 { _id:0, value:"Some text with no meaning and number 0 in between" }
 ```
 
@@ -478,7 +478,7 @@ for(i = 0; i < 5000000 ; i++) {
 
 如果你想知道集合中当前加载的文档数量，可以定期从第二个 shell 中评估以下内容：
 
-```go
+```sql
 db.indexTest.count()
 ```
 
@@ -486,14 +486,14 @@ db.indexTest.count()
 
 1.  在文档的`value`字段上创建索引，如下所示：
 
-```go
+```sql
 > db.indexTest.createIndex({value:1})
 
 ```
 
 1.  在索引创建过程中，这应该需要相当长的时间，切换到第二个控制台并执行以下操作：
 
-```go
+```sql
 > db.indexTest.findOne()
 
 ```
@@ -502,21 +502,21 @@ db.indexTest.count()
 
 1.  现在，这是默认的前台索引创建。我们想看看后台索引创建的行为。按照以下方式删除已创建的索引：
 
-```go
+```sql
 > db.indexTest.dropIndex({value:1})
 
 ```
 
 1.  再次创建索引，但这次是在后台进行，如下所示：
 
-```go
+```sql
 > db.indexTest.createIndex({value:1}, {background:true})
 
 ```
 
 1.  在第二个 mongo shell 中，执行以下`findOne`：
 
-```go
+```sql
 > db.indexTest.findOne()
 
 ```
@@ -525,7 +525,7 @@ db.indexTest.count()
 
 1.  在第二个 shell 中，反复执行以下解释操作，每次解释计划调用之间间隔四到五秒，直到索引创建过程完成：
 
-```go
+```sql
 > db.indexTest.find({value:"Some text with no meaning and number 0 in between"}).explain()
 
 ```
@@ -546,14 +546,14 @@ db.indexTest.count()
 
 1.  首先通过从 shell 执行以下命令来在前台创建索引：
 
-```go
+```sql
 > db.indexTest.createIndex({value:1})
 
 ```
 
 1.  现在，将一个文档插入到 person 集合中，该集合此时可能存在，也可能不存在于测试数据库中，如下所示：
 
-```go
+```sql
 > db.person.insert({name:'Amol'})
 
 ```
@@ -576,21 +576,21 @@ Mongo 的无模式设计是 Mongo 的基本特性之一。这允许集合中的�
 
 1.  通过调用以下方法加载集合中的数据。这应该会在`sparseTest`集合中导入 100 个文档。
 
-```go
+```sql
 > createSparseIndexData()
 
 ```
 
 1.  现在，通过执行以下查询来查看数据，注意顶部几个结果中的`y`字段：
 
-```go
+```sql
 > db.sparseTest.find({}, {_id:0})
 
 ```
 
 1.  我们可以看到`y`字段不存在，或者如果存在的话是唯一的。然后执行以下查询：
 
-```go
+```sql
 > db.sparseTest.find({y:{$ne:2}}, {_id:0}).limit(15)
 
 ```
@@ -599,7 +599,7 @@ Mongo 的无模式设计是 Mongo 的基本特性之一。这允许集合中的�
 
 1.  由于`y`的值似乎是唯一的，让我们按照以下方式在`y`字段上创建一个新的唯一索引：
 
-```go
+```sql
 > db.sparseTest.createIndex({y:1}, {unique:1})
 
 ```
@@ -608,14 +608,14 @@ Mongo 的无模式设计是 Mongo 的基本特性之一。这允许集合中的�
 
 1.  我们将通过以下方式将此索引设置为稀疏：
 
-```go
+```sql
 > db.sparseTest.createIndex({y:1}, {unique:1, sparse:1})
 
 ```
 
 1.  这应该解决我们的问题。为了确认索引已创建，请在 shell 上执行以下操作：
 
-```go
+```sql
 > db.sparseTest.getIndexes()
 
 ```
@@ -626,7 +626,7 @@ Mongo 的无模式设计是 Mongo 的基本特性之一。这允许集合中的�
 
 1.  查看结果并将其与创建索引之前看到的结果进行比较。重新执行查询，但使用以下提示强制进行完整集合扫描：
 
-```go
+```sql
 >db.sparseTest.find({y:{$ne:2}},{_id:0}).limit(15).hint({$natural:1})
 
 ```
@@ -641,7 +641,7 @@ Mongo 的无模式设计是 Mongo 的基本特性之一。这允许集合中的�
 
 然后执行查询并查看以下结果：
 
-```go
+```sql
 > db.sparseTest.find({y:{$ne:2}}, {_id:0}).limit(15)
 { "x" : 1 }
 { "x" : 2 }
@@ -669,7 +669,7 @@ Mongo 的无模式设计是 Mongo 的基本特性之一。这允许集合中的�
 
 虽然我们可以看到创建稀疏索引确实使索引更有效，但它引入了一个新问题，即一些查询结果不一致。我们之前执行的相同查询产生了不同的结果。请参见以下输出：
 
-```go
+```sql
 > db.sparseTest.find({y:{$ne:2}}, {_id:0}).hint({y:1}).limit(15)
 { "x" : 3, "y" : 1 }
 { "x" : 9, "y" : 3 }
@@ -691,7 +691,7 @@ Mongo 的无模式设计是 Mongo 的基本特性之一。这允许集合中的�
 
 为什么会发生这种情况？答案在于这个查询的查询计划。执行以下操作查看此查询的计划：
 
-```go
+```sql
 >db.sparseTest.find({y:{$ne:2}}, {_id:0}). hint({y:1}).limit(15).explain()
 
 ```
@@ -718,21 +718,21 @@ Mongo 中一个有趣的特性是在预定的时间后自动删除集合中的�
 
 1.  假设服务器已启动，并且提供的脚本已加载到 shell 中，请从 mongo shell 中调用以下方法：
 
-```go
+```sql
 > addTTLTestData()
 
 ```
 
 1.  在`createDate`字段上创建 TTL 索引如下：
 
-```go
+```sql
 > db.ttlTest.createIndex({createDate:1}, {expireAfterSeconds:300})
 
 ```
 
 1.  现在，按以下方式查询集合：
 
-```go
+```sql
 > db.ttlTest.find()
 
 ```
@@ -789,21 +789,21 @@ TTL 索引仅支持 Mongo 版本 2.2 及以上。请注意，文档不会在字�
 
 1.  使用`addTTLTestData2`方法在集合中加载所需的数据。在 mongo shell 上执行以下操作：
 
-```go
+```sql
 > addTTLTestData2()
 
 ```
 
 1.  现在，按照以下步骤在`ttlTest2`集合上创建 TTL 索引：
 
-```go
+```sql
 > db.ttlTest2.createIndex({expiryDate :1}, {expireAfterSeconds:0})
 
 ```
 
 1.  执行以下`find`查询以查看集合中的三个文档：
 
-```go
+```sql
 > db.ttlTest2.find()
 
 ```

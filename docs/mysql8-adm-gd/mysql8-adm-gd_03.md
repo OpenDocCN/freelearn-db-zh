@@ -150,7 +150,7 @@ MySQL 安装中有各种不同的程序。本节将简要概述这些程序。�
 
 要执行 MySQL 程序，请输入程序名称，然后输入选项或其他参数，以告诉程序您希望它执行什么操作。以下是一些示例执行命令。这里`shell>`表示命令解释器。典型的提示符将是`c：>\`（对于使用`command.com`或`cmd.exe`作为命令解释器的 Windows 机器），`$`（对于使用`sh`，`ksh`或`bash`作为命令解释器的 Unix 机器），以及`％`（对于使用`csh`或`tcsh`作为命令解释器的 Mac 机器）。
 
-```go
+```sql
 shell> mysql --verbose --help
 shell> mysql --user=root --password=******** mysampledb
 shell> mysqldump -u root personnel
@@ -165,7 +165,7 @@ shell> mysqlshow --help
 
 在本节中，我们将解释如何建立与 MySQL 服务器的连接。我们将使用客户端程序连接到 MySQL 服务器。要连接到服务器程序，我们需要一些信息来指定 MySQL 帐户的“主机名”、“用户名”和“密码”，因为我们需要告诉客户端程序服务器运行在哪个主机上以及相关的用户名和密码。尽管这些选项都有默认选项值，但在必要时可以覆盖选项值。例如，考虑使用常见的客户端程序`mysql：`
 
-```go
+```sql
 shell> mysql
 ```
 
@@ -181,7 +181,7 @@ shell> mysql
 
 应用于客户端程序`mysql`的原则也适用于其他客户端程序，如`mysqldump`、`mysqladmin`或`mysqlshow`。现在让我们看一个具有特定选项值参数的示例客户端程序连接：
 
-```go
+```sql
 shell> mysql --host=localhost --user=root --password=mypwd mysampledb
 ```
 
@@ -219,7 +219,7 @@ MySQL 程序通过检查相关环境变量来确定首先给出哪些选项，�
 
 +   带有数字值的选项值可以使用 K、M 或 G 的后缀表示 1,024 的倍数，大小写不限。考虑以下示例，命令告诉`mysqladmin`程序对服务器进行 1,024 次 ping，并且每次 ping 后休眠`10`秒：
 
-```go
+```sql
  shell> mysqladmin --count=1k --sleep=10 ping
 ```
 
@@ -231,7 +231,7 @@ MySQL 程序通过检查相关环境变量来确定首先给出哪些选项，�
 
 一些选项是`boolean`类型的，控制可以打开或关闭的行为。让我们考虑一个例子，`mysql`程序。它支持`--column-names`选项，用于控制在查询结果的第一行中显示列名。为了禁用列名，以下规范将适用于我们：
 
-```go
+```sql
 --disable-column-names
 --skip-column-names
 --column-names=0
@@ -327,20 +327,20 @@ MySQL 按特定顺序检查 Windows 和 Unix 系统的选项文件，并遵循�
 
 要指定环境变量的值，语法将基于底层命令解释器。对于 Windows 系统，可以使用以下语法设置用户变量：
 
-```go
+```sql
 SET  USER=your_user_name
 ```
 
 对于 Unix 系统，这取决于 shell，因此如果使用`sh`、`ksh`、`zsh`或`bash`，则需要使用以下语法：
 
-```go
+```sql
 MYSQL_TCP_PORT=3306 
 export MYSQL_TCP_PORT
 ```
 
 如果使用`csh`或`tcsh`，请使用`setenv`，这将使 shell 变量可用于执行环境：
 
-```go
+```sql
 setenv MYSQL_TCP_PORT 3306
 ```
 
@@ -418,49 +418,49 @@ MySQL 服务器是一个守护程序。所有其他程序都通过该服务器�
 
 如前所述，`mysqld`和`mysqld_safe`中都指定了非常常见的选项，因此以下选项列表中排除了一些选项：
 
-```go
+```sql
 --core-file-size=size
 ```
 
 指定`mysqld`应该创建的核心文件的大小。
 
-```go
+```sql
 --ledir=dir_name
 ```
 
 如果`mysqld`无法找到服务器，则使用此选项指定服务器所在的目录的路径名。此选项仅可在命令行上使用，而不可在选项文件中使用。在使用`systemd`的平台上，该值应在`MYSQLD_OPTS`的值中给出。
 
-```go
+```sql
 --mysqld-safe-log-timestamps
 ```
 
 此选项是指定`mysqld_safe`生成的日志输出中的`timestamps`格式。
 
-```go
+```sql
 --mysqld=prog_name
 ```
 
 指定包含您想要启动的`ledir`目录中的服务器程序名称。如果`mysqld_safe`找不到服务器，请使用`--ledir`选项指定服务器所在的`pathname`目录。此选项仅在命令行上接受，而不是从选项文件中接受。
 
-```go
+```sql
 --open-files-limit=count
 ```
 
 `mysqld`可以打开的文件数。
 
-```go
+```sql
 --plugin-dir=dir_name
 ```
 
 指定插件目录的路径和名称。
 
-```go
+```sql
 --timezone=timezone
 ```
 
 这个选项是将`timezone`环境变量设置为给定的选项值，具体取决于操作系统的时区规范格式。
 
-```go
+```sql
 --user={ username | user_id }
 ```
 
@@ -470,25 +470,25 @@ MySQL 服务器是一个守护程序。所有其他程序都通过该服务器�
 
 这是在 Unix/类 Unix 系统的 MySQL 发行版上使用的服务器启动脚本。它使用`mysqld_safe`来启动 MySQL 服务器程序。该程序还用于包含脚本的`V-style`运行目录的系统。它在特定运行级别启动系统服务。
 
-```go
+```sql
 basedir=dir_name
 ```
 
 指定 MySQL 安装目录的路径。
 
-```go
+```sql
 datadir=data_dir
 ```
 
 指定 MySQL 数据目录的路径。
 
-```go
+```sql
 pid-file=file_name
 ```
 
 指定服务器写入其进程 ID 的路径名和文件名。
 
-```go
+```sql
 service-startup-timeout=seconds
 ```
 
@@ -502,7 +502,7 @@ service-startup-timeout=seconds
 
 要执行`mysqld_multi`，使用以下语法：
 
-```go
+```sql
 shell> mysqld_multi [options] {start|stop|reload|report} [GNR[,GNR] ...]
 ```
 
@@ -538,7 +538,7 @@ shell> mysqld_multi [options] {start|stop|reload|report} [GNR[,GNR] ...]
 
 使用以下语法执行`mysql_secure_installation`：
 
-```go
+```sql
 shell> mysql_secure_installation [options]
 ```
 
@@ -552,7 +552,7 @@ shell> mysql_secure_installation [options]
 
 执行`mysql_ssl_rsa_setup`，如下所示：
 
-```go
+```sql
 shell> mysql_ssl_rsa_setup [options]
 ```
 
@@ -566,7 +566,7 @@ shell> mysql_ssl_rsa_setup [options]
 
 `mysql_tzinfo_to_sql`可以以以下不同的方式执行：
 
-```go
+```sql
 shell> mysql_tzinfo_to_sql tz_dir
 shell> mysql_tzinfo_to_sql tz_file tz_name
 shell> mysql_tzinfo_to_sql --leap tz_file
@@ -588,7 +588,7 @@ shell> mysql_tzinfo_to_sql --leap tz_file
 
 使用以下语法执行`mysql_upgrade`：
 
-```go
+```sql
 shell> mysql_upgrade [options]
 ```
 
@@ -762,13 +762,13 @@ help `arg[]`命令用于显示帮助消息，并列出`mysql`中所有可用的�
 
 要从`mysql`获取服务器端帮助，使用以下语法。
 
-```go
+```sql
 mysql> help search_string
 ```
 
 如果在 help 命令之后提供任何参数，`mysql`将使用该参数来搜索字符串，以从 MySQL 参考手册内容中访问服务器端帮助。如果没有匹配搜索的字符串，搜索操作将失败，并显示如下：
 
-```go
+```sql
 mysql> help me
 Nothing found
 Please try to run 'help contents' fro a list of all accessible topics
@@ -780,19 +780,19 @@ Please try to run 'help contents' fro a list of all accessible topics
 
 `mysql`客户端通常用于交互式使用，但也允许您从文件中执行 SQL 语句。为此，请创建一个包含需要执行的多个语句的`text_file`，如下所示：
 
-```go
+```sql
 shell> mysql db_name < text_file
 ```
 
 如果将`USE db_name`保留为`text_file`的第一条语句，则可以在命令行中省略指定`db_name`：
 
-```go
+```sql
 shell> mysql < text_file
 ```
 
 如果已经使用`mysql`连接，则使用 source 或`\.`命令：
 
-```go
+```sql
 mysql> source file_name
 ```
 
@@ -804,7 +804,7 @@ mysql> source file_name
 
 `mysqladmin`命令的执行语法如下：
 
-```go
+```sql
 shell> mysqladmin [options] command [command-arg] [command [command-org]] ...
 ```
 
@@ -822,7 +822,7 @@ shell> mysqladmin [options] command [command-arg] [command [command-org]] ...
 
 以下是`mysqlcheck`命令的执行语法：
 
-```go
+```sql
 shell> mysqlcheck [options] db_name [tbl_name ...]
 shell> mysqlcheck [options] --databases db_name ...
 shell> mysqlcheck [options] --all-databases
@@ -842,7 +842,7 @@ shell> mysqlcheck [options] --all-databases
 
 以下是`mysqldump`的执行语法：
 
-```go
+```sql
 shell> mysqldump [options] db_name [tbl_name ...] 
 shell> mysqldump [options] --databases db_name ...
 shell> mysqldump [options] --all-databases
@@ -856,7 +856,7 @@ shell> mysqldump [options] --all-databases
 
 `mysqlimport`的执行语法如下：
 
-```go
+```sql
 shell> mysqlimport [options] db_name textfile1 [textfile2 ...]
 ```
 
@@ -882,13 +882,13 @@ shell> mysqlimport [options] db_name textfile1 [textfile2 ...]
 
 `mysqlpump`转储了所有数据库，如下代码中明确指定的：
 
-```go
+```sql
 shell> mysqlpump --all-databases
 ```
 
 要转储多个数据库，请指定`--databases`，然后是要转储的数据库名称。您还可以指定`--exclude-databases=`，然后是不要转储的数据库名称。有许多选项可用于转储数据库或对象，例如用于指定排除或包含数据库选项的选项，适用于对象（如表、触发器、例程、事件、用户等），如果它们支持多个选项条目：
 
-```go
+```sql
 shell> mysqlpump --include-databases=db1,db2 --exclude-tables=db1.t1,db2.t2
 ```
 
@@ -904,55 +904,55 @@ MySQL 的高级命令行客户端和编辑器是非常著名的 MySQL Shell。�
 
 MySQL Shell 有许多与之相关的选项，但重要的选项如下：
 
-```go
+```sql
 --port=port_num, -P port_num
 ```
 
 要使用的 TCP/IP 端口号为`port_num`。默认端口为`33060`。
 
-```go
+```sql
 --node
 ```
 
 使用 X 协议创建到单个服务器的节点会话，在 8.0.3 中已弃用。
 
-```go
+```sql
 --js
 ```
 
 启动 JavaScript 模式。
 
-```go
+```sql
 --py
 ```
 
 启动 Python 模式。
 
-```go
+```sql
 --sql
 ```
 
 启动 SQL 模式。
 
-```go
+```sql
 --sqlc
 ```
 
 在 ClassicSession 中启动 SQL 模式。
 
-```go
+```sql
 --sqln
 ```
 
 在 NodeSession 中启动 SQL 模式。
 
-```go
+```sql
 --sqlx
 ```
 
 通过创建 X 协议连接启动 SQL 模式。
 
-```go
+```sql
 --ssl* 
 ```
 
@@ -966,7 +966,7 @@ MySQL Shell 有许多与之相关的选项，但重要的选项如下：
 
 该命令的执行语法如下：
 
-```go
+```sql
 shell> mysqlshow [options] [db_name [tbl_name [col_name]]]
 ```
 
@@ -982,37 +982,37 @@ shell> mysqlshow [options] [db_name [tbl_name [col_name]]]
 
 该程序有许多选项，可以通过使用特定选项参数来获取所需的信息。以下是一些重要的选项：
 
-```go
+```sql
 --character-sets-dir=dir_name
 ```
 
 指定安装字符集的目录名称。
 
-```go
+```sql
 --compress, -C
 ```
 
 如果客户端和服务器都支持压缩，则发送的所有信息都将被压缩。
 
-```go
+```sql
 --enable-cleartext-plugin
 ```
 
 启用 `cleartext` 认证插件。
 
-```go
+```sql
 --get--server-public-key
 ```
 
 从服务器请求 RSA 公钥，用于基于密钥对的密码交换。此外，如果客户端使用安全连接连接到服务器，则不需要 RSA 密码交换，并且将被忽略。
 
-```go
+```sql
 --keys, -k
 ```
 
 显示表索引。
 
-```go
+```sql
 --ssl*
 ```
 
@@ -1026,7 +1026,7 @@ shell> mysqlshow [options] [db_name [tbl_name [col_name]]]
 
 执行语法如下：
 
-```go
+```sql
 shell> mysqlslap [options]
 ```
 
@@ -1042,13 +1042,13 @@ shell> mysqlslap [options]
 
 例如，使用 20 个客户端和每个客户端 100 次查询创建我们自己的查询语句将如下所示 `CLI:`
 
-```go
+```sql
 mysqlslap --delimiter=";" --create="CREATE TABLE t (i int);INSERT INTO t VALUES (21)" --query="SELECT * FROM t" --concurrency=20 --iterations=100
 ```
 
 `mysqlslap` 也可以添加或创建自己的查询语句，如下面的代码块所示：
 
-```go
+```sql
 mysqlslap --concurrency=7 --iterations=20 --number-int-cols=2 --number-char-cols=2 --auto-generate-sql
 ```
 
@@ -1066,13 +1066,13 @@ mysqlslap --concurrency=7 --iterations=20 --number-int-cols=2 --number-char-cols
 
 `idb2sdi`的执行将如下命令行所示：
 
-```go
+```sql
 shell> ibd2sdi [options] file_name1 [file_name2 file_name3 ...] 
 ```
 
 `ibd2sdi`还支持多个表空间，但不像`InnoDB`系统表空间那样一次运行多个表空间。指定每个文件将按如下方式工作：
 
-```go
+```sql
 shell> ibd2sdi ibdata1 ibdata2
 ```
 
@@ -1086,7 +1086,7 @@ shell> ibd2sdi ibdata1 ibdata2
 
 如果表空间文件是打开的，则无法使用`innochecksum`。命令的执行语法将如下所示：
 
-```go
+```sql
 shell> innochecksum [options] file_name
 ```
 
@@ -1098,7 +1098,7 @@ shell> innochecksum [options] file_name
 
 `myisam_ftdump`命令的执行将如下代码块所示：
 
-```go
+```sql
 shell> myisam_ftdump [options] <table_name> <index_num>
 ```
 
@@ -1106,19 +1106,19 @@ shell> myisam_ftdump [options] <table_name> <index_num>
 
 假设测试数据库有一个名为 mytexttable 的表，其定义如下：
 
-```go
+```sql
 CREATE TABLE mytexttable ( id INT NOT NULL, txt TEXT NOT NULL, PRIMARY KEY (id), FULLTEXT (txt) ) ENGINE=MyISAM;
 ```
 
 在`FULLTEXT`索引上创建的 id 为 0，在`txt`上为 1。如果工作目录是测试数据库目录，则执行`myisam_ftdump`如下：
 
-```go
+```sql
 shell> myisam_ftdump mytexttable 1
 ```
 
 `myisam_ftdump`也可以用来按出现频率生成索引条目列表，如下所示（Windows 中的第一行，Unix 系统中的第二行）：
 
-```go
+```sql
 shell> myisam_ftdump -c mytexttable 1 | sort /R 
 shell> myisam_ftdump -c mytexttable 1 | sort -r
 
@@ -1134,7 +1134,7 @@ shell> myisam_ftdump -c mytexttable 1 | sort -r
 
 `myisamchk`命令的执行如下代码块所示：
 
-```go
+```sql
 shell> myisamchk [OPTIONS] tables[.MYI | .MYD]
 ```
 
@@ -1148,7 +1148,7 @@ shell> myisamchk [OPTIONS] tables[.MYI | .MYD]
 
 执行`myisamlog`命令的语法如下代码块所示：
 
-```go
+```sql
 shell> myisamlog [options] [file_name [tbl_name] ...]
 
 ```
@@ -1171,7 +1171,7 @@ MySQL 最好使用`mmap()`函数对压缩表进行内存映射；否则，它将
 
 `myisampack`的执行语法如下命令行中的块：
 
-```go
+```sql
 shell> myisampack [options] file_name ...
 ```
 
@@ -1193,7 +1193,7 @@ shell> myisampack [options] file_name ...
 
 程序语法的执行如下代码块所示：
 
-```go
+```sql
 shell> mysqlbinlog [options] log_file ...
 ```
 
@@ -1217,7 +1217,7 @@ shell> mysqlbinlog [options] log_file ...
 
 在命令行语法中执行程序的方式如下所示：
 
-```go
+```sql
 shell> mysqldumpslow [options] [log_file ...]
 ```
 

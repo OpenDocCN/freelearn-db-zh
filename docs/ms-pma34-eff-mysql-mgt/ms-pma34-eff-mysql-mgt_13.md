@@ -238,7 +238,7 @@ phpMyAdmin 的界面提供了一个**复制**页面；然而，其他页面包�
 
 以下练习假定 MySQL Sandbox 已安装在您的服务器上，并且 phpMyAdmin 的`config.inc.php`包含对这些 Sandbox 服务器的引用，如下面的代码块所示（请根据自己的环境调整套接字名称）：
 
-```go
+```sql
 $i++;
 $cfg['Servers'][$i]['auth_type'] = 'cookie';
 $cfg['Servers'][$i]['host'] = 'localhost';
@@ -303,7 +303,7 @@ $cfg['Servers'][$i]['verbose'] = 'slave2';
 
 由于我们在主服务器的配置文件的`[mysqld]`部分中有以下代码行，我们可以排除影响`mysql`数据库的所有事务不记录到二进制日志中：
 
-```go
+```sql
 binlog_ignore_db=mysql
 
 ```

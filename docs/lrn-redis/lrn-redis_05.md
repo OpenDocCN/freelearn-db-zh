@@ -176,7 +176,7 @@ Redis 不是这种类型数据的正确数据存储。我们还可以看到，�
 
 1.  打开您的 Java 客户端并编写以下程序：
 
-```go
+```sql
 package org.learningRedis.chapter.five;
 import Redis.clients.jedis.Jedis;
 import Redis.clients.jedis.Pipeline;
@@ -208,7 +208,7 @@ for(int nv=0;nv<900000;nv++){
 
 1.  从您的 IDE 执行以下 Java 程序：
 
-```go
+```sql
 package org.learningRedis.chapter.five.masterslave;
 import Redis.clients.jedis.Jedis;
 public class MasterSlaveTest {
@@ -304,7 +304,7 @@ public class MasterSlaveTest {
 
 +   以下是`MasterSlaveLoadTest`的代码：
 
-```go
+```sql
 package org.learningRedis.chapter.five.highreads;
 import java.util.ArrayList;
 import java.util.List;
@@ -362,7 +362,7 @@ public class MasterSlaveLoadTest {
 
 +   `PumpData`的代码如下：
 
-```go
+```sql
 package org.learningRedis.chapter.five.highreads;
 import Redis.clients.jedis.Jedis;
 public class PumpData implements Runnable {
@@ -386,7 +386,7 @@ public class PumpData implements Runnable {
 
 +   `FetchData`的代码如下：
 
-```go
+```sql
 package org.learningRedis.chapter.five.highreads;
 import Redis.clients.jedis.Jedis;
 import Redis.clients.jedis.JedisPool;
@@ -437,7 +437,7 @@ public class FetchData implements Runnable {
 
 Java 的 Redis 客户端已经内置了一致性哈希算法来分发写入。具体如下：
 
-```go
+```sql
 package org.learningRedis.chapter.five.sharding;
 import java.util.ArrayList;
 import java.util.List;
@@ -653,7 +653,7 @@ Redis 可以配置为在数据是有状态时具有 AOF 持久性机制。我想
 
 1.  打开您的 Java 编辑器，并输入以下程序，它将向 Redis 服务器插入大量值：
 
-```go
+```sql
 package org.learningRedis.chapter.five;
 import Redis.clients.jedis.Jedis;
 public class PushLotsOfData {

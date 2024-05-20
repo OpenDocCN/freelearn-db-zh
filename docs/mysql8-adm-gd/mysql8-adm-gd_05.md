@@ -32,13 +32,13 @@ MySQL 8 有许多可用的操作参数，其中所有必需的参数在安装过
 
 +   服务器选项：如前一章所述，MySQL 8 使用选项文件和命令行参数来设置启动参数。有关所有可用选项的详细信息，请参阅[`dev.mysql.com/doc/refman/8.0/en/mysqld-option-tables.html`](https://dev.mysql.com/doc/refman/8.0/en/mysqld-option-tables.html)。`mysqld`接受许多命令选项。要获得简要摘要，请执行以下命令：
 
-```go
+```sql
  mysqld --help
 ```
 
 要查看完整列表，请使用以下命令：
 
-```go
+```sql
  mysqld –verbose --help
 ```
 
@@ -54,14 +54,14 @@ MySQL 8 提供了不同的模式，这些模式将影响 MySQL 支持和数据�
 
 可以使用`--sql-mode="modes"`选项在启动时设置 SQL 模式。用户还可以在选项文件中定义此选项为`sql-mode="modes"`*。*您可以通过添加逗号分隔的值来定义多个节点。MySQL 8 默认使用以下模式：`ONLY_FULL_GROUP_BY`、`STRICT_TRANS_TABLES`、`NO_ZERO_IN_DATE`、`NO_ZERO_DATE`、`ERROR_FOR_DIVISION_BY_ZERO`*、*`NO_AUTO_CREATE_USER, NO_ENGINE_SUBSTITUTION`。要在运行时更改模式，请执行以下命令：
 
-```go
+```sql
 SET GLOBAL sql_mode = 'modes';
 SET SESSION sql_mode = 'modes';
 ```
 
 要检索这两个变量的值，请执行以下命令：
 
-```go
+```sql
 SELECT @@GLOBAL.sql_mode;
 SELECT @@SESSION.sql_mode;
 ```
@@ -176,7 +176,7 @@ MySQL 8 还提供了一些特殊模式，作为模式值的组合：
 
 SQL 模式将应用于以下 SQL 语句：
 
-```go
+```sql
 ALTER TABLE
 CREATE TABLE
 CREATE TABLE ... SELECT
@@ -220,7 +220,7 @@ MySQL 8 提供了对**IPv6**的支持，具有以下功能：
 
 MySQL 8 提供了`HELP`语句，以从 MySQL 参考手册中获取信息。为了管理这些信息，MySQL 使用系统数据库的几个表。为了初始化这些表，MySQL 提供了`fill_help_tables.sql`脚本。此脚本可在[`dev.mysql.com/doc/index-other.html`](https://dev.mysql.com/doc/index-other.html)下载并解压缩后，执行以下命令，以调用`HELP`函数：
 
-```go
+```sql
 mysql -u root mysql < fill_help_tables.sql
 ```
 
@@ -234,7 +234,7 @@ mysql -u root mysql < fill_help_tables.sql
 
 1.  如果需要，服务器将创建一个关闭线程：根据关闭初始化过程，服务器将决定是否创建新线程。如果客户端请求，将创建一个新线程。如果收到信号，则服务器可能会创建一个线程，或者自行处理。如果服务器尝试为关闭过程创建一个单独的线程，并且发生错误，则会在错误日志中产生以下消息：
 
-```go
+```sql
  Error: Can't create thread to kill server
 ```
 
@@ -392,7 +392,7 @@ mysql -u root mysql < fill_help_tables.sql
 
 +   **方法 1**：为实例创建两个单独的选项文件，并在其中定义`mysqld`组。例如，使用函数`C:\my-opts1.cnf`。以下是相同代码供您参考：
 
-```go
+```sql
  [mysqld]
  basedir = C:/mysql-5.5.5
  port = 3307
@@ -402,7 +402,7 @@ mysql -u root mysql < fill_help_tables.sql
 
 我们也可以使用`C:\my-opts2.cnf`函数来做同样的事情。以下代码描述了该过程：
 
-```go
+```sql
  [mysqld]
  basedir = C:/mysql-8.0.1
  port = 3308
@@ -412,7 +412,7 @@ mysql -u root mysql < fill_help_tables.sql
 
 您可以使用以下命令安装 MySQL8 服务：
 
-```go
+```sql
  C:\> C:\mysql-5.5.5\bin\mysqld --install mysqld1 --
                 defaults-file=C:\my-opts1.cnf
  C:\> C:\mysql-8.0.1\bin\mysqld --install mysqld2 --
@@ -421,7 +421,7 @@ mysql -u root mysql < fill_help_tables.sql
 
 +   +   **方法 2**：为两个服务创建一个公共选项文件`C:\my.cnf`：
 
-```go
+```sql
  # options for mysqld1 service
  [mysqld1]
  basedir = C:/mysql-5.5.5
@@ -439,14 +439,14 @@ mysql -u root mysql < fill_help_tables.sql
 
 +   执行以下命令安装 MySQL 服务：
 
-```go
+```sql
  C:\> C:\mysql-5.5.9\bin\mysqld --install mysqld1
  C:\> C:\mysql-8.0.4\bin\mysqld --install mysqld2
 ```
 
 +   要启动 MySQL 服务，请执行以下命令：
 
-```go
+```sql
  C:\> NET START mysqld1
  C:\> NET START mysqld2
 ```
@@ -461,7 +461,7 @@ MySQL 服务器支持基于组件的结构，以扩展服务器功能。MySQL 8 
 
 当我们卸载任何组件时，MySQL 服务器将执行相同的步骤，但顺序相反。要查看可用的组件，请执行以下查询：
 
-```go
+```sql
 SELECT * FROM mysql.component;
 ```
 
@@ -503,13 +503,13 @@ MySQL 8 使用`UNINSTALL PLUGIN`语句卸载插件，而不考虑它是在运行
 
 +   `INFORMATION_SCHEMA.PLUGINS`表包含插件的详细信息，如`PLUGIN_NAME`、`PLUGIN_VERSION`、`PLUGIN_STATUS`、`PLUGIN_TYPE`、`PLUGIN_LIBRARY`等等。该表的每一行都代表有关插件的信息：
 
-```go
+```sql
  SELECT * FROM information_schema.PLUGINS;
 ```
 
 +   `SHOW PLUGINS`语句显示了每个单独插件的名称、状态、类型、库和许可证详情。如果库的值为`NULL`，则表示它是一个内置插件，因此无法卸载。
 
-```go
+```sql
  SHOW PLUGINS;
 ```
 
@@ -521,7 +521,7 @@ MySQL 8 使用`UNINSTALL PLUGIN`语句卸载插件，而不考虑它是在运行
 
 现在，让我们举个例子来理解角色创建和权限分配的作用。假设我们已经在当前数据库中创建了一个`hr_employee`表，并且我们想要将这个表的访问权限赋予`hrdepartment`角色。这个困境可以通过使用以下代码来解决：
 
-```go
+```sql
 CREATE ROLE hrdepartment;
 grant all on hr_employee to hrdepartment;
 ```
@@ -544,7 +544,7 @@ grant all on hr_employee to hrdepartment;
 
 MySQL 8 支持多种字符集，具有各种排序规则。字符集可以在列、表、数据库或服务器级别定义。我们可以在`InnoDB`、`MyISAM`和`Memory`存储引擎中使用字符集。要检查 MySQL 8 的所有可用字符集，请执行以下命令：
 
-```go
+```sql
 mysql> show character set;
 +----------+---------------------------------+---------------------+--------+
 | Charset | Description | Default collation | Maxlen |
@@ -559,7 +559,7 @@ mysql> show character set;
 
 同样，要查看字符的排序规则，请执行以下命令：
 
-```go
+```sql
 mysql> SHOW COLLATION WHERE Charset = 'ascii';
 +------------------+---------+----+---------+----------+---------+---------------+
 | Collation | Charset | Id | Default | Compiled | Sortlen | Pad_attribute |
@@ -586,7 +586,7 @@ mysql> SHOW COLLATION WHERE Charset = 'ascii';
 
 从这两个值的范围中，我们可以确定 ASCII 是 UNICODE 范围的子集，我们可以安全地将 ASCII 值转换为 UNICODE 值而不会丢失数据。Repertoire 主要用于将表达式从一个字符集转换为另一个字符集。在某些转换情况下，MySQL 8 会抛出类似“illegal mix of collations”的错误；为了处理这些情况，需要 repertoire。要了解其用法，请考虑以下示例：
 
-```go
+```sql
 CREATE TABLE employee (
  firstname CHAR(10) CHARACTER SET latin1,
  lastname CHAR(10) CHARACTER SET ascii
@@ -623,7 +623,7 @@ select concat(firstname,lastname) from employee;
 
 1.  编辑`mysys/charset-def.c`，并*注册*新字符集的排序规则。将这些行添加到**declaration**部分：
 
-```go
+```sql
  #ifdef HAVE_CHARSET_MYSET
  extern CHARSET_INFO my_charset_MYSET_general_ci;
  extern CHARSET_INFO my_charset_MYSET_bin;
@@ -632,7 +632,7 @@ select concat(firstname,lastname) from employee;
 
 将这些行添加到**registration**部分：
 
-```go
+```sql
  #ifdef HAVE_CHARSET_MYSET
  add_compiled_collation(&my_charset_MYSET_general_ci);
  add_compiled_collation(&my_charset_MYSET_bin);
@@ -663,7 +663,7 @@ MySQL 8 默认使用英语语言的错误消息，但允许用户选择其他几
 
 +   `lc_messages`：此变量在全局和会话级别上都被使用。允许个别用户使用不同的语言来显示错误消息。例如，如果在服务器启动时设置了`en_US`，但如果要使用法语，则执行以下命令：
 
-```go
+```sql
  SET lc_messages = 'fr_FR';
 ```
 
@@ -671,7 +671,7 @@ MySQL 8 服务器遵循以下三条错误消息文件规则：
 
 +   MySQL 8 将在由两个系统变量`lc_messages_dir`和`lc_messages`构成的位置找到文件。例如，如果使用以下命令启动 MySQL 8，则`mysqld`将将区域设置`nl_NL`映射到荷兰语，并在`/usr/share/mysql/dutch`目录中搜索错误文件。MySQL 8 将所有语言文件存储在`MySQL8 Base Directory/share/mysql/LANGUAGE`目录中。默认情况下，语言文件位于 MySQL 基目录下的`share/mysql/LANGUAGE`目录中。
 
-```go
+```sql
  mysqld --lc_messages_dir=/usr/share/mysql --lc_messages=nl_NL
 ```
 
@@ -687,13 +687,13 @@ MySQL 8 服务器以三种不同的方式管理时区：
 
 +   服务器当前时区：这由`time_zone`系统变量管理。`time_zone`变量的默认值是`SYSTEM`，这意味着服务器时区与系统时区相同。MySQL 8 允许用户在启动时通过在选项文件中指定`default-time-zone='*timezone*'`来设置`time_zone`全局变量的值，并在运行时使用以下命令：
 
-```go
+```sql
  mysql> SET GLOBAL time_zone = timezone;
 ```
 
 +   预连接时区：这由`time_zone`变量管理，特定于连接到 MySQL 8 服务器的客户端。此变量从全局`time_zone`变量获取其初始值，但 MySQL 8 允许用户通过执行以下命令在运行时更改它：
 
-```go
+```sql
  mysql> SET time_zone = timezone;
 ```
 
@@ -703,7 +703,7 @@ MySQL 8 服务器以三种不同的方式管理时区：
 
 MySQL 8 使用`lc_time_names`系统变量来控制语言，这将影响显示的日期、月份名称和缩写。`DATE_FORMAT()`、`DAYNAME()`和`MONTHNAME()`函数的输出取决于`lc_time_names`变量的值。首先浮现在脑海中的问题是，这些区域设置是在哪里定义的，我们如何获取它们？不用担心，参考[`www.iana.org/assignments/language-subtag-registry`](http://www.iana.org/assignments/language-subtag-registry)。所有区域设置都由**互联网编号分配机构**（**IANA**）以语言和地区缩写定义。默认情况下，MySQL 8 将`en_US`设置为系统变量的区域设置。用户可以在服务器启动时设置值，或者如果具有`SYSTEM_VARIABLES_ADMIN`或`SUPER`特权，则可以设置`GLOBAL`。MySQL 8 允许用户检查和设置其连接的区域设置。执行以下命令在您的工作站上检查区域设置：
 
-```go
+```sql
 mysql> SET NAMES 'utf8';
 Query OK, 0 rows affected (0.09 sec)
 
@@ -784,13 +784,13 @@ MySQL 8 不会生成 MySQL 8 中的日志，除非在 Windows 中的错误日志
 
 通用日志的代码：
 
-```go
+```sql
 SHOW CREATE TABLE mysql.general_log;
 ```
 
 慢查询日志的代码：
 
-```go
+```sql
 SHOW CREATE TABLE mysql.slow_log;
 ```
 
@@ -806,7 +806,7 @@ SHOW CREATE TABLE mysql.slow_log;
 
 要在目的地位置写入 MySQL 使用以下格式，其中时间戳取决于`log_timestamps`系统变量：
 
-```go
+```sql
 timestamp thread_id [severity] message 
 ```
 
@@ -818,7 +818,7 @@ MySQL 8 使用`log_error_services`系统变量来控制错误日志组件。它�
 
 +   安装组件：要启用任何日志组件，我们必须首先使用此命令安装它，然后通过在`log_error_services`系统变量中列出该组件来使用该组件。按照以下命令添加`log_sink_syseventlog`组件：
 
-```go
+```sql
  INSTALL COMPONENT 'file://component_log_sink_syseventlog';
  SET GLOBAL log_error_services = 'log_filter_internal; 
           log_sink_syseventlog';
@@ -828,13 +828,13 @@ MySQL 8 使用`log_error_services`系统变量来控制错误日志组件。它�
 
 +   卸载组件：要禁用任何日志组件，首先从`log_error_services`系统变量列表中删除它，然后使用此命令卸载它。执行以下命令以卸载组件：
 
-```go
+```sql
  UNINSTALL COMPONENT 'file://component_log_sink_syseventlog';
 ```
 
 要在每次启动时启用错误日志组件，请在`my.cnf`文件中定义它，或使用`SET_PERSIST`。当我们在`my.cnf`中定义它时，它将从下一次重新启动开始生效，而`SET_PERSIST`将立即生效。使用以下命令进行`SET_PERSIST`：
 
-```go
+```sql
  SET PERSIST log_error_services = 'log_filter_internal; 
           log_sink_internal; 
           log_sink_json'; 
@@ -864,7 +864,7 @@ MySQL 8 还允许用户将错误日志写入系统日志：对于 Microsoft，�
 
 默认情况下，此日志被禁用。我们可以使用**`--general_log[={0|1}]`**命令来启用它。当我们不指定任何参数或将 1 定义为参数时，表示启用一般查询日志，而 0 表示禁用日志。此外，我们可以使用`--general_log_file=file_name`命令指定日志文件名。如果命令未指定文件名，则 MySQL 8 将考虑默认名称为`host_name.log`。设置日志文件名对日志记录没有影响，如果日志目的地值不包含`FILE`。服务器重新启动和日志刷新不会导致生成新的一般查询日志文件；您必须使用`rename`（对于 Microsoft Windows）或`mv`（对于 Linux）命令来创建新文件。MySQL 8 提供了第二种在运行时重命名文件的方法，方法是使用以下命令禁用日志：
 
-```go
+```sql
 SET GLOBAL general_log = 'OFF';
 ```
 
@@ -898,7 +898,7 @@ SET GLOBAL general_log = 'OFF';
 
 MySQL 8 允许用户在全局和会话范围内在运行时更改格式。全局格式适用于所有客户端，而会话格式适用于单个客户端。以下分别设置全局和会话范围的格式：
 
-```go
+```sql
 mysql> SET GLOBAL binlog_format = 'STATEMENT';
 mysql> SET SESSION binlog_format = 'STATEMENT';
 ```
@@ -970,13 +970,13 @@ MySQL 8 不会将获取锁的初始时间计入执行时间，并且在所有锁
 
 在生成新的日志文件之前备份或重命名旧的日志文件，可以在 Unix 系统中使用`mv`（移动）命令，在 Windows 中使用`rename`函数。对于一般查询和慢查询日志文件，可以通过使用以下命令禁用日志来重命名文件：
 
-```go
+```sql
 SET GLOBAL general_log = 'OFF';
 ```
 
 重命名日志文件后，使用以下命令启用日志：
 
-```go
+```sql
 SET GLOBAL general_log = 'ON';
 ```
 

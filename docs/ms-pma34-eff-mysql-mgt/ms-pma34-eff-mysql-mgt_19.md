@@ -47,7 +47,7 @@
 
 在**用户概述**页面底部显示了以下消息：
 
-```go
+```sql
 Note: phpMyAdmin gets the users' privileges directly from MySQL's privilege tables. The content of these tables may differ from the privileges the server uses, if they have been changed manually. In this case, you should reload the privileges before you continue.
 
 ```

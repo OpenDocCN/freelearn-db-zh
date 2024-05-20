@@ -54,13 +54,13 @@ WiredTiger 使用**多版本并发控制**（**MVCC**）。MVCC 基于这样一�
 
 WiredTiger 使用 snappy 压缩算法压缩日志。我们可以使用以下设置来设置不同的压缩算法：
 
-```go
+```sql
 storage.wiredTiger.engineConfig.journalCompressor
 ```
 
 我们还可以通过将以下设置为 `false` 来禁用 WiredTiger 的日志记录：
 
-```go
+```sql
 storage.journal.enabled
 ```
 
@@ -72,7 +72,7 @@ MongoDB 默认使用 snappy 压缩算法来压缩数据和索引前缀。索引�
 
 我们可以通过将以下参数设置为 `false` 来定义 `.zlib` 压缩而不是 snappy 或无压缩：
 
-```go
+```sql
 storage.wiredTiger.collectionConfig.blockCompressor
 ```
 
@@ -80,13 +80,13 @@ storage.wiredTiger.collectionConfig.blockCompressor
 
 我们可以通过将以下参数设置为 `false` 来禁用索引前缀压缩：
 
-```go
+```sql
 storage.wiredTiger.indexConfig.prefixCompression
 ```
 
 我们还可以在创建过程中使用以下参数为每个索引配置存储：
 
-```go
+```sql
 { <storage-engine-name>: <options> }
 ```
 
@@ -114,13 +114,13 @@ WiredTiger 内部缓存默认为以下两者中的较大者：
 
 我们可以通过设置以下方式改变 WiredTiger 内部缓存的大小：
 
-```go
+```sql
 storage.wiredTiger.engineConfig.cacheSizeGB
 ```
 
 我们也可以使用以下命令行来执行此操作：
 
-```go
+```sql
 --wiredTigerCacheSizeGB
 ```
 
@@ -166,7 +166,7 @@ MMAPv1 是较旧的存储引擎，在许多方面被认为是废弃的，但仍�
 
 当我们创建一个新的集合时，可以像这样向 WiredTiger 传递选项：
 
-```go
+```sql
 > db.createCollection(
  "mongo_books",
  { storageEngine: { wiredTiger: { configString: "<key>=<value>" } } }
@@ -185,7 +185,7 @@ MMAPv1 是较旧的存储引擎，在许多方面被认为是废弃的，但仍�
 
 这直接取自 WiredTiger 文档中的定义，位于[`source.wiredtiger.com/mongodb-3.4/struct_w_t___s_e_s_s_i_o_n.html`](http://source.wiredtiger.com/mongodb-3.4/struct_w_t___s_e_s_s_i_o_n.html)：
 
-```go
+```sql
 int WT_SESSION::create()
 ```
 
@@ -219,7 +219,7 @@ B 树是不同数据库系统中索引的最常见数据结构。WiredTiger 提�
 
 LSM 索引可以像这样从命令行中选择：
 
-```go
+```sql
 > mongod --wiredTigerIndexConfigString "type=lsm,block_compressor=zlib"
 ```
 
@@ -327,13 +327,13 @@ MongoDB 默认使用二次幂分配策略。创建文档时，它将被分配为
 
 例如，对于我们喜爱的`books`集合，要获得 40%的额外空间，我们将执行以下操作：
 
-```go
+```sql
 > db.runCommand ( { compact: 'books', paddingFactor: 1.4 } )
 ```
 
 我们还可以根据每个文档的字节设置填充。这样我们就可以从集合中每个文档的初始创建中获得*x*字节的填充：
 
-```go
+```sql
 > db.runCommand ( { compact: 'books', paddingBytes: 300 } )
 ```
 

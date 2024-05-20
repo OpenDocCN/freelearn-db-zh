@@ -68,7 +68,7 @@ Redis 的发布订阅模型
 
 让我们使用 Jedis 编写一个简单的 Java 程序来演示一个简单的 PUB/SUB 程序。Jedis 公开了发布的接口，并且支持 Redis 的所有功能。订阅消息的接口有点棘手，因为订阅者在发布者发布消息之前应该处于就绪状态。这是因为如果订阅者不可用，Redis 无法存储消息。发布者的代码：`SubscriberProcessor.java`：
 
-```go
+```sql
 package org.learningRedis.chapter.four.pubsub;
 import Redis.clients.jedis.Jedis;
 import Redis.clients.jedis.JedisPool;
@@ -118,7 +118,7 @@ public class SubscriberProcessor implements Runnable{
 
 订阅者处理器需要订阅一个频道。为此，它需要一个始终处于监听模式的实例。在此示例中，`Subscriber.java`是通过扩展 Jedis PUB/SUB 来实现的类。这个抽象类提供了管理订阅者生命周期的方法。接下来是提供必要钩子来订阅频道模式并监听频道或模式消息的代码。订阅模式的代码已被注释；要看到它的实际效果，我们需要取消注释它并注释订阅频道的代码：
 
-```go
+```sql
 package org.learningRedis.chapter.four.pubsub;
 import Redis.clients.jedis.JedisPubSub;
 public class Subscriber extends  JedisPubSub{
@@ -153,7 +153,7 @@ public class Subscriber extends  JedisPubSub{
 
 在这些示例中使用的一个常见类是连接管理器，其代码如下所示：
 
-```go
+```sql
 package org.learningredis.chapter.four.pipelineandtx;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -173,7 +173,7 @@ public class ConnectionManager {
 
 要触发发布者，请使用以下发布者代码。发布者的代码`Publisher.java`如下：
 
-```go
+```sql
 package org.learningRedis.chapter.four.pubsub;
 import Redis.clients.jedis.Jedis;
 import Redis.clients.jedis.JedisPool;
@@ -221,7 +221,7 @@ Redis 中的管道
 
 这种批量发送命令的方式在 RDBMS 中也可以看到，我们可以将批量 JDBC 作为*批处理*发送。为了验证这一点，让我们编写一个程序，并检查在使用管道和不使用管道运行程序之间的时间差异：
 
-```go
+```sql
 package org.learningRedis.chapter.four.simplepipeline;
 import java.util.List;
 import Redis.clients.jedis.Jedis;
@@ -278,7 +278,7 @@ public class PipelineCommandTest {
 
 在我的计算机上的结果如下，当然，这可能会根据所使用的机器配置而有所不同：
 
-```go
+```sql
 time taken for test without pipeline 4015
 time taken for test with    pipeline 250
 ```
@@ -311,7 +311,7 @@ Redis 中的事务
 
 在第一种情况下，我们使用两个线程向 Redis 发送管道命令。在这个示例中，第一个线程发送了一个管道命令，它将多次更改一个键的值，第二个线程将尝试读取该键的值。以下是将在 Redis 中启动两个线程的类：`MultiThreadedPipelineCommandTest.java`：
 
-```go
+```sql
 package org.learningRedis.chapter.four.pipelineandtx;
 public class MultiThreadedPipelineCommandTest {
   public static void main(String[] args) throws InterruptedException {
@@ -347,7 +347,7 @@ public class PipelineCommand implements Runnable{
 
 当执行管道时，用于读取键的客户端的代码如下：
 
-```go
+```sql
 package org.learningRedis.chapter.four.pipelineandtx;
 import java.util.Set;
 import Redis.clients.jedis.Jedis;
@@ -364,7 +364,7 @@ public class SingleCommand implements Runnable {
 
 结果将根据机器配置而异，但通过更改线程休眠时间并多次运行程序，结果将与下面显示的结果类似：
 
-```go
+```sql
 The return value of nv1 is [ 3508 ]
 The return value of nv1 after pipeline [ 300000 ]
 The time taken for executing client(Thread-1) 3718
@@ -378,7 +378,7 @@ The time taken for executing client(Thread-1) 3718
 
 以下程序是一个测试客户端，它给两个线程，一个处于事务模式的命令，第二个线程将尝试读取和修改相同的资源：
 
-```go
+```sql
 package org.learningRedis.chapter.four.pipelineandtx;
 public class MultiThreadedTransactionCommandTest {
   public static void main(String[] args) throws InterruptedException {
@@ -393,7 +393,7 @@ public class MultiThreadedTransactionCommandTest {
 
 这个程序将尝试修改资源并在事务进行时读取资源：
 
-```go
+```sql
 package org.learningRedis.chapter.four.pipelineandtx;
 import java.util.Set;
 import Redis.clients.jedis.Jedis;
@@ -410,7 +410,7 @@ public class SingleCommand implements Runnable {
 
 这个程序将以`MULTI`命令开始，尝试修改资源，以`EXEC`命令结束，并稍后读取资源的值：
 
-```go
+```sql
 package org.learningRedis.chapter.four.pipelineandtx;
 import java.util.Set;
 import Redis.clients.jedis.Jedis;
@@ -436,7 +436,7 @@ public class TransactionCommand implements Runnable {
 
 上述程序的结果将根据机器配置而有所不同，但通过更改线程休眠时间并运行程序几次，结果将与下面显示的结果类似：
 
-```go
+```sql
 The return code is [ 1 ]
 The return value of nv1 is [ null ]
 The return value nv1 after tx [ 300000 ]
@@ -449,13 +449,13 @@ The time taken for executing client(Thread-1) 7078
 
 让我们分析一下结果。在管道的情况下，一个单独的命令读取该键的值，而管道命令则为该键设置一个新值，如下结果所示：
 
-```go
+```sql
 The return value of nv1 is [ 3508 ]
 ```
 
 现在将这与在事务的情况下发生的情况进行比较，当一个单独的命令尝试读取值但因事务而被阻塞时。因此该值将是`NULL`或 300,000。
 
-```go
+```sql
   The return value of nv1 after tx [0] or
   The return value of nv1 after tx [300000] 
 ```
@@ -524,7 +524,7 @@ LUA 中的控制语句和循环如下：
 
 +   `if then else`语句：与 Java 中的`if`/`else`类似，LUA 支持类似`if`/`then`/`else`的形式。以下是其代码示例：
 
-```go
+```sql
 local  myvariable = 4
 local  myothervariable = 5
 if myvariable >  myothervariable then
@@ -536,7 +536,7 @@ end
 
 +   `while`循环：这类似于 Java 中的循环，其语法类似：
 
-```go
+```sql
 local index=1
 while index <= 5 do
   print("Looping done interation "..index)
@@ -546,7 +546,7 @@ end
 
 +   `repeat`语句：这类似于 Java 中的`do`/`while`。这将保证至少进行一次迭代：
 
-```go
+```sql
 local index=1
 repeat
   print("Looping done interation "..index)
@@ -556,7 +556,7 @@ until index==5
 
 +   `for`循环：这类似于 Java 中的`for`循环：
 
-```go
+```sql
 for i=1,3 do
   print("Looping in for loop ")
 end
@@ -564,7 +564,7 @@ end
 
 在执行控制语句时，LUA 中经常使用的两个关键字是`return`和`break`。以下是一个简单的示例，演示了在函数中使用 return 关键字：
 
-```go
+```sql
 function greaterThanFunction( i , j )
   if i >  j then
     print(i.." is greater than"..j)
@@ -579,7 +579,7 @@ print(greaterThanFunction(4,5))
 
 接下来是一个简单的示例，演示了在函数中使用 break 关键字：
 
-```go
+```sql
 local mylist={"start","pause","stop","resume"}
 function parseList ( k )
   for i=1,#mylist do
@@ -608,7 +608,7 @@ Redis 中的 LUA 脚本
 
 现在`msg`的值已设置好，让我们执行以下列出的 Java 程序：
 
-```go
+```sql
 package org.learningRedis.chapter.four.luascripting;
 import java.util.Arrays;
 import Redis.clients.jedis.Jedis;
@@ -643,7 +643,7 @@ public class TestLuaScript {
 
 `Reader`的代码是一个简单的 Java 程序，它从文件位置读取程序：
 
-```go
+```sql
 package org.learningRedis.chapter.four.luascripting;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -667,7 +667,7 @@ public class Reader {
 
 现在让我们看一下写在文件`LuaScript.txt`中的 LUA 脚本，我们将把它传递给 Java 程序：
 
-```go
+```sql
 local data= Redis.call('GET',KEYS[1])
 if data==ARGV[1] then 
   Redis.call('SET',KEYS[1],ARGV[2])
@@ -680,13 +680,13 @@ end
 
 程序的第一次运行应该给您以下结果：
 
-```go
+```sql
 The value that got sent is = Now I am learning Lua for Redis
 ```
 
 程序的第二次运行应该给您以下结果：
 
-```go
+```sql
 The value that got sent is = prepare for the test again
 ```
 
@@ -742,7 +742,7 @@ Redis 对 Lua 脚本引擎施加了一些进一步的限制，如下所示：
 
 与此同时，订阅者运行起来后，它将首先从`MSGBOX`中获取错过的消息，并将其发布给自己。发布者的代码如下：
 
-```go
+```sql
 package org.learningRedis.chapter.four.pubsub.reliable;
 import java.util.Arrays;
 import Redis.clients.jedis.Jedis;
@@ -776,7 +776,7 @@ public class Publisher {
 
 LUA 脚本的代码如下：
 
-```go
+```sql
 local payload = loadstring("return"..ARGV[1])()
 local result = Redis.call("PUBLISH",payload.publishto,payload.msg)
 if result==0 then
@@ -801,7 +801,7 @@ end
 
 Redis 将在 LUA 中将代码包装为一个函数。`Subscriber`的代码如下：
 
-```go
+```sql
 package org.learningRedis.chapter.four.pubsub.reliable;
 import java.util.Arrays;
 import java.util.Set;
@@ -921,7 +921,7 @@ public class LostMsgProcessor implements Runnable {
 
 1.  使用 Jedis 在 Java 中编写以下程序，该程序将在不对 Redis 服务器进行身份验证的情况下执行一些简单的 getter 和 setter：
 
-```go
+```sql
 package org.learningRedis.chapter.four.auth;
 import Redis.clients.jedis.Jedis;
 public class TestingPassword {
@@ -939,7 +939,7 @@ public class TestingPassword {
 
 1.  控制台中的结果将是`ERR operation not permitted`，或者根据版本，您可能会得到`NOAUTH Authentication required`，这表明由于未在请求中传递密码，无法允许操作。为使程序工作，客户端需要传递密码进行身份验证：
 
-```go
+```sql
 package org.learningRedis.chapter.four.auth;
 import Redis.clients.jedis.Jedis;
 public class TestingPassword {
@@ -968,7 +968,7 @@ Redis 中的多个数据库
 
 该程序试图将一些数据存储在数据库中，并尝试成功地从中检索数据。然后更改数据库并尝试检索相同的数据，这当然会以失败告终。请记住，为了使此代码运行，请删除之前程序中设置的任何身份验证，或者只需重新启动 Redis 服务器。
 
-```go
+```sql
 package org.learningRedis.chapter.four.selectdb;
 import Redis.clients.jedis.Jedis;
 public class TestSelectingDB {
@@ -989,7 +989,7 @@ public class TestSelectingDB {
 
 该程序的结果应该如下所示：
 
-```go
+```sql
 Hello world
 null
 ```
@@ -1000,7 +1000,7 @@ Redis 提供了一些实用功能，比如`ECHO`和`PING`，可以用来检查�
 
 以下程序将演示一个示例用法，当服务器没有其他连接时，将触发`ECHO`和`PING`命令，然后当 Redis 服务器承受 100 个连接的负载时，再次触发这些命令（`ECHO`和`PING`）。没有其他连接时的结果如下：
 
-```go
+```sql
 PONG in 47 milliseconds
 hi Redis  in 0 milliseconds
 PONG in 0 milliseconds
@@ -1013,7 +1013,7 @@ hi Redis  in 0 milliseconds
 
 当服务器上有 100 个其他连接在进行活动时，结果如下：
 
-```go
+```sql
 PONG in 16 milliseconds
 hi Redis  in 16 milliseconds
 PONG in 0 milliseconds
@@ -1025,7 +1025,7 @@ PONG in 15 milliseconds
 
 当服务器上有 50 个其他连接在进行活动时，结果如下：
 
-```go
+```sql
 PONG in 15 milliseconds
 hi Redis  in 0 milliseconds
 PONG in 0 milliseconds
@@ -1040,7 +1040,7 @@ hi Redis  in 15 milliseconds
 
 这证明了 Redis 服务器的活动量并不重要，而取决于 I/O 和网络资源的可用性。以下程序仅供参考：
 
-```go
+```sql
 package org.learningRedis.chapter.four.echoandping;
 import Redis.clients.jedis.Jedis;
 public class TestEchoAndPing {
@@ -1069,7 +1069,7 @@ public class TestEchoAndPing {
 
 `LoadGenerator`的代码如下所示，仅供参考：
 
-```go
+```sql
 package org.learningRedis.chapter.four.echoandping;
 import java.util.ArrayList;
 import java.util.List;

@@ -44,7 +44,7 @@
 
 为了获得更完整的模式，我们现在将向我们的数据库添加另一个表`country`。以下代码块显示了其导出文件的内容：
 
-```go
+```sql
 CREATE TABLE IF NOT EXISTS `country` (
 `code` char(2) NOT NULL,
 `description` varchar(50) NOT NULL,
@@ -128,7 +128,7 @@ INSERT INTO `country` (`code`, `description`) VALUES
 
 在`config.inc.php`中，以下参数定义了可用的纸张尺寸和默认选择：
 
-```go
+```sql
 $cfg['PDFPageSizes'] = array('A3', 'A4', 'A5', 'letter', 'legal');
 $cfg['PDFDefaultPageSize'] = 'A4';
 

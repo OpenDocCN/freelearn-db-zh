@@ -186,7 +186,7 @@ MongoDB 复制设计的第二个有趣特性是实现数据隐私。当我们在
 
 要将独立服务器转换为副本集，我们首先需要干净地关闭`mongo`服务器：
 
-```go
+```sql
 > use admin
 > db.shutdownServer()
 ```
@@ -195,13 +195,13 @@ MongoDB 复制设计的第二个有趣特性是实现数据隐私。当我们在
 
 1.  首先，我们通过 mongo shell 连接到新的启用了副本集的实例，如下所示：
 
-```go
+```sql
 > rs.initiate()
 ```
 
 1.  现在，我们有了副本集的第一个服务器。我们可以使用 mongo shell 添加其他服务器（这些服务器也必须使用`--replSet`启动），如下所示：
 
-```go
+```sql
 > rs.add("<hostname><:port>")
 ```
 
@@ -211,19 +211,19 @@ MongoDB 复制设计的第二个有趣特性是实现数据隐私。当我们在
 
 作为副本集的一部分启动 MongoDB 服务器就像通过命令行在配置中设置它一样容易：
 
-```go
+```sql
 > mongod --replSet "xmr_cluster"
 ```
 
 这对开发目的来说是可以的。对于生产环境，建议使用配置文件：
 
-```go
+```sql
 > mongod --config <path-to-config>
 ```
 
 在这里，`<path-to-config>`可以如下：
 
-```go
+```sql
 /etc/mongod.conf
 ```
 
@@ -233,7 +233,7 @@ YAML 不支持制表符。请使用您选择的编辑器将制表符转换为空
 
 一个简单的配置文件示例如下：
 
-```go
+```sql
 systemLog:
   destination: file
   path: "/var/log/mongodb/mongod.log"
@@ -255,7 +255,7 @@ replication:
 
 我们还可以在与`replSetName`相同级别上设置以下内容：
 
-```go
+```sql
 secondaryIndexPrefetch: <string>
 ```
 
@@ -263,7 +263,7 @@ secondaryIndexPrefetch: <string>
 
 它默认为`all`，可用选项为`none`和`_id_only`，以便不将索引加载到内存中，只加载在`_id`字段上创建的默认索引：
 
-```go
+```sql
 enableMajorityReadConcern: <boolean>
 ```
 
@@ -273,13 +273,13 @@ enableMajorityReadConcern: <boolean>
 
 我们可以使用以下配置文件：
 
-```go
+```sql
 > rs.initiate()
 ```
 
 或者，我们可以将配置作为文档参数传递，如下所示：
 
-```go
+```sql
 > rs.initiate( {
  _id : "xmr_cluster",
  members: [ { _id : 0, host : "host:port" } ]
@@ -290,7 +290,7 @@ enableMajorityReadConcern: <boolean>
 
 接下来，我们通过使用我们在网络设置中定义的`host:port`，将每个其他成员添加到我们的副本集中：
 
-```go
+```sql
 > rs.add("host2:port2")
 > rs.add("host3:port3")
 ```
@@ -329,7 +329,7 @@ MongoDB 官方驱动程序支持五个级别的读取偏好：
 
 +   在某些情况下，我们可以针对每个操作请求不同的写关注，以确保写入在标记为完成之前已传播到我们副本集的多个成员，如下所示：
 
-```go
+```sql
 > db.mongo_books.insert(
  { name: "Mastering MongoDB", isbn: "1001" },
  { writeConcern: { w: 2, wtimeout: 5000 } }
@@ -340,7 +340,7 @@ MongoDB 官方驱动程序支持五个级别的读取偏好：
 
 +   我们还可以通过以下方式更改整个副本集的默认写关注：
 
-```go
+```sql
 > cfg = rs.conf()
 > cfg.settings.getLastErrorDefaults = { w: "majority", wtimeout: 5000 }
 > rs.reconfig(cfg)
@@ -356,7 +356,7 @@ MongoDB 官方驱动程序支持五个级别的读取偏好：
 
 1.  使用 mongo shell 连接到主服务器的常规过程如下：
 
-```go
+```sql
 > conf = rs.conf()
 > conf.members[0].tags = { "location": "UK", "use": "production", "location_uk":"true"  }
 > conf.members[1].tags = { "location": "UK", "use": "reporting", "location_uk":"true"  }
@@ -365,19 +365,19 @@ MongoDB 官方驱动程序支持五个级别的读取偏好：
 
 1.  现在，我们可以设置自定义写关注，如下所示：
 
-```go
+```sql
 > conf.settings = { getLastErrorModes: { UKWrites : { "location_uk": 2} } }
 ```
 
 1.  应用此设置后，我们使用`reconfig`命令：
 
-```go
+```sql
 > rs.reconfig(conf)
 ```
 
 1.  现在，我们可以通过以下方式在我们的写入中设置`writeConcern`：
 
-```go
+```sql
 > db.mongo_books.insert({<our insert object>}, { writeConcern: { w: "UKWrites" } })
 ```
 
@@ -389,13 +389,13 @@ MongoDB 允许我们为每个成员设置不同的优先级级别。这允许实
 
 在设置完集群后更改优先级，我们必须使用 mongo shell 连接到我们的主服务器并获取配置对象（在本例中为`cfg`）：
 
-```go
+```sql
 > cfg = rs.conf()
 ```
 
 然后，我们可以将`members`子文档的`priority`属性更改为我们选择的值：
 
-```go
+```sql
 > cfg.members[0].priority = 0.778
 > cfg.members[1].priority = 999.9999
 ```
@@ -416,19 +416,19 @@ MongoDB 允许我们为每个成员设置不同的优先级级别。这允许实
 
 `priority`为`0`的副本集成员也不能触发选举。在所有其他方面，它们与副本集中的每个其他成员相同。要更改副本集成员的`priority`，我们必须首先通过连接（通过 mongo shell）到主服务器获取当前的副本集配置：
 
-```go
+```sql
 > cfg = rs.conf()
 ```
 
 这将提供包含副本集中每个成员配置的配置文档。在`members`子文档中，我们可以找到`priority`属性，我们必须将其设置为`0`：
 
-```go
+```sql
 > cfg.members[2].priority = 0
 ```
 
 最后，我们需要使用更新后的配置重新配置副本集：
 
-```go
+```sql
 rs.reconfig(cfg)
 ```
 
@@ -444,7 +444,7 @@ rs.reconfig(cfg)
 
 要设置隐藏的副本集成员，我们遵循与`priority`为`0`类似的过程。在通过 mongo shell 连接到我们的主服务器后，我们获取配置对象，识别在成员子文档中对应于我们想要设置为`hidden`的成员的成员，并随后将其`priority`设置为`0`，将其`hidden`属性设置为`true`。最后，我们必须通过调用`rs.reconfig(config_object)`并将`config_object`作为参数使用来应用新配置：
 
-```go
+```sql
 > cfg = rs.conf()
 > cfg.members[0].priority = 0
 > cfg.members[0].hidden = true
@@ -461,7 +461,7 @@ rs.reconfig(cfg)
 
 一个示例如下：
 
-```go
+```sql
 > cfg = rs.conf()
 > cfg.members[0].priority = 0
 > cfg.members[0].hidden = true
@@ -493,7 +493,7 @@ rs.reconfig(cfg)
 
 1.  首先，我们需要设置我们的 `host` 和 `options` 对象：
 
-```go
+```sql
 client_host = ['hostname:port']
 client_options = {
  database: 'signals',
@@ -505,7 +505,7 @@ client_options = {
 
 1.  在 `Mongo::Client` 上调用初始化器现在将返回一个包含连接到我们的副本集和数据库的 `client` 对象：
 
-```go
+```sql
 client = Mongo::Client.new(client_host, client_options)
 ```
 
@@ -517,7 +517,7 @@ client = Mongo::Client.new(client_host, client_options)
 
 例如，对于大多数操作使用一个 `client` 对象，然后对于只从次要服务器读取的操作使用另一个 `client` 对象：
 
-```go
+```sql
 client_reporting = client.with(:read => { :mode => :secondary })
 ```
 
@@ -549,7 +549,7 @@ client_reporting = client.with(:read => { :mode => :secondary })
 
 我们还可以通过设置以下代码来配置连接池：
 
-```go
+```sql
 min_pool_size(defaults to 1 connection),
 max_pool_size(defaults to 5),
 wait_queue_timeout(defaults to 1 in seconds).
@@ -567,20 +567,20 @@ wait_queue_timeout(defaults to 1 in seconds).
 
 1.  首先，我们通过 mongo shell 连接到其中一个辅助节点。然后，我们停止该辅助节点：
 
-```go
+```sql
 > use admin
 > db.shutdownServer()
 ```
 
 1.  然后，使用在上一步中连接到 mongo shell 的相同用户，我们在不同的端口上将 mongo 服务器重新启动为独立服务器：
 
-```go
+```sql
 > mongod --port 95658 --dbpath <wherever our mongoDB data resides in this host>
 ```
 
 1.  下一步是连接到使用`dbpath`的`mongod`服务器：
 
-```go
+```sql
 > mongo --port 37017
 ```
 
@@ -588,7 +588,7 @@ wait_queue_timeout(defaults to 1 in seconds).
 
 1.  然后，我们可以通过使用命令行或我们通常使用的配置脚本来重新启动副本集中的服务器。最后一步是通过连接到副本集服务器并获取其副本集`status`来验证一切是否正常：
 
-```go
+```sql
 > rs.status()
 ```
 
@@ -596,7 +596,7 @@ wait_queue_timeout(defaults to 1 in seconds).
 
 我们将为每个辅助服务器重复相同的过程。最后，我们必须对主服务器进行维护。主服务器的过程唯一的不同之处在于，在每一步之前，我们将首先将主服务器降级为辅助服务器：
 
-```go
+```sql
 > rs.stepDown(600)
 ```
 
@@ -626,13 +626,13 @@ wait_queue_timeout(defaults to 1 in seconds).
 
 1.  然后我们备份我们现有的 oplog：
 
-```go
+```sql
 > mongodump --db local --collection 'oplog.rs' --port 37017
 ```
 
 1.  我们保留这些数据的副本，以防万一。然后我们连接到我们的独立数据库：
 
-```go
+```sql
 > use local
 > db = db.getSiblingDB('local')
 > db.temp.drop()
@@ -642,26 +642,26 @@ wait_queue_timeout(defaults to 1 in seconds).
 
 1.  下一步是获取我们当前 oplog 的最后一个条目，并将其保存在`temp`集合中：
 
-```go
+```sql
 > db.temp.save( db.oplog.rs.find( { }, { ts: 1, h: 1 } ).sort( {$natural : -1} ).limit(1).next() )
 ```
 
 1.  当我们重新启动次要服务器时，将使用此条目，以跟踪它在 oplog 复制中的进度：
 
-```go
+```sql
 > db = db.getSiblingDB('local')
 > db.oplog.rs.drop()
 ```
 
 1.  现在，我们删除我们现有的 oplog，在下一步中，我们将创建一个大小为`4`GB 的新 oplog：
 
-```go
+```sql
 > db.runCommand( { create: "oplog.rs", capped: true, size: (4 * 1024 * 1024 * 1024) } )
 ```
 
 1.  下一步是将我们的`temp`集合中的一个条目复制回我们的 oplog：
 
-```go
+```sql
 > db.oplog.rs.save( db.temp.findOne() )
 ```
 
@@ -669,7 +669,7 @@ wait_queue_timeout(defaults to 1 in seconds).
 
 1.  我们对所有次要服务器重复此过程，最后一步是对我们的主要成员重复该过程，这是在使用以下命令将主服务器降级之后完成的：
 
-```go
+```sql
 > rs.stepDown(600)
 ```
 
@@ -679,13 +679,13 @@ wait_queue_timeout(defaults to 1 in seconds).
 
 首先，我们获取副本集配置文档：
 
-```go
+```sql
 > cfg = rs.conf()
 ```
 
 使用`printjson(cfg)`，我们确定仍在运行的成员。假设这些成员是`1`、`2`和`3`：
 
-```go
+```sql
 > cfg.members = [cfg.members[1] , cfg.members[2] , cfg.members[3]]
 > rs.reconfig(cfg, {force : true})
 ```
@@ -700,13 +700,13 @@ wait_queue_timeout(defaults to 1 in seconds).
 
 可以使用以下`cfg`命令启用（或分别禁用）链式复制：
 
-```go
+```sql
 > cfg.settings.chainingAllowed = true
 ```
 
 在`printjson(cfg)`不显示设置子文档的情况下，我们需要首先创建一个空文档：
 
-```go
+```sql
 > cfg.settings = { }
 ```
 

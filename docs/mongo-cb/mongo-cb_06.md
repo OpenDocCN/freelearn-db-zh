@@ -118,7 +118,7 @@ MMS 是一个基于云或本地的服务，可以让您监视 MongoDB 集群。�
 
 1.  在操作系统 shell 中，使用当前目录中的`.js`文件执行以下操作。在我的情况下，shell 连接到主端口`27000`：
 
-```go
+```sql
 $ mongo KeepServerBusy.js --port 27000 --quiet
 
 ```
@@ -161,7 +161,7 @@ $ mongo KeepServerBusy.js --port 27000 --quiet
 
 一旦我们知道连接数，并且发现它与预期计数相比太高，我们将需要找到打开连接到该实例的客户端。我们可以从 shell 中执行以下 JavaScript 代码来获取这些详细信息。不幸的是，在撰写本书时，MMS 没有这个功能来列出客户端连接的详细信息。
 
-```go
+```sql
 testMon:PRIMARY> var currentOps = db.currentOp(true).inprog;
  currentOps.forEach(function(c) {
  if(c.hasOwnProperty('client')) {
@@ -174,7 +174,7 @@ testMon:PRIMARY> var currentOps = db.currentOp(true).inprog;
 
 `db.currentOp`方法返回结果中所有空闲和系统操作。然后我们遍历所有结果并打印出客户端主机和连接详细信息。`currentOp`结果中的典型文档如下。您可以选择调整前面的代码，根据需要包含更多详细信息：
 
-```go
+```sql
  {
  "opid" : 62052485,
  "active" : false,
@@ -279,7 +279,7 @@ MongoDB 立即从日志中刷新数据，并定期将数据文件刷新到磁盘
 
 我们将启动一个 mongod 的单个实例。请参阅第一章中的*安装单节点 MongoDB*教程，*安装和启动服务器*，以启动一个 mongo 实例并从 mongo shell 连接到它。我们需要一些要备份的数据。如果您的 test 数据库中已经有一些数据，那就很好。如果没有，请使用以下命令从代码包中的`countries.geo.json`文件创建一些数据：
 
-```go
+```sql
 $ mongoimport  -c countries -d test --drop countries.geo.json
 
 ```
@@ -288,7 +288,7 @@ $ mongoimport  -c countries -d test --drop countries.geo.json
 
 1.  有了`test`数据库中的数据，执行以下操作（假设我们要将数据导出到当前目录中名为`dump`的本地目录）：
 
-```go
+```sql
 $ mongodump -o dump -oplog -h localhost -port 27017
 
 ```
@@ -297,7 +297,7 @@ $ mongodump -o dump -oplog -h localhost -port 27017
 
 1.  现在让我们使用以下命令将数据导入 mongo 服务器。这里假设我们在当前目录中有一个名为`dump`的目录，并且其中有所需的`.bson`文件：
 
-```go
+```sql
 mongorestore --drop -h localhost -port 27017 dump -oplogReplay
 
 ```
@@ -353,7 +353,7 @@ Mongo MMS 备份服务仅适用于 Mongo 2.0 及以上版本。我们将启动�
 
 1.  启动 Mongo 的单个实例，并替换您的机器上适当文件系统路径的值：
 
-```go
+```sql
 $ mongod --replSet testBackup --smallfiles --oplogSize 50 --dbpath /data/mongo/db
 
 ```
@@ -362,7 +362,7 @@ $ mongod --replSet testBackup --smallfiles --oplogSize 50 --dbpath /data/mongo/d
 
 1.  启动一个 shell，连接到第 1 步中的实例，并按以下方式启动副本集：
 
-```go
+```sql
 > rs.initiate()
 
 ```
@@ -427,7 +427,7 @@ MMS 备份的备份代理与 MMS 监控代理不同。虽然在同一台机器�
 
 使用 SSL 构建的 MongoDB 社区版或使用 SSL 选项进行通信的企业版必须执行一些额外的步骤。第一步是在为备份设置副本集时检查**我的部署支持 MongoDB 连接的 SSL**标志（见第 15 步）。请注意截图底部的复选框应该被选中。其次，打开 MMS 配置的`local.config`文件，并查找以下两个属性：
 
-```go
+```sql
 sslTrustedServerCertificates=
 sslRequireValidServerCertificates=true
 ```
@@ -452,7 +452,7 @@ sslRequireValidServerCertificates=true
 
 首先将数据导入到`test`数据库中名为`countries`的集合中。使用以下命令来执行。当前目录中有`countries.geo.json`文件时，执行以下导入命令：
 
-```go
+```sql
 $ mongoimport  -c countries -d test --drop countries.geo.json
 
 ```

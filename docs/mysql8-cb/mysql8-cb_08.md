@@ -22,7 +22,7 @@
 
 登录到备份可用的服务器：
 
-```go
+```sql
 shell> cat /backups/full_backup.sql | mysql -u <user> -p
 or
 shell> mysql -u <user> -p < /backups/full_backup.sql
@@ -30,19 +30,19 @@ shell> mysql -u <user> -p < /backups/full_backup.sql
 
 要在远程服务器上恢复，可以提到`-h <hostname>`选项：
 
-```go
+```sql
 shell> cat /backups/full_backup.sql | mysql -u <user> -p -h <remote_hostname>
 ```
 
 在恢复备份时，备份语句将记录到二进制日志中，这可能会减慢恢复过程。如果不希望恢复过程写入二进制日志，可以在会话级别使用`SET SQL_LOG_BIN=0;`选项禁用它：
 
-```go
+```sql
 shell> (echo "SET SQL_LOG_BIN=0;";cat /backups/full_backup.sql) | mysql -u <user> -p -h <remote_hostname>
 ```
 
 或使用：
 
-```go
+```sql
 mysql> SET SQL_LOG_BIN=0; SOURCE full_backup.sql
 ```
 
@@ -52,7 +52,7 @@ mysql> SET SQL_LOG_BIN=0; SOURCE full_backup.sql
 
 1.  有时，在恢复过程中可能会出现故障。如果将`--force`选项传递给 MySQL，恢复将继续：
 
-```go
+```sql
 shell> (echo "SET SQL_LOG_BIN=0;";cat /backups/full_backup.sql) | mysql -u <user> -p -h <remote_hostname> -f
 ```
 
@@ -66,7 +66,7 @@ shell> (echo "SET SQL_LOG_BIN=0;";cat /backups/full_backup.sql) | mysql -u <user
 
 # 恢复完整数据库
 
-```go
+```sql
 shell> myloader --directory=/backups --user=<user> --password=<password> --queries-per-transaction=5000 --threads=8 --compress-protocol --overwrite-tables
 ```
 
@@ -88,7 +88,7 @@ shell> myloader --directory=/backups --user=<user> --password=<password> --queri
 
 假设您要恢复`company`数据库：
 
-```go
+```sql
 shell> myloader --directory=/backups --queries-per-transaction=5000 --threads=6 --compress-protocol --user=<user> --password=<password> --source-db company --overwrite-tables
 ```
 
@@ -96,7 +96,7 @@ shell> myloader --directory=/backups --queries-per-transaction=5000 --threads=6 
 
 `mydumper`将每个表的备份写入单独的`.sql`文件。您可以拾取`.sql`文件并恢复：
 
-```go
+```sql
 shell> mysql -u <user> -p<password> -h <hostname> company -A -f < company.payments.sql
 ```
 
@@ -104,7 +104,7 @@ shell> mysql -u <user> -p<password> -h <hostname> company -A -f < company.paymen
 
 复制所需的文件：
 
-```go
+```sql
 shell> sudo cp /backups/employee_table_chunks/employees.employees.* \
 /backups/employee_table_chunks/employees.employees-schema.sql \
 /backups/employee_table_chunks/employees-schema-create.sql \
@@ -114,7 +114,7 @@ shell> sudo cp /backups/employee_table_chunks/employees.employees.* \
 
 使用`myloader`进行加载；它将自动检测块并加载它们：
 
-```go
+```sql
 shell> myloader --directory=/backups/single_table/ --queries-per-transaction=50000 --threads=6 --compress-protocol --overwrite-tables
 ```
 
@@ -126,31 +126,31 @@ shell> myloader --directory=/backups/single_table/ --queries-per-transaction=500
 
 1.  停止 MySQL 服务器：
 
-```go
+```sql
  shell> sudo systemctl stop mysql
 ```
 
 1.  将文件移动到`数据目录`：
 
-```go
+```sql
  shell> sudo mv /backup/mysql /var/lib
 ```
 
 1.  更改所有权为`mysql`：
 
-```go
+```sql
  shell> sudo chown -R mysql:mysql /var/lib/mysql
 ```
 
 1.  启动 MySQL：
 
-```go
+```sql
  shell> sudo systemctl start mysql
 ```
 
 为了最小化停机时间，如果磁盘上有足够的空间，可以将备份复制到`/var/lib/mysql2`。然后停止 MySQL，重命名目录，然后启动服务器：
 
-```go
+```sql
 shell> sudo mv /backup/mysql /var/lib/mysql2
 shell> sudo systemctl stop mysql
 shell> sudo mv /var/lib/mysql2 /var/lib/mysql
@@ -174,7 +174,7 @@ shell> sudo systemctl start mysql
 
 1.  如果您使用了`--master-data`，您应该使用从服务器的二进制日志：
 
-```go
+```sql
 shell> head -30 /backups/dump.sql
 -- MySQL dump 10.13  Distrib 8.0.3-rc, for Linux (x86_64)
 --
@@ -200,13 +200,13 @@ CHANGE MASTER TO MASTER_LOG_FILE='server1.000008', MASTER_LOG_POS=154;
 
 在这种情况下，您应该从从服务器上位置`154`的`server1.000008`文件开始恢复。
 
-```go
+```sql
 shell> mysqlbinlog --start-position=154 --disable-log-bin /backups/binlogs/server1.000008 | mysql -u<user> -p -h <host> -f
 ```
 
 1.  如果您使用了`--dump-slave`，您应该使用主服务器的二进制日志：
 
-```go
+```sql
 --
 -- Position to start replication or point-in-time recovery from (the master of this slave)
 --
@@ -215,7 +215,7 @@ CHANGE MASTER TO MASTER_LOG_FILE='centos7-bin.000001', MASTER_LOG_POS=463;
 
 在这种情况下，您应该从主服务器上位置`463`的`centos7-bin.000001`文件开始恢复。
 
-```go
+```sql
 shell> mysqlbinlog --start-position=463  --disable-log-bin /backups/binlogs/centos7-bin.000001 | mysql -u<user> -p -h <host> -f
 ```
 
@@ -223,7 +223,7 @@ shell> mysqlbinlog --start-position=463  --disable-log-bin /backups/binlogs/cent
 
 二进制日志信息可在元数据中找到。
 
-```go
+```sql
 shell> sudo cat /backups/metadata Started dump at: 2017-08-26 06:26:19
 SHOW MASTER STATUS:
  Log: server1.000012
@@ -239,12 +239,12 @@ Finished dump at: 2017-08-26 06:26:24
 
 如果您已经从从服务器上获取了二进制日志备份，您应该从位置`154`的`server1.000012`文件开始恢复（`SHOW MASTER STATUS`）：
 
-```go
+```sql
 shell> mysqlbinlog --start-position=154  --disable-log-bin /backups/binlogs/server1.000012 | mysql -u<user> -p -h <host> -f
 ```
 
 如果您从主服务器上有二进制日志备份，您应该从位置`463`的`centos7-bin.000001`文件开始恢复（`SHOW SLAVE STATUS`）：
 
-```go
+```sql
 shell> mysqlbinlog --start-position=463  --disable-log-bin /backups/binlogs/centos7-bin.000001 | mysql -u<user> -p -h <host> -f
 ```

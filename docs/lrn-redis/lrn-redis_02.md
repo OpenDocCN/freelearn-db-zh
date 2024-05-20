@@ -170,7 +170,7 @@ Jedis 的 Maven 依赖项
 
 以下 Java 程序是使用 Redis 作为数据存储的：
 
-```go
+```sql
  package org.learningredis.chapter.two;
 
 import redis.clients.jedis.*;
@@ -254,7 +254,7 @@ public class HelloWorld {
 
 以下代码是新的 Hello World 程序，现在称为`HelloWorld2`：
 
-```go
+```sql
 package org.learningredis.chapter.two;
 
 public class Helloworld2  {
@@ -279,7 +279,7 @@ public class Helloworld2  {
 
 以下是处理连接的包装器代码：
 
-```go
+```sql
 package org.learningredis.chapter.two;
 
 import redis.clients.jedis.Jedis;

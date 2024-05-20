@@ -50,7 +50,7 @@ MySQL 执行查询的方式是数据库性能的主要因素之一。您可以�
 
 解释计划提供了优化器执行查询的信息。您只需要在查询前加上`EXPLAIN`关键字：
 
-```go
+```sql
 mysql> EXPLAIN SELECT dept_name FROM dept_emp JOIN employees ON dept_emp.emp_no=employees.emp_no JOIN departments ON departments.dept_no=dept_emp.dept_no WHERE employees.first_name='Aamer'\G
 *************************** 1\. row ***************************
            id: 1
@@ -98,7 +98,7 @@ possible_keys: PRIMARY
 
 以 JSON 格式使用解释计划提供了关于查询执行的完整信息：
 
-```go
+```sql
 mysql> EXPLAIN FORMAT=JSON SELECT dept_name FROM dept_emp JOIN employees ON dept_emp.emp_no=employees.emp_no JOIN departments ON departments.dept_no=dept_emp.dept_no WHERE employees.first_name='Aamer'\G
 *************************** 1\. row ***************************
 EXPLAIN: {
@@ -213,7 +213,7 @@ EXPLAIN: {
 
 要获取连接 ID，请执行：
 
-```go
+```sql
 mysql> SELECT CONNECTION_ID();
 +-----------------+
 | CONNECTION_ID() |
@@ -223,7 +223,7 @@ mysql> SELECT CONNECTION_ID();
 1 row in set (0.00 sec)
 ```
 
-```go
+```sql
 mysql> EXPLAIN FORMAT=JSON FOR CONNECTION 778\G
 *************************** 1\. row ***************************
 EXPLAIN: {
@@ -263,7 +263,7 @@ EXPLAIN: {
 
 如果连接没有运行任何`SELECT`/`UPDATE`/`INSERT`/`DELETE`/`REPLACE`查询，它将抛出一个错误：
 
-```go
+```sql
 mysql> EXPLAIN FOR CONNECTION 779;
 ERROR 3012 (HY000): EXPLAIN FOR CONNECTION command is supported only for SELECT/UPDATE/INSERT/DELETE/REPLACE
 ```
@@ -280,7 +280,7 @@ ERROR 3012 (HY000): EXPLAIN FOR CONNECTION command is supported only for SELECT/
 
 假设您想要测量查询的时间；如果您在 MySQL 客户端中执行它，您可以知道大约的执行时间，精度为 100 毫秒：
 
-```go
+```sql
 mysql> pager grep rows
 PAGER set to 'grep rows'
 mysql> SELECT e.emp_no, salary FROM salaries s JOIN employees e ON s.emp_no=e.emp_no WHERE (first_name='Adam');
@@ -289,7 +289,7 @@ mysql> SELECT e.emp_no, salary FROM salaries s JOIN employees e ON s.emp_no=e.em
 
 您可以使用`mysqlslap`模拟客户端负载，并在多次迭代中同时运行前述 SQL：
 
-```go
+```sql
 shell> mysqlslap -u <user> -p<pass> --create-schema=employees --query="SELECT e.emp_no, salary FROM salaries s JOIN employees e ON s.emp_no=e.emp_no WHERE (first_name='Adam');" -c 1000 i 100
 mysqlslap: [Warning] Using a password on the command line interface can be insecure.
 Benchmark
@@ -304,7 +304,7 @@ Benchmark
 
 您可以在文件中指定多个 SQL 并指定分隔符。`mysqlslap`运行文件中的所有查询：
 
-```go
+```sql
 shell> cat queries.sql
 SELECT e.emp_no, salary FROM salaries s JOIN employees e ON s.emp_no=e.emp_no WHERE (first_name='Adam');
 SELECT * FROM employees WHERE first_name='Adam' OR last_name='Adam';
@@ -320,7 +320,7 @@ Benchmark
 
 您甚至可以自动生成表和 SQL 语句。这样，您可以将结果与先前的服务器设置进行比较：
 
-```go
+```sql
 shell> mysqlslap -u <user> -p<pass> --concurrency=100 --iterations=10 --number-int-cols=4 --number-char-cols=10  --auto-generate-sql
 mysqlslap: [Warning] Using a password on the command line interface can be insecure.
 Benchmark
@@ -349,7 +349,7 @@ MySQL 可以在`WHERE`、`ORDER BY`和`GROUP BY`子句中使用索引来过滤�
 
 假设表是：
 
-```go
+```sql
 mysql> CREATE TABLE index_example ( 
 col1 int PRIMARY KEY,
 col2 char(10),
@@ -373,7 +373,7 @@ KEY `col2`(`col2`)
 
 你可以通过查看表的定义来查看表的索引。你会注意到`first_name`和`last_name`上有一个索引。如果你通过指定`first_name`或者两者（`first_name`和`last_name`）来过滤行，MySQL 可以使用索引来加快查询。然而，如果你只指定`last_name`，索引就不能被使用；这是因为优化器只能使用索引的最左边的前缀。更详细的例子请参考[`dev.mysql.com/doc/refman/8.0/en/multiple-column-indexes.html`](https://dev.mysql.com/doc/refman/8.0/en/multiple-column-indexes.html)：
 
-```go
+```sql
 mysql> ALTER TABLE employees ADD INDEX name(first_name, last_name);
 Query OK, 0 rows affected (2.23 sec)
 Records: 0  Duplicates: 0  Warnings: 0
@@ -398,7 +398,7 @@ Create Table: CREATE TABLE `employees` (
 
 你可以通过执行`ALTER TABLE ADD INDEX`命令添加索引。例如，如果你想在`last_name`上添加一个索引，请参考以下代码：
 
-```go
+```sql
 mysql> ALTER TABLE employees ADD INDEX (last_name);
 Query OK, 0 rows affected (1.28 sec)
 Records: 0  Duplicates: 0  Warnings: 0
@@ -424,7 +424,7 @@ Create Table: CREATE TABLE `employees` (
 
 例如：
 
-```go
+```sql
 mysql> ALTER TABLE employees ADD INDEX index_last_name (last_name);
 ```
 
@@ -432,7 +432,7 @@ mysql> ALTER TABLE employees ADD INDEX index_last_name (last_name);
 
 如果你希望索引是唯一的，可以指定关键字`UNIQUE`。例如：
 
-```go
+```sql
 mysql> ALTER TABLE employees ADD UNIQUE INDEX unique_name (last_name, first_name);
 # There are few duplicate entries in employees database, the above statement is shown for illustration purpose only.
 ```
@@ -441,7 +441,7 @@ mysql> ALTER TABLE employees ADD UNIQUE INDEX unique_name (last_name, first_name
 
 对于字符串列，可以创建只使用列值前导部分而不是整个列的索引。你需要指定前导部分的长度：
 
-```go
+```sql
 ## `last_name` varchar(16) NOT NULL
 mysql> ALTER TABLE employees ADD INDEX (last_name(10));
 Query OK, 0 rows affected (1.78 sec)
@@ -454,7 +454,7 @@ Records: 0  Duplicates: 0  Warnings: 0
 
 你可以使用`ALTER TABLE`命令删除索引：
 
-```go
+```sql
 mysql> ALTER TABLE employees DROP INDEX last_name;
 Query OK, 0 rows affected (0.02 sec)
 Records: 0  Duplicates: 0  Warnings: 0
@@ -464,7 +464,7 @@ Records: 0  Duplicates: 0  Warnings: 0
 
 不能在函数中使用列上的索引。假设你在`hire_date`上添加了一个索引：
 
-```go
+```sql
 mysql> ALTER TABLE employees ADD INDEX(hire_date);
 Query OK, 0 rows affected (0.93 sec)
 Records: 0  Duplicates: 0  Warnings: 0
@@ -472,7 +472,7 @@ Records: 0  Duplicates: 0  Warnings: 0
 
 在`WHERE`子句中有`hire_date`的查询可以使用`hire_date`上的索引：
 
-```go
+```sql
 mysql> EXPLAIN SELECT COUNT(*) FROM employees WHERE hire_date>'2000-01-01'\G
 *************************** 1\. row ***************************
            id: 1
@@ -492,7 +492,7 @@ possible_keys: hire_date
 
 相反，如果将`hire_date`放在函数中，MySQL 必须扫描整个表：
 
-```go
+```sql
 mysql> EXPLAIN SELECT COUNT(*) FROM employees WHERE YEAR(hire_date)>=2000\G
 *************************** 1\. row ***************************
            id: 1
@@ -512,7 +512,7 @@ possible_keys: NULL
 
 因此，尽量避免在函数内部放置一个带索引的列。如果无法避免使用函数，则创建一个虚拟列并在虚拟列上添加索引：
 
-```go
+```sql
 mysql> ALTER TABLE employees ADD hire_date_year YEAR AS (YEAR(hire_date)) VIRTUAL, ADD INDEX (hire_date_year);
 Query OK, 0 rows affected (1.16 sec)
 Records: 0  Duplicates: 0  Warnings: 0
@@ -538,7 +538,7 @@ Create Table: CREATE TABLE `employees` (
 
 现在，不再在查询中使用`YEAR()`函数，而是可以直接在`WHERE`子句中使用`hire_date_year`：
 
-```go
+```sql
 mysql> EXPLAIN SELECT COUNT(*) FROM employees WHERE hire_date_year>=2000\G
 *************************** 1\. row ***************************
            id: 1
@@ -558,7 +558,7 @@ possible_keys: hire_date_year
 
 请注意，即使使用`YEAR(hire_date)`，优化器也会认识到`YEAR()`表达式与`hire_date_year`的定义相匹配，并且`hire_date_year`被索引；因此在执行计划构建过程中会考虑该索引：
 
-```go
+```sql
 mysql> EXPLAIN SELECT COUNT(*) FROM employees WHERE YEAR(hire_date)>=2000\G
 *************************** 1\. row ***************************
            id: 1
@@ -582,7 +582,7 @@ possible_keys: hire_date_year
 
 解释不可见索引，如果尚未添加普通索引，则需要添加普通索引。例如：
 
-```go
+```sql
 mysql> ALTER TABLE employees ADD INDEX (last_name);
 Query OK, 0 rows affected (1.81 sec)
 Records: 0  Duplicates: 0  Warnings: 0
@@ -592,7 +592,7 @@ Records: 0  Duplicates: 0  Warnings: 0
 
 如果您希望删除`last_name`上的索引，而不是直接删除，可以使用`ALTER TABLE`命令将其标记为不可见：
 
-```go
+```sql
 mysql> EXPLAIN SELECT * FROM employees WHERE last_name='Aamodt'\G
 *************************** 1\. row ***************************
            id: 1
@@ -648,7 +648,7 @@ Create Table: CREATE TABLE `employees` (
 
 您会注意到通过`last_name`进行查询过滤时使用了`last_name`索引；标记为不可见后，它无法使用。您可以再次将其标记为可见：
 
-```go
+```sql
 mysql> ALTER TABLE employees ALTER INDEX last_name VISIBLE;
 Query OK, 0 rows affected (0.01 sec)
 Records: 0  Duplicates: 0  Warnings: 0
@@ -662,7 +662,7 @@ Records: 0  Duplicates: 0  Warnings: 0
 
 假设您想对`employees`表进行排序，按`first_name`升序和`last_name`降序；MySQL 无法使用`first_name`和`last_name`上的索引。没有降序索引：
 
-```go
+```sql
 mysql> SHOW CREATE TABLE employees\G
 *************************** 1\. row ***************************
        Table: employees
@@ -681,7 +681,7 @@ Create Table: CREATE TABLE `employees` (
 
 在解释计划中，您会注意到索引名称（`first_name`和`last_name`）未被使用：
 
-```go
+```sql
 mysql> EXPLAIN SELECT * FROM employees ORDER BY first_name ASC, last_name DESC LIMIT 10\G
 *************************** 1\. row ***************************
            id: 1
@@ -702,7 +702,7 @@ possible_keys: NULL
 
 1.  添加一个降序索引：
 
-```go
+```sql
 mysql> ALTER TABLE employees ADD INDEX name_desc(first_name ASC, last_name DESC);
 Query OK, 0 rows affected (1.61 sec)
 Records: 0  Duplicates: 0  Warnings: 0
@@ -710,7 +710,7 @@ Records: 0  Duplicates: 0  Warnings: 0
 
 1.  添加降序索引后，查询可以使用索引：
 
-```go
+```sql
 mysql> EXPLAIN SELECT * FROM employees ORDER BY first_name ASC, last_name DESC LIMIT 10\G
 *************************** 1\. row ***************************
            id: 1
@@ -729,7 +729,7 @@ possible_keys: NULL
 
 1.  相同的索引可以用于另一种排序方式，即通过反向索引扫描按`first_name`降序和`last_name`升序排序：
 
-```go
+```sql
 mysql> EXPLAIN SELECT * FROM employees ORDER BY first_name DESC, last_name ASC LIMIT 10\G
 *************************** 1\. row ***************************
            id: 1
@@ -772,7 +772,7 @@ Percona Toolkit 的安装在第十章中有介绍，*表维护*，*安装 Percon
 
 假设慢查询文件位于`/var/lib/mysql/mysql-slow.log`：
 
-```go
+```sql
 shell> sudo pt-query-digest /var/lib/mysql/ubuntu-slow.log > query_digest
 ```
 
@@ -780,7 +780,7 @@ shell> sudo pt-query-digest /var/lib/mysql/ubuntu-slow.log > query_digest
 
 摘要报告如下所示：
 
-```go
+```sql
 # 286.8s user time, 850ms system time, 232.75M rss, 315.73M vsz
 # Current date: Sat Nov 18 05:16:55 2017
 # Hostname: db1
@@ -819,7 +819,7 @@ shell> sudo pt-query-digest /var/lib/mysql/ubuntu-slow.log > query_digest
 
 查询概要将如下所示：
 
-```go
+```sql
 # Rank Query ID           Response time    Calls  R/Call    V/M   Item
 # ==== ================== ================ ====== ========= ===== ========
 #    1 0x55F499860A034BCB 76560.4220 42.7%     47 1628.9451 18.06 SELECT orders 
@@ -836,7 +836,7 @@ shell> sudo pt-query-digest /var/lib/mysql/ubuntu-slow.log > query_digest
 
 您可以通过搜索校验和来查找任何查询。完整的查询、解释计划的命令和表状态都会显示出来。例如：
 
-```go
+```sql
 # Query 1: 0.00 QPS, 0.06x concurrency, ID 0x55F499860A034BCB at byte 249542900
 # This item is included in the report because it matches --limit.
 # Scores: V/M = 18.06
@@ -895,13 +895,13 @@ AND o.date_finalized>date_add(curdate(),interval -1 month)\G
 
 您可以通过传递参数`--type genlog`来使用`pt-query-digest`分析常规查询日志。由于常规日志不报告查询时间，因此只显示计数聚合：
 
-```go
+```sql
  shell> sudo pt-query-digest --type genlog /var/lib/mysql/db1.log   > general_query_digest
 ```
 
 输出将类似于这样：
 
-```go
+```sql
 # 400ms user time, 0 system time, 28.84M rss, 99.35M vsz
 # Current date: Sat Nov 18 09:02:08 2017
 # Hostname: db1
@@ -916,7 +916,7 @@ AND o.date_finalized>date_add(curdate(),interval -1 month)\G
 
 查询概要将类似于这样：
 
-```go
+```sql
 # Profile
 # Rank Query ID           Response time Calls R/Call V/M   Item
 # ==== ================== ============= ===== ====== ===== ===============
@@ -929,7 +929,7 @@ AND o.date_finalized>date_add(curdate(),interval -1 month)\G
 
 您可以使用`pt-query-digest`从进程列表中读取查询，而不是使用日志文件：
 
-```go
+```sql
 shell> pt-query-digest --processlist h=localhost  --iterations 10 --run-time 1m -u <user> -p<pass>
 ```
 
@@ -939,7 +939,7 @@ shell> pt-query-digest --processlist h=localhost  --iterations 10 --run-time 1m 
 
 要使用`pt-query-digest`分析二进制日志，您应该使用`mysqlbinlog`实用程序将其转换为文本格式：
 
-```go
+```sql
 shell> sudo mysqlbinlog /var/lib/mysql/binlog.000639 > binlog.00063
 
 shell> pt-query-digest --type binlog binlog.000639  > binlog_digest
@@ -949,7 +949,7 @@ shell> pt-query-digest --type binlog binlog.000639  > binlog_digest
 
 您可以使用`tcpdump`命令捕获 TCP 流量，并将其发送到`pt-query-digest`进行分析：
 
-```go
+```sql
 shell> sudo tcpdump -s 65535 -x -nn -q -tttt -i any -c 1000 port 3306 > mysql.tcp.txt
 
 shell> pt-query-digest --type tcpdump mysql.tcp.txt > tcpdump_digest
@@ -999,7 +999,7 @@ shell> pt-query-digest --type tcpdump mysql.tcp.txt > tcpdump_digest
 
 如果您想知道优化的数据类型，可以使用`PROCEDURE ANALYZE`函数。虽然不太准确，但可以对字段有一个大致的了解。不幸的是，它在 MySQL 8 中已被弃用：
 
-```go
+```sql
 mysql> SELECT user_id, first_name FROM user PROCEDURE ANALYSE(1,100)\G
 *************************** 1\. row ***************************
              Field_name: db1.user.user_id
@@ -1040,7 +1040,7 @@ Avg_value_or_avg_length: 10.1588
 
 考虑以下`employees`表：
 
-```go
+```sql
 mysql> SHOW CREATE TABLE employees\G
 *************************** 1\. row ***************************
        Table: employees
@@ -1067,7 +1067,7 @@ Create Table: CREATE TABLE `employees` (
 
 索引`first_name_emp_no`是冗余索引，因为它包含了最右边的后缀中的主键。`InnoDB`的次要索引已经包含了主键，因此在次要索引中声明主键是多余的。但是，在过滤`first_name`并按`emp_no`排序的查询中可能会有用：
 
-```go
+```sql
 SELECT * FROM employees WHERE first_name='Adam' ORDER BY emp_no;
 ```
 
@@ -1081,7 +1081,7 @@ SELECT * FROM employees WHERE first_name='Adam' ORDER BY emp_no;
 
 `pt-duplicate-key-checker`给出了删除重复键的确切`ALTER`语句：
 
-```go
+```sql
 shell> pt-duplicate-key-checker -u <user> -p<pass>
 
 # A software update is available:
@@ -1124,13 +1124,13 @@ ALTER TABLE `employees`.`employees` DROP INDEX `first_name_emp_no`, ADD INDEX `f
 
 要检查特定数据库的重复索引，可以传递`--databases <database name>`选项：
 
-```go
+```sql
 shell> pt-duplicate-key-checker -u <user> -p<pass> --database employees
 ```
 
 要删除键，甚至可以将`pt-duplicate-key-checker`的输出导入到`mysql`中：
 
-```go
+```sql
 shell> pt-duplicate-key-checker -u <user> -p<pass> | mysql -u <user> -p<pass>
 ```
 
@@ -1138,7 +1138,7 @@ shell> pt-duplicate-key-checker -u <user> -p<pass> | mysql -u <user> -p<pass>
 
 请注意，`mysqlindexcheck`忽略降序索引。例如，`full_name_desc`（`first_name`降序和`last_name`）被视为`full_name`（`first_name`和`last_name`）的重复索引：
 
-```go
+```sql
 shell> mysqlindexcheck --server=<user>:<pass>@localhost:3306 employees --show-drops 
 WARNING: Using a password on the command line interface can be insecure.
 # Source on localhost: ... connected.
@@ -1176,7 +1176,7 @@ ALTER TABLE `employees`.`employees` DROP INDEX `first_name_emp_no`, ADD INDEX `f
 
 创建索引以了解以下示例
 
-```go
+```sql
 mysql> ALTER TABLE employees DROP PRIMARY KEY, ADD PRIMARY KEY(emp_no, hire_date), ADD INDEX `name` (`first_name`,`last_name`);
 
 mysql> ALTER TABLE salaries ADD INDEX from_date(from_date), ADD INDEX from_date_2(from_date,emp_no);
@@ -1184,7 +1184,7 @@ mysql> ALTER TABLE salaries ADD INDEX from_date(from_date), ADD INDEX from_date_
 
 考虑以下`employees`和`salaries`表：
 
-```go
+```sql
 mysql> SHOW CREATE TABLE employees\G
 *************************** 1\. row ***************************
        Table: employees
@@ -1214,7 +1214,7 @@ Create Table: CREATE TABLE `salaries` (
 
 似乎`from_date`是`from_date_2`的多余索引，但是检查以下查询的解释计划！它使用了两个索引的交集。`from_date`索引用于过滤，`from_date_2`用于与`employees`表进行连接。优化器在每个表中只扫描一行：
 
-```go
+```sql
 mysql> EXPLAIN SELECT e.emp_no, salary FROM salaries s JOIN employees e ON s.emp_no=e.emp_no WHERE from_date='2001-05-23'\G
 *************************** 1\. row ***************************
            id: 1
@@ -1247,7 +1247,7 @@ possible_keys: PRIMARY
 
 现在删除多余的`from_date`索引并检查解释计划。您可以看到优化器在`salaries`表中扫描 90 行和`employees`表中的一行。但是看一下`ref`列；它显示常量与`key`列中命名的索引（`from_date_2`）进行比较，以从表中选择行。您可以通过传递优化器提示或索引提示来测试这种行为，这将在下一节中介绍：
 
-```go
+```sql
 mysql> EXPLAIN SELECT e.emp_no, salary FROM salaries s JOIN employees e ON s.emp_no=e.emp_no WHERE from_date='2001-05-23'\G
 *************************** 1\. row ***************************
            id: 1
@@ -1288,7 +1288,7 @@ possible_keys: PRIMARY
 
 计划 1 的基准测试如下：
 
-```go
+```sql
 shell> mysqlslap -u <user> -p<pass> --create-schema='employees' -c 500 -i 100 --query="SELECT e.emp_no, salary FROM salaries s JOIN employees e ON s.emp_no=e.emp_no WHERE from_date='2001-05-23'"
 mysqlslap: [Warning] Using a password on the command line interface can be insecure.
 Benchmark
@@ -1301,7 +1301,7 @@ Benchmark
 
 计划 2 的基准测试如下：
 
-```go
+```sql
 shell> mysqlslap -u <user> -p<pass> --create-schema='employees' -c 500 -i 100 --query="SELECT e.emp_no, salary FROM salaries s JOIN employees e ON s.emp_no=e.emp_no WHERE from_date='2001-05-23'"
 mysqlslap: [Warning] Using a password on the command line interface can be insecure.
 Benchmark
@@ -1330,7 +1330,7 @@ Benchmark
 
 我们可以使用 Percona Toolkit 中的`pt-index-usage`工具进行索引分析。它从慢查询日志中获取查询，为每个查询运行解释计划，并识别未使用的索引。如果您有一系列查询，可以将它们保存为慢查询格式并将其传递给该工具。请注意，这只是一个近似值，因为慢查询日志不包括所有查询：
 
-```go
+```sql
 shell> sudo pt-index-usage slow -u <user> -p<password> /var/lib/mysql/db1-slow.log > unused_indexes
 ```
 
@@ -1340,7 +1340,7 @@ shell> sudo pt-index-usage slow -u <user> -p<password> /var/lib/mysql/db1-slow.l
 
 以`employees`表为例，添加必要的索引；
 
-```go
+```sql
 mysql> CREATE TABLE `employees_index_example` (
   `emp_no` int(11) NOT NULL,
   `birth_date` date NOT NULL,
@@ -1377,7 +1377,7 @@ mysql> RENAME TABLE employees_index_example TO employees;
 
 解释计划如下：
 
-```go
+```sql
 mysql> EXPLAIN SELECT emp_no FROM employees WHERE first_name='Adam' OR last_name='Adam'\G
 *************************** 1\. row ***************************
            id: 1
@@ -1417,7 +1417,7 @@ MySQL 文档中说：
 
 如果您要连接超过七个表，可以将`optimizer_search_depth`设置为`0`或传递优化器提示（您将在下一节中了解到）。自动选择最小值（表的数量，七），将搜索深度限制为合理值：
 
-```go
+```sql
 mysql> SHOW VARIABLES LIKE 'optimizer_search_depth';
 +------------------------+-------+
 | Variable_name          | Value |
@@ -1440,7 +1440,7 @@ Query OK, 0 rows affected (0.00 sec)
 
 例如，您已经注意到前面的查询，`SELECT emp_no FROM employees WHERE first_name='Adam' OR last_name='Adam'`，正在使用`sort_union(first_name,last_name_2)`。如果您认为该优化对该查询不正确，您可以调整`optimizer_switch`以切换到另一种优化：
 
-```go
+```sql
 mysql> SHOW VARIABLES LIKE 'optimizer_switch'\G
 *************************** 1\. row ***************************
 Variable_name: optimizer_switch
@@ -1450,7 +1450,7 @@ Variable_name: optimizer_switch
 
 最初，`index_merge_union`是打开的：
 
-```go
+```sql
 mysql> EXPLAIN SELECT emp_no FROM employees WHERE first_name='Adam' OR last_name='Adam'\G
 *************************** 1\. row ***************************
            id: 1
@@ -1470,14 +1470,14 @@ possible_keys: full_name,full_name_desc,first_name,full_name_1,first_name_emp_no
 
 优化器能够使用`sort_union`：
 
-```go
+```sql
 mysql> SET @@SESSION.optimizer_switch="index_merge_sort_union=off";
 Query OK, 0 rows affected (0.00 sec)
 ```
 
 您可以在会话级别关闭`index_merge_sort_union`优化，以便只有该会话中的查询受到影响：
 
-```go
+```sql
 mysql>  SHOW VARIABLES LIKE 'optimizer_switch'\G
 *************************** 1\. row ***************************
 Variable_name: optimizer_switch
@@ -1487,7 +1487,7 @@ Variable_name: optimizer_switch
 
 您会注意到在关闭`index_merge_sort_union`后计划发生变化；它不再使用`sort_union`优化：
 
-```go
+```sql
 mysql> EXPLAIN SELECT emp_no FROM employees WHERE first_name='Adam' OR last_name='Adam'\G
 *************************** 1\. row ***************************
            id: 1
@@ -1513,7 +1513,7 @@ possible_keys: full_name,full_name_desc,first_name,full_name_1,first_name_emp_no
 
 再次以前面的查询为例；如果您觉得使用`sort_union`不是最佳选择，您可以通过在查询本身中传递提示来关闭它：
 
-```go
+```sql
 mysql> EXPLAIN SELECT /*+ NO_INDEX_MERGE(employees first_name,last_name_2) */ * FROM employees WHERE first_name='Adam' OR last_name='Adam'\G
 *************************** 1\. row ***************************
            id: 1
@@ -1533,7 +1533,7 @@ possible_keys: full_name,full_name_desc,first_name,full_name_1,first_name_emp_no
 
 请记住，在冗余索引部分，我们删除了冗余索引以找出哪个计划更好。而不是这样做，您可以使用优化器提示来忽略`from_date`和`from_date_2`的交集：
 
-```go
+```sql
 mysql> EXPLAIN SELECT /*+ NO_INDEX_MERGE(s from_date,from_date_2) */ e.emp_no, salary FROM salaries s JOIN employees e ON s.emp_no=e.emp_no WHERE from_date='2001-05-23'\G
 *************************** 1\. row ***************************
            id: 1
@@ -1567,7 +1567,7 @@ possible_keys: PRIMARY
 
 另一个使用优化器提示的很好的例子是设置`JOIN`顺序：
 
-```go
+```sql
 mysql> EXPLAIN SELECT e.emp_no, salary FROM salaries s JOIN employees e ON s.emp_no=e.emp_no WHERE (first_name='Adam' OR last_name='Adam') ORDER BY from_date DESC\G
 *************************** 1\. row ***************************
            id: 1
@@ -1600,7 +1600,7 @@ possible_keys: PRIMARY
 
 在前面的查询中，优化器首先考虑`employees`表，并与`salaries`表进行连接。您可以通过传递提示`/*+ JOIN_ORDER(s,e ) */`来更改这一点：
 
-```go
+```sql
 mysql> EXPLAIN SELECT /*+ JOIN_ORDER(s, e) */ e.emp_no, salary FROM salaries s JOIN employees e ON s.emp_no=e.emp_no WHERE (first_name='Adam' OR last_name='Adam') ORDER BY from_date DESC\G
 *************************** 1\. row ***************************
            id: 1
@@ -1635,7 +1635,7 @@ possible_keys: PRIMARY,full_name,full_name_desc,first_name,full_name_1,first_nam
 
 优化器提示的另一个用例如下：而不是为每个语句或会话设置会话变量，您可以仅为该语句设置它们。假设您使用了一个对查询结果进行排序的`ORDER BY`子句，但在`ORDER BY`子句上没有索引。优化器使用`sort_buffer_size`来加速排序。默认情况下，`sort_buffer_size`的值为`256K`。如果`sort_buffer_size`不足，排序算法必须执行的合并次数会增加。您可以通过会话变量`sort_merge_passes`来衡量这一点：
 
-```go
+```sql
 mysql> SHOW SESSION status LIKE 'sort_merge_passes';
 +-------------------+-------+
 | Variable_name     | Value |
@@ -1660,7 +1660,7 @@ mysql> SHOW SESSION status LIKE 'sort_merge_passes';
 
 您会注意到 MySQL 没有足够的`sort_buffer_size`，必须执行八次`sort_merge_passes`。您可以通过优化器提示将`sort_buffer_size`设置为诸如`16M`之类的大值，并检查`sort_merge_passes`：
 
-```go
+```sql
 mysql> SHOW SESSION status LIKE 'sort_merge_passes';
 +-------------------+-------+
 | Variable_name     | Value |
@@ -1689,7 +1689,7 @@ mysql> SHOW SESSION status LIKE 'sort_merge_passes';
 
 使用`SET_VAR`，您可以在语句级别设置`optimizer_switch`：
 
-```go
+```sql
 mysql> EXPLAIN SELECT /*+ SET_VAR(optimizer_switch = 'index_merge_sort_union=off') */ e.emp_no, salary FROM salaries s JOIN employees e ON s.emp_no=e.emp_no WHERE from_date='2001-05-23'\G
 *************************** 1\. row ***************************
            id: 1
@@ -1722,7 +1722,7 @@ possible_keys: PRIMARY
 
 您还可以为查询设置最大执行时间，这意味着查询在指定时间后会自动终止使用`/*+ MAX_EXECUTION_TIME(毫秒) */`：
 
-```go
+```sql
 mysql> SELECT /*+ MAX_EXECUTION_TIME(100) */ * FROM employees ORDER BY hire_date DESC;
 ERROR 1028 (HY000): Sort aborted: Query execution was interrupted, maximum statement execution time exceeded
 ```
@@ -1733,7 +1733,7 @@ ERROR 1028 (HY000): Sort aborted: Query execution was interrupted, maximum state
 
 为了生成执行计划，优化器使用基于查询执行过程中各种操作成本的估算的成本模型。优化器具有一组编译的默认成本常量可供其使用，以便决定执行计划。您可以通过更新或插入`mysql.engine_cost`表并执行`FLUSH OPTIMIZER_COSTS`命令来调整它们：
 
-```go
+```sql
 mysql> SELECT * FROM mysql.engine_cost\G
 *************************** 1\. row ***************************
   engine_name: InnoDB
@@ -1756,7 +1756,7 @@ default_value: 0.25
 
 假设您有一个超快的磁盘；您可以减少`io_block_read_cost`的`cost_value`：
 
-```go
+```sql
 mysql> UPDATE mysql.engine_cost SET cost_value=0.5 WHERE cost_name='io_block_read_cost';
 Query OK, 1 row affected (0.08 sec)
 Rows matched: 1  Changed: 1  Warnings: 0
@@ -1796,7 +1796,7 @@ default_value: 0.25
 
 以评估冗余索引的使用为例，使用相同的查询；它使用`intersect(from_date,from_date_2)`。通过传递优化器提示`(/*+ NO_INDEX_MERGE(s from_date,from_date_2) */)`，您避免了使用 intersect。您可以通过提示优化器忽略`from_date_2`索引来实现相同的行为：
 
-```go
+```sql
 mysql> EXPLAIN SELECT e.emp_no, salary FROM salaries s IGNORE INDEX(from_date_2) JOIN employees e ON s.emp_no=e.emp_no WHERE from_date='2001-05-23'\G
 *************************** 1\. row ***************************
            id: 1
@@ -1829,7 +1829,7 @@ possible_keys: PRIMARY
 
 另一个用例是提示优化器并节省评估多个计划的成本。考虑以下`employees`表和查询（与*控制查询优化器*部分开头讨论的相同）：
 
-```go
+```sql
 mysql> SHOW CREATE TABLE employees\G
 *************************** 1\. row ***************************
        Table: employees
@@ -1870,7 +1870,7 @@ possible_keys: full_name,full_name_desc,first_name,full_name_1,first_name_emp_no
 
 您可以看到优化器必须评估`full_name`、`full_name_desc`、`first_name`、`full_name_1`、`first_name_emp_no`、`last_name_2`索引以得出最佳计划。您可以通过传递`USE INDEX(first_name,last_name_2)`来提示优化器，这将消除对其他索引的扫描：
 
-```go
+```sql
 mysql> EXPLAIN SELECT emp_no FROM employees USE INDEX(first_name,last_name_2) WHERE first_name='Adam' OR last_name='Adam'\G
 *************************** 1\. row ***************************
            id: 1
@@ -1898,7 +1898,7 @@ JSON 列不能直接建立索引。因此，如果您想在 JSON 列上使用索
 
 1.  考虑您在第三章中创建的`emp_details`表，*使用 MySQL（高级）*，*使用 JSON*部分：
 
-```go
+```sql
 mysql> SHOW CREATE TABLE emp_details\G
 *************************** 1\. row ***************************
        Table: emp_details
@@ -1912,7 +1912,7 @@ Create Table: CREATE TABLE `emp_details` (
 
 1.  插入一些虚拟记录：
 
-```go
+```sql
 mysql> INSERT IGNORE INTO emp_details(emp_no, details) VALUES 
      ('1', '{ "location": "IN", "phone": "+11800000000", "email": "abc@example.com", "address": { "line1": "abc", "line2": "xyz street", "city": "Bangalore", "pin": "560103"}}'),
      ('2', '{ "location": "IN", "phone": "+11800000000", "email": "def@example.com", "address": { "line1": "abc", "line2": "xyz street", "city": "Delhi", "pin": "560103"}}'),
@@ -1925,7 +1925,7 @@ Records: 5  Duplicates: 0  Warnings: 0
 
 1.  假设您想检索城市为`Bangalore`的`emp_no`：
 
-```go
+```sql
 mysql> EXPLAIN SELECT emp_no FROM emp_details WHERE details->>'$.address.city'="Bangalore"\G
 *************************** 1\. row ***************************
            id: 1
@@ -1947,7 +1947,7 @@ possible_keys: NULL
 
 1.  您可以将城市作为虚拟列检索并在其上添加索引：
 
-```go
+```sql
 mysql> ALTER TABLE emp_details ADD COLUMN city varchar(20) AS (details->>'$.address.city'), ADD INDEX (city);
 Query OK, 0 rows affected (0.22 sec)
 Records: 0  Duplicates: 0  Warnings: 0
@@ -1967,7 +1967,7 @@ Create Table: CREATE TABLE `emp_details` (
 
 1.  如果您现在检查解释计划，您会注意到查询能够使用`city`上的索引并且只扫描一行：
 
-```go
+```sql
 mysql> EXPLAIN SELECT emp_no FROM emp_details WHERE details->>'$.address.city'="Bangalore"\G
 *************************** 1\. row ***************************
            id: 1
@@ -1997,7 +1997,7 @@ possible_keys: city
 
 1.  将`CAP_SYS_NICE`功能设置为`mysqld`：
 
-```go
+```sql
 shell> ps aux | grep mysqld | grep -v grep
 mysql     5238  0.0 28.1 1253368 488472 ?      Sl   Nov19   4:04 /usr/sbin/mysqld --daemonize --pid-file=/var/run/mysqld/mysqld.pid
 
@@ -2009,7 +2009,7 @@ shell> getcap /usr/sbin/mysqld
 
 1.  使用`CREATE RESOURCE GROUP`语句创建资源组。您必须提到资源组名称、VCPUS 数量、线程优先级和类型，可以是`USER`或`SYSTEM`。如果不指定 VCPUs，将使用所有 CPU：
 
-```go
+```sql
 mysql> CREATE RESOURCE GROUP report_group
 TYPE = USER
 VCPU = 2-3
@@ -2026,7 +2026,7 @@ VCPU 表示 CPU 编号为 0-5，包括 CPU 0、1、2、3、4 和 5；0-3、8-9 �
 
 1.  创建后，您可以验证已创建的资源组：
 
-```go
+```sql
 mysql> SELECT * FROM INFORMATION_SCHEMA.RESOURCE_GROUPS\G
 *************************** 1\. row ***************************
    RESOURCE_GROUP_NAME: USR_default
@@ -2052,19 +2052,19 @@ RESOURCE_GROUP_ENABLED: 1
 
 1.  为线程分配一个组：
 
-```go
+```sql
 mysql> SET RESOURCE GROUP report_group FOR <thread_id>;
 ```
 
 1.  设置会话资源组；该会话中的所有查询将在`report_group`下执行：
 
-```go
+```sql
 mysql> SET RESOURCE GROUP report_group;
 ```
 
 1.  使用`RESOURCE_GROUP`优化器提示使用`report_group`执行单个语句：
 
-```go
+```sql
 mysql> SELECT /*+ RESOURCE_GROUP(report_group) */ * FROM employees;
 ```
 
@@ -2072,28 +2072,28 @@ mysql> SELECT /*+ RESOURCE_GROUP(report_group) */ * FROM employees;
 
 您可以动态调整资源组的 CPU 数量或`thread_priority`。如果系统负载过重，可以降低线程优先级：
 
-```go
+```sql
 mysql> ALTER RESOURCE GROUP report_group VCPU = 3 THREAD_PRIORITY = 19;
 Query OK, 0 rows affected (0.12 sec)
 ```
 
 类似地，当系统负载较轻时，您可以增加优先级：
 
-```go
+```sql
 mysql> ALTER RESOURCE GROUP report_group VCPU = 0-12 THREAD_PRIORITY = 0;
 Query OK, 0 rows affected (0.12 sec)
 ```
 
 您可以禁用资源组：
 
-```go
+```sql
 mysql> ALTER RESOURCE GROUP report_group DISABLE FORCE;
 Query OK, 0 rows affected (0.00 sec)
 ```
 
 您还可以使用`DROP RESOURCE GROUP`语句删除资源组：
 
-```go
+```sql
 mysql> DROP RESOURCE GROUP report_group FORCE;
 ```
 
@@ -2119,7 +2119,7 @@ mysql> DROP RESOURCE GROUP report_group FORCE;
 
 要禁用它，请将`performance_schema`设置为`0`：
 
-```go
+```sql
 shell> sudo vi /etc/my.cnf
 [mysqld]
 performance_schema = 0
@@ -2129,7 +2129,7 @@ performance_schema = 0
 
 您可以在`setup_consumers`表中看到可用的消费者列表，如下所示：
 
-```go
+```sql
 mysql> SELECT * FROM performance_schema.setup_consumers;
 +----------------------------------+---------+
 | NAME                             | ENABLED |
@@ -2155,13 +2155,13 @@ mysql> SELECT * FROM performance_schema.setup_consumers;
 
 假设您想要启用`events_waits_current`：
 
-```go
+```sql
 mysql> UPDATE performance_schema.setup_consumers SET ENABLED='YES' WHERE NAME='events_waits_current';
 ```
 
 类似地，您可以从`setup_instruments`表中禁用或启用仪器。有大约 1182 个仪器（取决于版本）：
 
-```go
+```sql
 mysql> SELECT NAME, ENABLED, TIMED FROM setup_instruments LIMIT 10;
 +---------------------------------------------------------+---------+-------+
 | NAME                                                    | ENABLED | TIMED |
@@ -2184,7 +2184,7 @@ mysql> SELECT NAME, ENABLED, TIMED FROM setup_instruments LIMIT 10;
 
 `performance_schema`中有五种主要类型的表。它们是当前事件表、事件历史表、事件摘要表、对象实例表和设置（配置）表：
 
-```go
+```sql
 mysql> SHOW TABLES LIKE '%current%';
 +------------------------------------------+
 | Tables_in_performance_schema (%current%) |
@@ -2240,7 +2240,7 @@ mysql> SHOW TABLES LIKE '%setup%';
 
 假设您想要找出哪个文件被访问最多：
 
-```go
+```sql
 mysql> SELECT EVENT_NAME, COUNT_STAR from file_summary_by_event_name ORDER BY count_star DESC LIMIT 10;
 +-------------------------------------------------+------------+
 | EVENT_NAME                                      | COUNT_STAR |
@@ -2253,7 +2253,7 @@ mysql> SELECT EVENT_NAME, COUNT_STAR from file_summary_by_event_name ORDER BY co
 | wait/io/file/innodb/innodb_temp_file            |         96 |
 ```
 
-```go
+```sql
 | wait/io/file/innodb/innodb_tablespace_open_file |         88 |
 | wait/io/file/sql/casetest                       |         15 |
 | wait/io/file/sql/binlog_index                   |         14 |
@@ -2264,7 +2264,7 @@ mysql> SELECT EVENT_NAME, COUNT_STAR from file_summary_by_event_name ORDER BY co
 
 或者您想要找出哪个文件在写入时花费了最多的时间：
 
-```go
+```sql
 mysql> SELECT EVENT_NAME, SUM_TIMER_WRITE FROM file_summary_by_event_name ORDER BY SUM_TIMER_WRITE DESC LIMIT 10;
 +-------------------------------------------------+-----------------+
 | EVENT_NAME                                      | SUM_TIMER_WRITE |
@@ -2284,7 +2284,7 @@ mysql> SELECT EVENT_NAME, SUM_TIMER_WRITE FROM file_summary_by_event_name ORDER 
 
 您可以使用`events_statements_summary_by_digest`表来获取查询报告，就像您为`pt-query-digest`所做的那样。花费时间最多的顶级查询：
 
-```go
+```sql
 mysql> SELECT SCHEMA_NAME, digest, digest_text, round(sum_timer_wait/ 1000000000000, 6) as avg_time, count_star FROM performance_schema.events_statements_summary_by_digest ORDER BY sum_timer_wait DESC LIMIT 1\G
 *************************** 1\. row ***************************
 SCHEMA_NAME: NULL
@@ -2297,7 +2297,7 @@ digest_text: SELECT `sleep` (?)
 
 按执行次数最多的顶级查询：
 
-```go
+```sql
 mysql> SELECT SCHEMA_NAME, digest, digest_text, round(sum_timer_wait/ 1000000000000, 6) as avg_time, count_star FROM performance_schema.events_statements_summary_by_digest ORDER BY count_star DESC LIMIT 1\G
 *************************** 1\. row ***************************
 SCHEMA_NAME: employees
@@ -2310,7 +2310,7 @@ digest_text: INSERT INTO `salaries` VALUES (...) /* , ... */
 
 假设您想要查找特定查询的统计信息；而不是依赖于`mysqlslap`基准测试，您可以使用`performance_schema`来检查所有统计信息：
 
-```go
+```sql
 mysql> SELECT * FROM events_statements_summary_by_digest WHERE DIGEST_TEXT LIKE '%SELECT%employee%ORDER%' LIMIT 1\G
 *************************** 1\. row ***************************
                 SCHEMA_NAME: employees
@@ -2351,7 +2351,7 @@ SUM_CREATED_TMP_DISK_TABLES: 0
 
 从`sys`模式启用一个工具：
 
-```go
+```sql
 mysql> CALL sys.ps_setup_enable_instrument('statement');
 +------------------------+
 | summary                |
@@ -2365,7 +2365,7 @@ Query OK, 0 rows affected (0.08 sec)
 
 如果要重置为默认值，请执行以下操作：
 
-```go
+```sql
 mysql> CALL sys.ps_setup_reset_to_default(TRUE)\G
 *************************** 1\. row ***************************
 status: Resetting: setup_actors
@@ -2384,7 +2384,7 @@ Query OK, 0 rows affected (0.03 sec)
 
 # 每个主机的类型声明（INSERT 和 SELECT）
 
-```go
+```sql
 mysql> SELECT statement, total, total_latency, rows_sent, rows_examined, rows_affected, full_scans FROM sys.host_summary_by_statement_type WHERE host='localhost' ORDER BY total DESC LIMIT 5;
 +------------+--------+---------------+-----------+---------------+---------------+------------+
 | statement  | total  | total_latency | rows_sent | rows_examined | rows_affected | full_scans |
@@ -2400,7 +2400,7 @@ mysql> SELECT statement, total, total_latency, rows_sent, rows_examined, rows_af
 
 # 每个用户的类型声明
 
-```go
+```sql
 mysql> SELECT statement, total, total_latency, rows_sent, rows_examined, rows_affected, full_scans FROM sys.user_summary_by_statement_type ORDER BY total DESC LIMIT 5;
 +------------+--------+---------------+-----------+---------------+---------------+------------+
 | statement  | total  | total_latency | rows_sent | rows_examined | rows_affected | full_scans |
@@ -2416,7 +2416,7 @@ mysql> SELECT statement, total, total_latency, rows_sent, rows_examined, rows_af
 
 # 冗余索引
 
-```go
+```sql
 mysql> SELECT * FROM sys.schema_redundant_indexes WHERE table_name='employees'\G
 *************************** 1\. row ***************************
               table_schema: employees
@@ -2446,7 +2446,7 @@ redundant_index_non_unique: 1
 
 # 未使用的索引
 
-```go
+```sql
 mysql> SELECT * FROM sys.schema_unused_indexes WHERE object_schema='employees';
 +---------------+----------------+-------------------+
 | object_schema | object_name    | index_name        |
@@ -2471,7 +2471,7 @@ mysql> SELECT * FROM sys.schema_unused_indexes WHERE object_schema='employees';
 
 # 每个主机执行的语句
 
-```go
+```sql
 mysql> SELECT * FROM sys.host_summary ORDER BY statements DESC LIMIT 1\G
 *************************** 1\. row ***************************
                   host: localhost
@@ -2491,7 +2491,7 @@ total_memory_allocated: 0 bytes
 
 # 表统计
 
-```go
+```sql
 mysql> SELECT * FROM sys.schema_table_statistics LIMIT 1\G
 *************************** 1\. row ***************************
      table_schema: employees
@@ -2518,7 +2518,7 @@ io_write_requests: NULL
 
 # 带有缓冲区的表统计
 
-```go
+```sql
 mysql> SELECT * FROM sys.schema_table_statistics_with_buffer LIMIT 1\G
 *************************** 1\. row ***************************
               table_schema: employees
@@ -2548,7 +2548,7 @@ innodb_buffer_pages_hashed: 0
 
 按执行次数最多的查询如下：
 
-```go
+```sql
 mysql> SELECT * FROM sys.statement_analysis ORDER BY exec_count DESC LIMIT 1\G
 *************************** 1\. row ***************************
             query: SELECT `e` . `emp_no` , `salar ... emp_no` WHERE `from_date` = ? 
@@ -2579,7 +2579,7 @@ sort_merge_passes: 0
 
 消耗最大`tmp_disk_tables`的语句：
 
-```go
+```sql
 mysql> SELECT * FROM sys.statement_analysis ORDER BY tmp_disk_tables DESC LIMIT 1\G
 *************************** 1\. row ***************************
             query: SELECT `cat` . `name` AS `TABL ... SE `col` . `type` WHEN ? THEN 

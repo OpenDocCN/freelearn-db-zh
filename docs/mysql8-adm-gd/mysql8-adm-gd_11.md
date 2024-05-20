@@ -52,7 +52,7 @@
 
 +   基于 Linux 的系统提供了`tcpdump`命令，以更安全的方式执行传输任务。该命令在网络层上提供安全性。例如，使用以下命令，您可以检查 MySQL 数据流是否加密：
 
-```go
+```sql
         shell> tcpdump -l -i eth0 -w - src or dst port 3306 | strings
 ```
 
@@ -66,7 +66,7 @@
 
 +   使用以下选项在命令行中提供密码：
 
-```go
+```sql
  cmd>mysql -u root --password=your_pwd
  --OR
  cmd> 
@@ -74,7 +74,7 @@
 
 +   在前两个命令中，您必须在命令行中指定密码，这是不可取的。MySQL 8 提供了另一种安全的连接方式。执行以下命令，它将提示您输入密码。一旦输入密码，MySQL 会为每个密码字符显示星号（`*`）：
 
-```go
+```sql
  cmd>mysql -u root -p
  Enter password: *********
 ```
@@ -87,14 +87,14 @@
 
 +   使用选项文件存储密码。在将凭据定义到文件中时，请确保其他用户无法访问该文件。例如，在基于 UNIX 的系统中，您可以在客户端部分的选项文件中定义密码，如下所示：
 
-```go
+```sql
  [client]
  password=your_pass
 ```
 
 要使文件安全或设置其访问模式，请执行以下命令：
 
-```go
+```sql
 shell> chmod 600 .my.cnf
 ```
 
@@ -287,7 +287,7 @@ MySQL 8 提供了创建账户的两种不同方式：
 
 在这两种方法中，账户管理语句更可取，因为它们更简洁，更不容易出错。现在，让我们看一个使用命令的例子：
 
-```go
+```sql
 #1 mysql> CREATE USER 'user1'@'localhost' IDENTIFIED BY 'user1_password';
 #2 mysql> GRANT ALL PRIVILEGES ON *.* TO 'user1'@'localhost' WITH GRANT OPTION;
 
@@ -317,7 +317,7 @@ MySQL 8 提供了创建账户的两种不同方式：
 
 要删除用户账户，请执行`DROP USER`命令如下：
 
-```go
+```sql
 mysql> DROP USER 'user1'@'localhost';
 ```
 
@@ -331,7 +331,7 @@ mysql> DROP USER 'user1'@'localhost';
 
 `SET ROLE`在当前会话中更改活动角色。参考以下与`SET ROLE`相关的命令：
 
-```go
+```sql
 mysql> SET ROLE NONE; SELECT CURRENT_ROLE();
 +----------------+
 | CURRENT_ROLE() |
@@ -352,7 +352,7 @@ mysql> SET ROLE 'developer_read'; SELECT CURRENT_ROLE();
 
 `CREATE ROLE`用于创建角色；参考以下命令，它将创建一个名为`'developer_role'`的角色：
 
-```go
+```sql
 CREATE ROLE 'developer_role';
 ```
 
@@ -360,7 +360,7 @@ CREATE ROLE 'developer_role';
 
 `DROP ROLE`用于删除角色。参考以下命令，它将删除`'developer_role'`角色：
 
-```go
+```sql
 DROP ROLE 'developer_role';
 ```
 
@@ -368,19 +368,19 @@ DROP ROLE 'developer_role';
 
 `GRANT`分配权限给角色，并将角色分配给帐户。例如，以下命令将所有权限分配给开发人员角色：
 
-```go
+```sql
 GRANT ALL ON my_db.* TO 'developer_role';
 ```
 
 同样，要将角色分配给用户帐户，请执行以下命令：
 
-```go
+```sql
 GRANT 'developer_role' TO 'developer1'@'localhost';
 ```
 
 此命令将`'developer_role'`角色分配给`developer1`帐户。MySQL 8 还提供了从用户到用户和从角色到角色的`GRANT`分配功能。考虑以下示例：
 
-```go
+```sql
 CREATE USER 'user1';
 CREATE ROLE 'role1';
 GRANT SELECT ON mydb.* TO 'user1';
@@ -397,7 +397,7 @@ GRANT 'user1', 'role1'TO 'role2';
 
 `REVOKE`用于从角色中删除权限，并从用户帐户中删除角色分配。参考以下命令：
 
-```go
+```sql
 REVOKE developer_role FROM user1;
 REVOKE INSERT, UPDATE ON app_db.* FROM 'role1';
 ```
@@ -408,7 +408,7 @@ REVOKE INSERT, UPDATE ON app_db.* FROM 'role1';
 
 `SET DEFAULT ROLE`指示默认情况下活动的角色，每当用户登录时，默认角色对用户可用。要设置默认根角色，请执行以下命令：
 
-```go
+```sql
 mysql>SET DEFAULT ROLE app_developer TO root@localhost;
 
 mysql> SELECT CURRENT_ROLE();
@@ -426,7 +426,7 @@ mysql> SELECT CURRENT_ROLE();
 
 `SHOW GRANTS`列出与帐户和角色相关的权限和角色分配。对于一个角色，执行以下命令：
 
-```go
+```sql
 mysql> show grants for app_developer;
 +-------------------------------------------+
 | Grants for app_developer@% |
@@ -438,7 +438,7 @@ mysql> show grants for app_developer;
 
 此命令显示了`'app_developer'`角色上可用的授予权限。同样，要检查用户的授予权限，请执行以下命令：
 
-```go
+```sql
 mysql> show grants for root@localhost;
 ```
 
@@ -450,14 +450,14 @@ mysql> show grants for root@localhost;
 
 +   `mandatory_roles`：这是一个系统变量，用于定义强制角色。请记住，定义为强制角色的角色不能使用`drop`命令删除。在服务器文件`my.cnf`中定义您的强制角色如下：
 
-```go
+```sql
  [mysqld]
  mandatory_roles='app_developer'
 ```
 
 要在运行时持久化和设置这些角色，请使用以下语句：
 
-```go
+```sql
 SET PERSIST mandatory_roles = 'app_developer';
 ```
 
@@ -469,7 +469,7 @@ MySQL 8 提供了以下与密码管理相关的功能：
 
 +   **密码过期**：用于定义密码过期的时间段，以便用户可以定期更改密码。MySQL 8 允许为帐户手动设置密码过期，以及设置过期策略。对于过期策略，可以使用`mysql_native_password`、`sha256_password`或`caching_sha2_password`插件。要手动设置密码，请执行以下命令：
 
-```go
+```sql
  ALTER USER 'testuser'@'localhost' PASSWORD EXPIRE;
 ```
 
@@ -503,7 +503,7 @@ MySQL 8 提供了以下与密码管理相关的功能：
 
 您可以通过在`my.cnf`文件中指定上述选项来使用这些选项：
 
-```go
+```sql
 [mysqld]
 ssl-ca=ca.pem
 ssl-cert=server-cert.pem
@@ -586,7 +586,7 @@ MySQL 8 提供了几个插件来实现安全性。这些插件提供了与身份
 
 此插件与 MySQL 8 服务器和客户端程序内置提供，名称相同为`sha256_password`。在客户端中，它位于`libmysqlclient`库下。要为帐户使用此插件，请执行以下命令：
 
-```go
+```sql
 CREATE USER 'testsha256user'@'localhost'
 IDENTIFIED WITH sha256_password BY 'userpassword';
 ```
@@ -611,14 +611,14 @@ SHA-2 可插拔身份验证与 SHA-256 可插拔插件相同，只是其插件�
 
 1.  通过在`my.cnf`文件中添加`--plugin-load-add`参数在服务器启动时加载插件：
 
-```go
+```sql
  [mysqld]
  plugin-load-add=mysql_no_login.so
 ```
 
 1.  要在运行时注册插件，请执行以下命令：
 
-```go
+```sql
  INSTALL PLUGIN mysql_no_login SONAME 'mysql_no_login.so';
 ```
 
@@ -628,7 +628,7 @@ SHA-2 可插拔身份验证与 SHA-256 可插拔插件相同，只是其插件�
 
 1.  如果使用`INSTALL PLUGIN`命令安装了插件，则使用卸载命令将其移除：
 
-```go
+```sql
 UNINSTALL PLUGIN mysql_no_login;
 ```
 
@@ -638,14 +638,14 @@ UNINSTALL PLUGIN mysql_no_login;
 
 1.  通过在`my.cnf`文件中添加`--plugin-load-add`参数在服务器启动时加载插件：
 
-```go
+```sql
  [mysqld]
  plugin-load-add=auth_socket.so
 ```
 
 1.  通过执行以下命令在运行时注册插件：
 
-```go
+```sql
  INSTALL PLUGIN auth_socket SONAME 'auth_socket.so';
 ```
 
@@ -655,7 +655,7 @@ UNINSTALL PLUGIN mysql_no_login;
 
 1.  如果使用`INSTALL PLUGIN`命令安装了插件，则使用`UNINSTALL`命令将其移除：
 
-```go
+```sql
  UNINSTALL PLUGIN auth_socket;
 ```
 
@@ -671,7 +671,7 @@ MySQL 8 使用这些插件在特定数量的连接尝试失败后向客户端的
 
 这个插件将检查所有传入连接的请求，并根据需要在服务器响应中添加延迟。该插件使用一些系统变量进行配置，并使用状态变量进行监视。它还使用其他一些插件、事件类和进程，比如审计插件、`MYSQL_AUDIT_CONNECTION_CLASSMASK`事件类、`MYSQL_AUDIT_CONNECTION_CONNECT`和`MYSQL_AUDIT_CONNECTION_CHANGE_USER`进程，以检查服务器是否应该在处理任何客户端连接之前添加延迟：
 
-```go
+```sql
 CONNECTION_CONTROL_FAILED_LOGIN_ATTEMPTS
 ```
 
@@ -683,14 +683,14 @@ CONNECTION_CONTROL_FAILED_LOGIN_ATTEMPTS
 
 1.  在`my.cnf`文件中添加`--plugin-load-add`参数，以在服务器启动时加载插件：
 
-```go
+```sql
  [mysqld]
  plugin-load-add= connection_control.so
 ```
 
 1.  在`my.cnf`文件中添加`--plugin-load-add`参数，以在服务器启动时加载插件：
 
-```go
+```sql
  INSTALL PLUGIN CONNECTION_CONTROL SONAME 
           'connection_control.so';
  INSTALL PLUGIN CONNECTION_CONTROL_FAILED_LOGIN_ATTEMPTS SONAME 
@@ -723,14 +723,14 @@ CONNECTION_CONTROL_FAILED_LOGIN_ATTEMPTS
 
 1.  在服务器启动时加载插件，通过在`my.cnf`文件中添加`--plugin-load-add`参数：
 
-```go
+```sql
  [mysqld]
  plugin-load-add=validate_password.so
 ```
 
 1.  在运行时注册插件，执行以下命令：
 
-```go
+```sql
  INSTALL PLUGIN validate_password SONAME 'validate_password.so';
 ```
 
@@ -776,14 +776,14 @@ MySQL 8 提供了一个 keyring 服务，允许 MySQL 服务器的内部组件�
 
 +   通过在`my.cnf`文件中添加`--plugin-load-add`参数，在服务器启动时加载插件：
 
-```go
+```sql
  mysqld]
  plugin-load-add=keyring_file.so
 ```
 
 +   通过执行以下命令在运行时注册插件：
 
-```go
+```sql
  INSTALL PLUGIN keyring_file SONAME 'keyring_file.so';
 ```
 

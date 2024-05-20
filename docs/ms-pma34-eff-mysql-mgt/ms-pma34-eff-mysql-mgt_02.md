@@ -32,7 +32,7 @@ MySQL 的默认安装会使服务器容易受到入侵，因为它创建了一�
 
 在这里，我们要求`config`身份验证，并为这个 MySQL 服务器输入我们的用户名和密码：
 
-```go
+```sql
 $cfg['Servers'][$i]['auth_type'] = 'config';
 $cfg['Servers'][$i]['user'] = 'marc';
 $cfg['Servers'][$i]['password'] = 'xxx';
@@ -67,7 +67,7 @@ phpMyAdmin 不再依赖于`config.inc.php`中存储的用户名和密码，而�
 
 要启用这种模式，我们只需使用以下行：
 
-```go
+```sql
 $cfg['Servers'][$i]['auth_type'] = 'http';
 
 ```
@@ -92,7 +92,7 @@ $cfg['Servers'][$i]['auth_type'] = 'http';
 
 这个字符串是通过`blowfish_secret`指令设置的：
 
-```go
+```sql
 $cfg['blowfish_secret'] = 'jgjgRUD875G%/*';
 
 ```
@@ -101,7 +101,7 @@ $cfg['blowfish_secret'] = 'jgjgRUD875G%/*';
 
 然后，对于每个特定服务器的部分，使用以下内容：
 
-```go
+```sql
 $cfg['Servers'][$i]['auth_type'] = 'cookie';
 
 ```
@@ -112,7 +112,7 @@ $cfg['Servers'][$i]['auth_type'] = 'cookie';
 
 默认情况下，phpMyAdmin 在登录面板中显示上次成功登录到该特定服务器的用户名，从永久 cookie 中检索。如果这种行为不可接受（同一工作站上的其他用户不应该看到上一个用户名），我们可以将以下参数设置为`FALSE`：
 
-```go
+```sql
 $cfg['LoginCookieRecall'] = FALSE;
 
 ```
@@ -137,28 +137,28 @@ $cfg['LoginCookieRecall'] = FALSE;
 
 要启用这种模式，我们从以下指令开始：
 
-```go
+```sql
 $cfg['Servers'][$i]['auth_type'] = 'signon';
 
 ```
 
 假设认证应用程序已经使用名为`FirstApp`的会话来存储凭据。我们通过添加以下代码行告诉 phpMyAdmin：
 
-```go
+```sql
 $cfg['Servers'][$i]['SignonSession'] = 'FirstApp';
 
 ```
 
 我们必须注意那些在其他应用程序之前尝试访问 phpMyAdmin 的用户；在这种情况下，phpMyAdmin 将用户重定向到认证应用程序。这是通过以下方式完成的：
 
-```go
+```sql
 $cfg['Servers'][$i]['SignonURL'] = 'http://www.mydomain.com/FirstApp';
 
 ```
 
 认证应用程序如何以 phpMyAdmin 能够理解的格式存储凭据？一个示例包含在`scripts/signon.php`中。在这个脚本中，有一个简单的 HTML 表单来输入凭据和初始化会话的逻辑——我们将使用`FirstApp`作为会话名称，并将用户、密码、主机和端口信息创建到这个会话中，如下所示：
 
-```go
+```sql
 $_SESSION['PMA_single_signon_user'] = $_POST['user'];
 $_SESSION['PMA_single_signon_password'] = $_POST['password'];
 $_SESSION['PMA_single_signon_host'] = $_POST['host'];
@@ -186,7 +186,7 @@ $_SESSION['PMA_single_signon_port'] = $_POST['port'];
 
 然后，在各个部分的末尾，以下行控制启动：
 
-```go
+```sql
 $cfg['ServerDefault'] = 1;
 
 ```
@@ -205,7 +205,7 @@ $cfg['ServerDefault'] = 1;
 
 如果我们想要能够连接到未定义的 MySQL 服务器，可以使用另一种机制。首先，我们必须设置以下参数：
 
-```go
+```sql
 $cfg['AllowArbitraryServer'] = TRUE;
 
 ```
@@ -224,7 +224,7 @@ $cfg['AllowArbitraryServer'] = TRUE;
 
 有一个机制可以告诉 phpMyAdmin 用户注销后应该到达哪个 URL。这个功能可以方便地与其他应用程序集成，并适用于所有允许注销的认证类型。这里是一个例子：
 
-```go
+```sql
 $cfg['Servers'][$i]['LogoutURL'] = 'http://www.mydomain.com';
 
 ```
@@ -261,7 +261,7 @@ phpMyAdmin 的脚本永远不必修改此目录中的任何内容，除非我们
 
 phpMyAdmin 使用 PHP 的自定义错误处理机制。这个错误处理程序的好处之一是避免路径泄露，这被认为是一种安全弱点。与此相关的默认设置是：
 
-```go
+```sql
 $cfg['Error_Handler'] = array();
 $cfg['Error_Handler']['display'] = false;
 
@@ -277,7 +277,7 @@ $cfg['Error_Handler']['display'] = false;
 
 规则的格式是：
 
-```go
+```sql
 <'allow' | 'deny'> <username> [from] <source>
 
 ```
@@ -293,7 +293,7 @@ $cfg['Error_Handler']['display'] = false;
 
 通常我们会有几个规则。假设我们希望有以下两个规则：
 
-```go
+```sql
 allow Marc from 45.34.23.12
 allow Melanie from all
 
@@ -301,7 +301,7 @@ allow Melanie from all
 
 我们必须将它们放在`config.inc.php`（在相关的特定服务器部分）中，如下所示：
 
-```go
+```sql
 $cfg['Servers'][$i]['AllowDeny']['rules'] =
 array('allow Marc from 45.34.23.12', 'allow Melanie from all');
 
@@ -313,7 +313,7 @@ array('allow Marc from 45.34.23.12', 'allow Melanie from all');
 
 默认情况下，此参数为空：
 
-```go
+```sql
 $cfg['Servers'][$i]['AllowDeny']['order'] = '';
 
 ```
@@ -322,21 +322,21 @@ $cfg['Servers'][$i]['AllowDeny']['order'] = '';
 
 假设我们希望默认情况下允许访问，只拒绝对某些用户名/IP 对的访问，我们应该使用：
 
-```go
+```sql
 $cfg['Servers'][$i]['AllowDeny']['order'] = 'deny,allow';
 
 ```
 
 在这种情况下，所有`deny`规则将首先应用，然后是`allow`规则。如果规则中没有提到的情况，将允许访问。为了更加严格，我们希望默认情况下拒绝。我们可以使用：
 
-```go
+```sql
 $cfg['Servers'][$i]['AllowDeny']['order'] = 'allow,deny';
 
 ```
 
 这次，所有`allow`规则首先应用，然后是`deny`规则。如果规则中没有提到的情况，访问将被拒绝。指定规则顺序的第三种（也是最严格的）方式是：
 
-```go
+```sql
 $cfg['Servers'][$i]['AllowDeny']['order'] = 'explicit';
 
 ```
@@ -347,7 +347,7 @@ $cfg['Servers'][$i]['AllowDeny']['order'] = 'explicit';
 
 由于`root`用户几乎存在于所有的 MySQL 安装中，因此经常成为攻击目标。一个参数允许我们轻松地阻止 MySQL 的`root`账户的所有 phpMyAdmin 登录，使用以下设置：
 
-```go
+```sql
 $cfg['Servers'][$i]['AllowRoot'] = FALSE;
 
 ```
@@ -360,14 +360,14 @@ HTTP 本身并不免疫网络嗅探（从传输中获取敏感数据）。因此
 
 为此，假设我们的 Web 服务器支持 HTTPS，我们只需在 URL 中使用`https`而不是`http`来启动 phpMyAdmin，如下所示：
 
-```go
+```sql
 https://www.mydomain.com/phpMyAdmin/
 
 ```
 
 如果我们正在使用`PmaAbsoluteUri`自动检测，如下所示：
 
-```go
+```sql
 $cfg['PmaAbsoluteUri'] = '';
 
 ```
@@ -376,14 +376,14 @@ phpMyAdmin 将看到我们在 URL 中使用了 HTTPS，并做出相应的反应�
 
 如果没有，我们必须按照以下方式在此参数中加入`https`部分：
 
-```go
+```sql
 $cfg['PmaAbsoluteUri'] = 'https://www.mydomain.com/phpMyAdmin';
 
 ```
 
 我们可以通过以下设置自动将用户切换到 HTTPS 连接：
 
-```go
+```sql
 $cfg['ForceSSL'] = TRUE;
 
 ```

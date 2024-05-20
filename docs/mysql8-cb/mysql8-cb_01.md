@@ -86,7 +86,7 @@
 
 1.  查找 Red Hat 或 CentOS 版本：
 
-```go
+```sql
 shell> cat /etc/redhat-release
 CentOS Linux release 7.3.1611 (Core)
 ```
@@ -97,7 +97,7 @@ CentOS Linux release 7.3.1611 (Core)
 
 使用以下命令安装下载的发布包，将名称替换为下载的 RPM 包的特定于平台和版本的包名称：
 
-```go
+```sql
 shell> sudo yum localinstall -y mysql57-community-release-el7-11.noarch.rpm
 Loaded plugins: fastestmirror
 Examining mysql57-community-release-el7-11.noarch.rpm: mysql57-community-release-el7-11.noarch
@@ -116,7 +116,7 @@ Complete!
 
 1.  或者您可以复制链接位置并直接使用 RPM 进行安装（安装后可以跳过下一步）：
 
-```go
+```sql
 shell> sudo rpm -Uvh "https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm"
 Retrieving https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm
 Preparing...                          ################################# [100%]
@@ -126,7 +126,7 @@ Updating / installing...
 
 1.  验证安装：
 
-```go
+```sql
 shell> yum repolist enabled | grep 'mysql.*-community.*'
 mysql-connectors-community/x86_64 MySQL Connectors Community                  42
 mysql-tools-community/x86_64      MySQL Tools Community                       53
@@ -135,7 +135,7 @@ mysql57-community/x86_64          MySQL 5.7 Community Server                 227
 
 1.  设置发布系列。在撰写本书时，MySQL 8 不是**一般可用性**（**GA**）版本。因此，MySQL 5.7 将被选为默认发布系列。要安装 MySQL 8，您必须将发布系列设置为 8：
 
-```go
+```sql
 shell> sudo yum repolist all | grep mysql
 mysql-cluster-7.5-community/x86_64   MySQL Cluster 7.5 Community disabled
 mysql-cluster-7.5-community-source   MySQL Cluster 7.5 Community disabled
@@ -159,7 +159,7 @@ mysql80-community-source             MySQL 8.0 Community Server  disabled
 
 1.  禁用`mysql57-community`并启用`mysql80-community`：
 
-```go
+```sql
 shell> sudo yum install yum-utils.noarch -y
 shell> sudo yum-config-manager --disable mysql57-community
 shell> sudo yum-config-manager --enable mysql80-community
@@ -167,7 +167,7 @@ shell> sudo yum-config-manager --enable mysql80-community
 
 1.  验证`mysql80-community`是否已启用：
 
-```go
+```sql
 shell> sudo yum repolist all | grep mysql8
 mysql80-community/x86_64             MySQL 8.0 Community Server  enabled:     16
 mysql80-community-source             MySQL 8.0 Community Server  disabled
@@ -175,7 +175,7 @@ mysql80-community-source             MySQL 8.0 Community Server  disabled
 
 1.  安装 MySQL 8：
 
-```go
+```sql
 shell> sudo yum install -y mysql-community-server
 Loaded plugins: fastestmirror
 mysql-connectors-community | 2.5 kB  00:00:00     
@@ -211,7 +211,7 @@ Complete!
 
 1.  您可以使用以下命令检查已安装的软件包：
 
-```go
+```sql
 shell> rpm -qa | grep -i 'mysql.*8.*'
 perl-DBD-MySQL-4.023-5.el7.x86_64
 mysql-community-libs-8.0.3-0.1.rc.el7.x86_64
@@ -228,13 +228,13 @@ mysql-community-server-8.0.3-0.1.rc.el7.x86_64
 
 或者您可以复制链接位置并使用`wget`直接在服务器上下载。您可能需要安装`wget`（`sudo apt-get install wget`）：
 
-```go
+```sql
 shell> wget "https://repo.mysql.com//mysql-apt-config_0.8.9-1_all.deb"
 ```
 
 1.  使用以下命令安装下载的发布软件包，替换为下载的 APT 软件包的特定平台和版本的软件包名称：
 
-```go
+```sql
 shell> sudo dpkg -i mysql-apt-config_0.8.9-1_all.deb 
 (Reading database ... 131133 files and directories currently installed.)
 Preparing to unpack mysql-apt-config_0.8.9-1_all.deb ...
@@ -252,19 +252,19 @@ OK
 
 如果要更改发布版本，请执行以下操作：
 
-```go
+```sql
 shell> sudo dpkg-reconfigure mysql-apt-config
 ```
 
 1.  使用以下命令从 MySQL APT 存储库更新软件包信息（此步骤是强制性的）：
 
-```go
+```sql
 shell> sudo apt-get update
 ```
 
 1.  安装 MySQL。在安装过程中，您需要为 MySQL 安装的 root 用户提供密码。记住密码；如果忘记了，您将不得不重置 root 密码（参考*重置 root 密码*部分）。这将安装 MySQL 服务器的软件包，以及客户端和数据库公共文件的软件包：
 
-```go
+```sql
 shell> sudo apt-get install -y mysql-community-server
 ~
 Processing triggers for ureadahead (0.100.0-19) ...
@@ -277,7 +277,7 @@ Setting up mysql-community-server-core (8.0.3-rc-1ubuntu14.04) ...
 
 1.  验证软件包。`ii`表示软件包已安装：
 
-```go
+```sql
 shell> dpkg -l | grep -i mysql
 ii  mysql-apt-config            0.8.9-1               all   Auto configuration for MySQL APT Repo.
 ii  mysql-client                8.0.3-rc-1ubuntu14.04 amd64 MySQL Client meta package depending on latest version
@@ -320,7 +320,7 @@ ii  mysql-community-server-core 8.0.3-rc-1ubuntu14.04 amd64 MySQL Server Core Bi
 
 1.  从 MySQL 下载页面[`dev.mysql.com/downloads/mysql/`](http://dev.mysql.com/downloads/mysql/)下载 MySQL RPM tar 包，选择您的操作系统和 CPU 架构。在撰写本文时，MySQL 8.0 尚未 GA。如果它仍处于开发系列中，请选择 Development Releases 选项卡以获取 MySQL 8.0，然后选择操作系统和版本：
 
-```go
+```sql
 shell> wget 'https://dev.mysql.com/get/Downloads/MySQL-8.0/mysql-8.0.3-0.1.rc.el7.x86_64.rpm-bundle.tar'
 ~
 Saving to: ‘mysql-8.0.3-0.1.rc.el7.x86_64.rpm-bundle.tar’
@@ -329,25 +329,25 @@ Saving to: ‘mysql-8.0.3-0.1.rc.el7.x86_64.rpm-bundle.tar’
 
 1.  解压软件包：
 
-```go
+```sql
 shell> tar xfv mysql-8.0.3-0.1.rc.el7.x86_64.rpm-bundle.tar
 ```
 
 1.  安装 MySQL：
 
-```go
+```sql
 shell> sudo rpm -i mysql-community-{server-8,client,common,libs}*
 ```
 
 1.  RPM 无法解决依赖关系问题，安装过程可能会出现问题。如果遇到此类问题，请使用此处列出的`yum`命令（您应该可以访问依赖软件包）：
 
-```go
+```sql
 shell> sudo yum install mysql-community-{server-8,client,common,libs}* -y
 ```
 
 1.  验证安装：
 
-```go
+```sql
 shell> rpm -qa | grep -i mysql-community
 mysql-community-common-8.0.3-0.1.rc.el7.x86_64
 mysql-community-libs-compat-8.0.3-0.1.rc.el7.x86_64
@@ -360,7 +360,7 @@ mysql-community-client-8.0.3-0.1.rc.el7.x86_64
 
 1.  从 MySQL 下载页面[`dev.mysql.com/downloads/mysql/`](http://dev.mysql.com/downloads/mysql/)下载 MySQL APT TAR：
 
-```go
+```sql
 shell> wget "https://dev.mysql.com/get/Downloads/MySQL-8.0/mysql-server_8.0.3-rc-1ubuntu16.04_amd64.deb-bundle.tar"
 ~
 Saving to: ‘mysql-server_8.0.3-rc-1ubuntu16.04_amd64.deb-bundle.tar’
@@ -369,19 +369,19 @@ Saving to: ‘mysql-server_8.0.3-rc-1ubuntu16.04_amd64.deb-bundle.tar’
 
 1.  解压软件包：
 
-```go
+```sql
 shell> tar -xvf mysql-server_8.0.3-rc-1ubuntu16.04_amd64.deb-bundle.tar 
 ```
 
 1.  安装依赖项。如果尚未安装，您可能需要安装`libaio1`软件包：
 
-```go
+```sql
 shell> sudo apt-get install -y libaio1
 ```
 
 1.  升级`libstdc++6`到最新版本：
 
-```go
+```sql
 shell> sudo add-apt-repository ppa:ubuntu-toolchain-r/test
 shell> sudo apt-get update
 shell> sudo apt-get upgrade -y libstdc++6
@@ -389,7 +389,7 @@ shell> sudo apt-get upgrade -y libstdc++6
 
 1.  将`libmecab2`升级到最新版本。如果未包括`universe`，则在文件末尾添加以下行（例如，`zesty`）：
 
-```go
+```sql
 shell> sudo vi /etc/apt/sources.list
 deb http://us.archive.ubuntu.com/ubuntu zesty main universe
 
@@ -399,25 +399,25 @@ shell> sudo apt-get install libmecab2
 
 1.  使用以下命令预配置 MySQL 服务器包。它会要求您设置 root 密码：
 
-```go
+```sql
 shell> sudo dpkg-preconfigure mysql-community-server_*.deb
 ```
 
 1.  安装数据库公共文件包、客户端包、客户端元包、服务器包和服务器元包（按顺序）；您可以使用单个命令完成：
 
-```go
+```sql
 shell> sudo dpkg -i mysql-{common,community-client-core,community-client,client,community-server-core,community-server,server}_*.deb
 ```
 
 1.  安装共享库：
 
-```go
+```sql
 shell> sudo dpkg -i libmysqlclient21_8.0.1-dmr-1ubuntu16.10_amd64.deb
 ```
 
 1.  验证安装：
 
-```go
+```sql
 shell> dpkg -l | grep -i mysql
 ii  mysql-client                8.0.3-rc-1ubuntu14.04 amd64 MySQL Client meta package depending on latest version
 ii  mysql-common                8.0.3-rc-1ubuntu14.04 amd64 MySQL Common
@@ -438,19 +438,19 @@ MySQL 依赖于`libaio`库。如果未在本地安装此库，`数据目录`初�
 
 在基于 YUM 的系统上：
 
-```go
+```sql
 shell> sudo yum install -y libaio
 ```
 
 在基于 APT 的系统上：
 
-```go
+```sql
 shell> sudo apt-get install -y libaio1
 ```
 
 从 MySQL 下载页面下载 TAR 二进制文件，网址为[`dev.mysql.com/downloads/mysql/`](https://dev.mysql.com/downloads/mysql/)，然后选择 Linux - 通用作为操作系统并选择版本。您可以直接使用`wget`命令直接在服务器上下载：
 
-```go
+```sql
 shell> cd /opt
 shell> wget "https://dev.mysql.com/get/Downloads/MySQL-8.0/mysql-8.0.3-rc-linux-glibc2.12-x86_64.tar.gz"
 ```
@@ -459,26 +459,26 @@ shell> wget "https://dev.mysql.com/get/Downloads/MySQL-8.0/mysql-8.0.3-rc-linux-
 
 1.  添加`mysql`组和`mysql`用户。所有文件和目录都应该在`mysql`用户下：
 
-```go
+```sql
 shell> sudo groupadd mysql
 shell> sudo useradd -r -g mysql -s /bin/false mysql
 ```
 
 1.  这是安装位置（您可以将其更改为另一个位置）：
 
-```go
+```sql
 shell> cd /usr/local
 ```
 
 1.  解压二进制文件。将解压后的二进制文件保留在相同位置，并将其符号链接到安装位置。通过这种方式，您可以保留多个版本，并且非常容易升级。例如，您可以下载另一个版本并将其解压到不同的位置；在升级时，您只需要更改符号链接：
 
-```go
+```sql
 shell> sudo tar zxvf /opt/mysql-8.0.3-rc-linux-glibc2.12-x86_64.tar.gz
 mysql-8.0.3-rc-linux-glibc2.12-x86_64/bin/myisam_ftdump
 mysql-8.0.3-rc-linux-glibc2.12-x86_64/bin/myisamchk
 ```
 
-```go
+```sql
 mysql-8.0.3-rc-linux-glibc2.12-x86_64/bin/myisamlog
 mysql-8.0.3-rc-linux-glibc2.12-x86_64/bin/myisampack
 mysql-8.0.3-rc-linux-glibc2.12-x86_64/bin/mysql
@@ -487,13 +487,13 @@ mysql-8.0.3-rc-linux-glibc2.12-x86_64/bin/mysql
 
 1.  创建符号链接：
 
-```go
+```sql
 shell> sudo ln -s mysql-8.0.3-rc-linux-glibc2.12-x86_64 mysql
 ```
 
 1.  创建必要的目录并将所有权更改为`mysql`：
 
-```go
+```sql
 shell> cd mysql
 shell> sudo mkdir mysql-files
 shell> sudo chmod 750 mysql-files
@@ -503,7 +503,7 @@ shell> sudo chgrp -R mysql .
 
 1.  初始化`mysql`，生成临时密码：
 
-```go
+```sql
 shell> sudo bin/mysqld --initialize --user=mysql
 ~
 2017-12-02T05:55:10.822139Z 5 [Note] A temporary password is generated for root@localhost: Aw=ee.rf(6Ua
@@ -512,7 +512,7 @@ shell> sudo bin/mysqld --initialize --user=mysql
 
 1.  为 SSL 设置 RSA。有关 SSL 的更多详细信息，请参阅第十四章“使用 X509 部分设置加密连接”。请注意，为`root@localhost`生成了一个临时密码：eJQdj8C*qVMq
 
-```go
+```sql
 shell> sudo bin/mysql_ssl_rsa_setup
 Generating a 2048 bit RSA private key
 ...........+++
@@ -533,20 +533,20 @@ writing new private key to 'client-key.pem'
 
 1.  更改二进制文件的所有权为`root`，将数据文件的所有权更改为`mysql`：
 
-```go
+```sql
 shell> sudo chown -R root .
 shell> sudo chown -R mysql data mysql-files
 ```
 
 1.  将启动脚本复制到`init.d`：
 
-```go
+```sql
 shell> sudo cp support-files/mysql.server /etc/init.d/mysql
 ```
 
 1.  将`mysql`的二进制文件导出到`PATH`环境变量：
 
-```go
+```sql
 shell> export PATH=$PATH:/usr/local/mysql/bin
 ```
 
@@ -588,31 +588,31 @@ shell> export PATH=$PATH:/usr/local/mysql/bin
 
 1.  使用`service`：
 
-```go
+```sql
 shell> sudo service mysql start
 ```
 
 1.  使用`init.d`：
 
-```go
+```sql
 shell> sudo /etc/init.d/mysql start
 ```
 
 1.  如果找不到启动脚本（在进行二进制安装时），可以从解压位置复制。
 
-```go
+```sql
 shell> sudo cp /usr/local/mysql/support-files/mysql.server /etc/init.d/mysql
 ```
 
 1.  如果您的安装包括`systemd`支持：
 
-```go
+```sql
 shell> sudo systemctl start mysqld
 ```
 
 1.  如果没有`systemd`支持，可以使用`mysqld_safe`启动 MySQL。`mysqld_safe`是`mysqld`的启动脚本，用于保护`mysqld`进程。如果`mysqld`被杀死，`mysqld_safe`会尝试重新启动进程：
 
-```go
+```sql
 shell> sudo mysqld_safe --user=mysql &
 ```
 
@@ -626,14 +626,14 @@ shell> sudo mysqld_safe --user=mysql &
 
 1.  创建了一个超级用户帐户，`root'@'localhost`。为超级用户设置了密码，并将其存储在错误日志文件中（不适用于二进制安装）。要显示它，请使用以下命令：
 
-```go
+```sql
 shell> sudo  grep "temporary password" /var/log/mysqld.log 
 2017-12-02T07:23:20.915827Z 5 [Note] A temporary password is generated for root@localhost: bkvotsG:h6jD
 ```
 
 您可以使用临时密码连接到 MySQL。
 
-```go
+```sql
 shell> mysql -u root -pbkvotsG:h6jD
 mysql: [Warning] Using a password on the command line interface can be insecure.
 Welcome to the MySQL monitor.  Commands end with ; or \g.
@@ -653,7 +653,7 @@ mysql>
 
 1.  尽快使用生成的临时密码登录并为超级用户帐户设置自定义密码更改根密码：
 
-```go
+```sql
 # You will be prompted for a password, enter the one you got from the previous step
 
 mysql> ALTER USER 'root'@'localhost' IDENTIFIED BY 'NewPass4!';
@@ -668,27 +668,27 @@ Query OK, 0 rows affected (0.01 sec)
 
 1.  使用`service`：
 
-```go
+```sql
 shell> sudo service mysqld stop
 Redirecting to /bin/systemctl stop  mysqld.service
 ```
 
 1.  使用`init.d`：
 
-```go
+```sql
 shell> sudo /etc/init.d/mysql stop
 [ ok ] Stopping mysql (via systemctl): mysql.service.
 ```
 
 1.  如果您的安装包括`systemd`支持（参见*使用 systemd 管理 MySQL 服务器*部分）：
 
-```go
+```sql
 shell> sudo systemctl stop mysqld
 ```
 
 1.  使用`mysqladmin`：
 
-```go
+```sql
 shell> mysqladmin -u root -p shutdown
 ```
 
@@ -696,7 +696,7 @@ shell> mysqladmin -u root -p shutdown
 
 1.  使用`service`：
 
-```go
+```sql
 shell> sudo systemctl status mysqld
 ● mysqld.service - MySQL Server
    Loaded: loaded (/usr/lib/systemd/system/mysqld.service; enabled; vendor preset: disabled)
@@ -717,7 +717,7 @@ Dec 02 07:33:53 centos7 systemd[1]: Started MySQL Server.
 
 1.  使用`init.d`：
 
-```go
+```sql
 shell> sudo /etc/init.d/mysql status
 ● mysql.service - LSB: start and stop MySQL
    Loaded: loaded (/etc/init.d/mysql; bad; vendor preset: enabled)
@@ -738,7 +738,7 @@ Dec 02 07:26:33 ubuntu systemd[1]: Stopped LSB: start and stop MySQL.
 
 1.  如果您的安装包括`systemd`支持（参见*使用 systemd 管理 MySQL 服务器*部分）：
 
-```go
+```sql
 shell> sudo systemctl status mysqld
 ```
 
@@ -754,7 +754,7 @@ shell> sudo systemctl status mysqld
 
 1.  检查是否存在任何现有软件包：
 
-```go
+```sql
 shell> rpm -qa | grep -i mysql-community
 mysql-community-libs-8.0.3-0.1.rc.el7.x86_64
 mysql-community-common-8.0.3-0.1.rc.el7.x86_64
@@ -765,19 +765,19 @@ mysql-community-server-8.0.3-0.1.rc.el7.x86_64
 
 1.  删除软件包。您可能会收到通知，有其他软件包依赖于 MySQL。如果您打算再次安装 MySQL，可以通过传递`--nodeps`选项忽略警告：
 
-```go
+```sql
 shell> rpm -e <package-name>
 ```
 
 例如：
 
-```go
+```sql
 shell> sudo rpm -e mysql-community-server
 ```
 
 1.  要删除所有软件包：
 
-```go
+```sql
 shell> sudo rpm -qa | grep -i mysql-community | xargs sudo rpm -e --nodeps
 warning: /etc/my.cnf saved as /etc/my.cnf.rpmsave
 ```
@@ -786,13 +786,13 @@ warning: /etc/my.cnf saved as /etc/my.cnf.rpmsave
 
 1.  检查是否存在任何现有软件包：
 
-```go
+```sql
 shell> dpkg -l | grep -i mysql
 ```
 
 1.  使用以下命令删除软件包：
 
-```go
+```sql
 shell> sudo apt-get remove mysql-community-server mysql-client mysql-common mysql-community-client mysql-community-client-core mysql-community-server mysql-community-server-core -y
 Reading package lists... Done
 Building dependency tree       
@@ -815,14 +815,14 @@ Processing triggers for man-db (2.7.5-1) ...
 
 或使用以下命令删除它们：
 
-```go
+```sql
 shell> sudo apt-get remove --purge mysql-\* -y
 shell> sudo apt-get autoremove -y
 ```
 
 1.  验证软件包是否已卸载：
 
-```go
+```sql
 shell> dpkg -l | grep -i mysql
 ii  mysql-apt-config        0.8.9-1               all          Auto configuration for MySQL APT Repo.
 rc  mysql-common            8.0.3-rc-1ubuntu16.04 amd64        MySQL Common
@@ -838,25 +838,25 @@ rc  mysql-community-server  8.0.3-rc-1ubuntu16.04 amd64        MySQL Server
 
 1.  更改目录到安装路径：
 
-```go
+```sql
 shell> cd /usr/local
 ```
 
 1.  检查`mysql`指向的位置，这将显示它引用的路径：
 
-```go
+```sql
 shell> sudo ls -lh mysql
 ```
 
 1.  删除`mysql`：
 
-```go
+```sql
 shell> sudo rm mysql
 ```
 
 1.  删除二进制文件（可选）：
 
-```go
+```sql
 shell> sudo rm -f /opt/mysql-8.0.3-rc-linux-glibc2.12-x86_64.tar.gz
 ```
 
@@ -870,19 +870,19 @@ shell> sudo rm -f /opt/mysql-8.0.3-rc-linux-glibc2.12-x86_64.tar.gz
 
 1.  创建本地化的`systemd`配置文件：
 
-```go
+```sql
 shell> sudo mkdir -pv /etc/systemd/system/mysqld.service.d
 ```
 
 1.  创建/打开`conf`文件：
 
-```go
+```sql
 shell> sudo vi /etc/systemd/system/mysqld.service.d/override.conf
 ```
 
 1.  输入以下内容：
 
-```go
+```sql
 [Service]
 LimitNOFILE=max_open_files (ex: 102400)
 PIDFile=/path/to/pid/file (ex: /var/lib/mysql/mysql.pid)
@@ -892,13 +892,13 @@ Environment="LD_PRELOAD=/path/to/malloc/library" Environment="TZ=time_zone_setti
 
 1.  重新加载`systemd`：
 
-```go
+```sql
 shell> sudo systemctl daemon-reload
 ```
 
 1.  对于临时更改，您可以在不编辑`conf`文件的情况下重新加载：
 
-```go
+```sql
 shell> sudo systemctl set-environment MYSQLD_OPTS="--general_log=1"
 or unset using
 shell> sudo systemctl unset-environment MYSQLD_OPTS
@@ -908,7 +908,7 @@ shell> sudo systemctl unset-environment MYSQLD_OPTS
 
 启用`mysql.serviceshell> sudo systemctl`，并启用`mysql.service`：
 
-```go
+```sql
 shell> sudo systemctl unmask mysql.service
 ```
 
@@ -916,13 +916,13 @@ shell> sudo systemctl unmask mysql.service
 
 在 RPM 平台上：
 
-```go
+```sql
 shell> sudo systemctl restart mysqld
 ```
 
 在 Debian 平台上：
 
-```go
+```sql
 shell> sudo systemctl restart mysql
 ```
 
@@ -956,19 +956,19 @@ shell> sudo systemctl restart mysql
 
 1.  准备 MySQL 进行缓慢关闭，以确保撤消日志为空，并且数据文件在不同版本之间的文件格式差异的情况下已完全准备好：
 
-```go
+```sql
 mysql> SET GLOBAL innodb_fast_shutdown = 0;
 ```
 
 1.  按照*停止 MySQL 8.0 服务器*部分中的说明关闭`mysql`服务器：
 
-```go
+```sql
 shell> sudo systemctl stop mysqld
 ```
 
 1.  从`数据目录`中删除`InnoDB`重做日志文件（`ib_logfile*`文件），以避免降级问题与重做日志文件格式更改之间的关联，这些更改可能发生在版本之间：
 
-```go
+```sql
 shell> sudo rm -rf /var/lib/mysql/ib_logfile*
 ```
 
@@ -976,20 +976,20 @@ shell> sudo rm -rf /var/lib/mysql/ib_logfile*
 
 列出可用版本：
 
-```go
+```sql
 shell> sudo yum list mysql-community-server
 ```
 
 降级很棘手；最好在降级之前删除现有的软件包：
 
-```go
+```sql
 shell> sudo rpm -qa | grep -i mysql-community | xargs sudo rpm -e --nodeps
 warning: /etc/my.cnf saved as /etc/my.cnf.rpmsave
 ```
 
 安装旧版本：
 
-```go
+```sql
 shell> sudo yum install -y mysql-community-server-<version>
 ```
 
@@ -997,19 +997,19 @@ shell> sudo yum install -y mysql-community-server-<version>
 
 1.  重新配置 MySQL 并选择旧版本：
 
-```go
+```sql
 shell> sudo dpkg-reconfigure mysql-apt-config
 ```
 
 1.  运行`apt-get update`：
 
-```go
+```sql
 shell> sudo apt-get update
 ```
 
 1.  删除当前版本：
 
-```go
+```sql
 shell> sudo apt-get remove mysql-community-server mysql-client mysql-common mysql-community-client mysql-community-client-core mysql-community-server mysql-community-server-core -y
 
 shell> sudo apt-get autoremove
@@ -1017,7 +1017,7 @@ shell> sudo apt-get autoremove
 
 1.  安装旧版本（自动选择，因为您已经重新配置）：
 
-```go
+```sql
 shell> sudo apt-get install -y mysql-server
 ```
 
@@ -1033,13 +1033,13 @@ shell> sudo apt-get install -y mysql-server
 
 1.  运行`mysql_upgrade`实用程序：
 
-```go
+```sql
 shell> sudo mysql_upgrade -u root -p
 ```
 
 1.  重新启动 MySQL 服务器，以确保对系统表所做的任何更改生效：
 
-```go
+```sql
 shell> sudo systemctl restart mysqld
 ```
 
@@ -1059,7 +1059,7 @@ shell> sudo systemctl restart mysqld
 
 1.  您需要对数据库进行逻辑备份。（参考第七章，*备份*中的`mydumper`进行更快的备份）：
 
-```go
+```sql
 shell> mysqldump -u root -p --add-drop-table --routines --events --all-databases --force > mysql80.sql
 ```
 
@@ -1067,7 +1067,7 @@ shell> mysqldump -u root -p --add-drop-table --routines --events --all-databases
 
 1.  移动`数据目录`。如果要保留 MySQL 8，可以将`数据目录`移回（在步骤 1 中不需要恢复 SQL 备份）：
 
-```go
+```sql
 shell> sudo mv /var/lib/mysql /var/lib/mysql80
 ```
 
@@ -1079,14 +1079,14 @@ shell> sudo mv /var/lib/mysql /var/lib/mysql80
 
 1.  切换存储库：
 
-```go
+```sql
 shell> sudo yum-config-manager --disable mysql80-community
 shell> sudo yum-config-manager --enable mysql57-community
 ```
 
 1.  验证`mysql57-community`已启用：
 
-```go
+```sql
 shell> yum repolist enabled | grep "mysql.*-community.*"
 !mysql-connectors-community/x86_64 MySQL Connectors Community                 42
 !mysql-tools-community/x86_64      MySQL Tools Community                      53
@@ -1095,14 +1095,14 @@ shell> yum repolist enabled | grep "mysql.*-community.*"
 
 1.  降级很棘手；最好在降级之前删除现有的软件包：
 
-```go
+```sql
 shell> sudo rpm -qa | grep -i mysql-community | xargs sudo rpm -e --nodeps
 warning: /etc/my.cnf saved as /etc/my.cnf.rpmsave
 ```
 
 1.  列出可用版本：
 
-```go
+```sql
 shell> sudo yum list mysql-community-server
 Loaded plugins: fastestmirror
 Loading mirror speeds from cached hostfile
@@ -1116,7 +1116,7 @@ mysql-community-server.x86_64   5.7.20-1.el7                         mysql57-com
 
 1.  安装 MySQL 5.7：
 
-```go
+```sql
 shell> sudo yum install -y mysql-community-server
 ```
 
@@ -1124,26 +1124,26 @@ shell> sudo yum install -y mysql-community-server
 
 1.  重新配置`apt`以切换到 MySQL 5.7：
 
-```go
+```sql
 shell> sudo dpkg-reconfigure mysql-apt-config
 ```
 
 1.  运行`apt-get update`：
 
-```go
+```sql
 shell> sudo apt-get update
 ```
 
 1.  删除当前版本：
 
-```go
+```sql
 shell> sudo apt-get remove mysql-community-server mysql-client mysql-common mysql-community-client mysql-community-client-core mysql-community-server mysql-community-server-core -y
 shell> sudo apt-get autoremove
 ```
 
 1.  安装 MySQL 5.7：
 
-```go
+```sql
 shell> sudo apt-get install -y mysql-server
 ```
 
@@ -1161,19 +1161,19 @@ shell> sudo apt-get install -y mysql-server
 
 1.  恢复备份（这可能需要很长时间，具体取决于备份的大小）。参考第八章，*恢复数据*，了解名为`myloader`的快速恢复方法：
 
-```go
+```sql
 shell> mysql -u root -p < mysql80.sql
 ```
 
 1.  运行`mysql_upgrade`：
 
-```go
+```sql
 shell> mysql_upgrade -u root -p
 ```
 
 1.  重新启动 MySQL 服务器，以确保对系统表所做的任何更改生效。参考*启动或停止 MySQL 8*部分：
 
-```go
+```sql
 shell> sudo /etc/init.d/mysql restart
 ```
 
@@ -1193,43 +1193,43 @@ MySQL 8 使用包含事务表中数据库对象信息的全局`数据字典`。�
 
 1.  检查过时的数据类型或触发器，其缺少或空的定义者或无效的创建上下文：
 
-```go
+```sql
 shell> sudo mysqlcheck -u root -p --all-databases --check-upgrade
 ```
 
 1.  不能有使用不支持本机分区的存储引擎的分区表。要识别这些表，执行此查询：
 
-```go
+```sql
 shell> SELECT TABLE_SCHEMA, TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE ENGINE NOT IN ('innodb', 'ndbcluster') AND CREATE_OPTIONS LIKE '%partitioned%';
 ```
 
 如果有这些表，请将它们更改为`InnoDB`：
 
-```go
+```sql
 mysql> ALTER TABLE table_name ENGINE = INNODB;
 ```
 
 或删除分区：
 
-```go
+```sql
 mysql> ALTER TABLE table_name REMOVE PARTITIONING;
 ```
 
 1.  MySQL 5.7 `mysql`系统数据库中不能有与 MySQL 8.0 `数据字典`使用的表同名的表。要识别具有这些名称的表，执行此查询：
 
-```go
+```sql
 mysql> SELECT TABLE_SCHEMA, TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE LOWER(TABLE_SCHEMA) = 'mysql' and LOWER(TABLE_NAME) IN ('catalogs', 'character_sets', 'collations', 'column_type_elements', 'columns', 'events', 'foreign_key_column_usage', 'foreign_keys', 'index_column_usage', 'index_partitions', 'index_stats', 'indexes', 'parameter_type_elements', 'parameters', 'routines', 'schemata', 'st_spatial_reference_systems', 'table_partition_values', 'table_partitions', 'table_stats', 'tables', 'tablespace_files', 'tablespaces', 'triggers', 'version', 'view_routine_usage', 'view_table_usage');
 ```
 
 1.  表中不能有外键约束名称超过 64 个字符。要识别约束名称过长的表，执行此查询：
 
-```go
+```sql
 mysql> SELECT CONSTRAINT_SCHEMA, TABLE_NAME, CONSTRAINT_NAME FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS WHERE LENGTH(CONSTRAINT_NAME) > 64;
 ```
 
 1.  不受 MySQL 8.0 支持的表，如`ndb`，应移至`InnoDB`：
 
-```go
+```sql
 mysql> ALTER TABLE tablename ENGINE=InnoDB;
 ```
 
@@ -1251,7 +1251,7 @@ mysql> ALTER TABLE tablename ENGINE=InnoDB;
 
 1.  在 MySQL 5.7 服务器上，如果有加密的`InnoDB`表空间，通过执行此语句来旋转`keyring`主密钥：
 
-```go
+```sql
 mysql> ALTER INSTANCE ROTATE INNODB MASTER KEY;
 ```
 
@@ -1261,13 +1261,13 @@ mysql> ALTER INSTANCE ROTATE INNODB MASTER KEY;
 
 这一步是最重要的，因为如果没有进行这一步，您将遇到以下错误：
 
-```go
+```sql
 [ERROR] InnoDB: Upgrade after a crash is not supported. 
 ```
 
 此重做日志是使用 MySQL 5.7.18 创建的。请按照[`dev.mysql.com/doc/refman/8.0/en/upgrading.html`](http://dev.mysql.com/doc/refman/8.0/en/upgrading.html)上的说明进行操作：
 
-```go
+```sql
 mysql> SET GLOBAL innodb_fast_shutdown = 0;
 ```
 
@@ -1279,14 +1279,14 @@ mysql> SET GLOBAL innodb_fast_shutdown = 0;
 
 1.  切换存储库：
 
-```go
+```sql
 shell> sudo yum-config-manager --disable mysql57-community
 shell> sudo yum-config-manager --enable mysql80-community
 ```
 
 1.  验证`mysql80-community`是否已启用：
 
-```go
+```sql
 shell> sudo yum repolist all | grep mysql8
 mysql80-community/x86_64             MySQL 8.0 Community Server  enabled:     16
 mysql80-community-source             MySQL 8.0 Community Server  disabled
@@ -1294,7 +1294,7 @@ mysql80-community-source             MySQL 8.0 Community Server  disabled
 
 1.  运行 yum update：
 
-```go
+```sql
 shell> sudo yum update mysql-server
 ```
 
@@ -1302,26 +1302,26 @@ shell> sudo yum update mysql-server
 
 1.  重新配置`apt`以切换到 MySQL 8.0：
 
-```go
+```sql
 shell> sudo dpkg-reconfigure mysql-apt-config
 ```
 
 1.  运行`apt-get update`：
 
-```go
+```sql
 shell> sudo apt-get update
 ```
 
 1.  删除当前版本：
 
-```go
+```sql
 shell> sudo apt-get remove mysql-community-server mysql-client mysql-common mysql-community-client mysql-community-client-core mysql-community-server mysql-community-server-core -y
 shell> sudo apt-get autoremove
 ```
 
 1.  安装 MySQL 8：
 
-```go
+```sql
 shell> sudo apt-get update
 shell> sudo apt-get install mysql-server
 shell> sudo apt-get install libmysqlclient21
@@ -1343,7 +1343,7 @@ shell> sudo apt-get install libmysqlclient21
 
 运行`mysql_upgrade`实用程序：
 
-```go
+```sql
 shell> sudo mysql_upgrade -u root -p
 ```
 
@@ -1367,7 +1367,7 @@ shell> sudo mysql_upgrade -u root -p
 
 1.  您需要对数据库进行逻辑备份（参考第七章，*备份*中的`mydumper`进行更快的备份）：
 
-```go
+```sql
 shell> mysqldump -u root -p --add-drop-table --routines --events --all-databases --ignore-table=mysql.innodb_table_stats --ignore-table=mysql.innodb_index_stats --force > data-for-upgrade.sql
 ```
 
@@ -1379,7 +1379,7 @@ shell> mysqldump -u root -p --add-drop-table --routines --events --all-databases
 
 1.  重置临时`root`密码：
 
-```go
+```sql
 shell> mysql -u root -p
 Enter password: **** (enter temporary root password from error log)
 
@@ -1388,13 +1388,13 @@ mysql> ALTER USER USER() IDENTIFIED BY 'your new password';
 
 1.  恢复备份（这可能需要很长时间，具体取决于备份的大小）。参考第八章“恢复数据”中的`myloader`快速恢复方法：
 
-```go
+```sql
 shell> mysql -u root -p --force < data-for-upgrade.sql
 ```
 
 1.  运行`mysql_upgrade`实用程序：
 
-```go
+```sql
 shell> sudo mysql_upgrade -u root -p
 ```
 
@@ -1412,7 +1412,7 @@ MySQL 实用工具为您提供非常方便的工具，可以在没有太多手�
 
 从 MySQL 下载页面[https://dev.mysql.com/downloads/utilities/]下载文件，选择 Red Hat Enterprise Linux/Oracle Linux，或直接使用`wget`从此链接下载：
 
-```go
+```sql
 shell> wget https://cdn.mysql.com//Downloads/MySQLGUITools/mysql-utilities-1.6.5-1.el7.noarch.rpm
 
 shell> sudo yum localinstall -y mysql-utilities-1.6.5-1.el7.noarch.rpm
@@ -1422,7 +1422,7 @@ shell> sudo yum localinstall -y mysql-utilities-1.6.5-1.el7.noarch.rpm
 
 从 MySQL 下载页面[https://dev.mysql.com/downloads/utilities/]下载文件，选择 Ubuntu Linux，或直接使用`wget`从此链接下载：
 
-```go
+```sql
 shell> wget "https://cdn.mysql.com//Downloads/MySQLGUITools/mysql-utilities_1.6.5-1ubuntu16.10_all.deb"
 shell> sudo dpkg -i mysql-utilities_1.6.5-1ubuntu16.10_all.deb
 shell> sudo apt-get install -f

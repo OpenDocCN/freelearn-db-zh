@@ -104,7 +104,7 @@ phpMyAdmin 的跟踪系统只使用正整数作为版本号；不可能使用小
 
 `$cfg['Servers'][$i]['tracking_default_statements']`包含一个由逗号分隔的字符串。这些是在我们可以选择要跟踪哪些语句的面板中提供的语句。默认语句列表定义如下；请注意 PHP 中允许字符串连接的点字符的存在：
 
-```go
+```sql
 $cfg['Servers'][$i]['tracking_default_statements'] =
 'CREATE TABLE,ALTER TABLE,DROP TABLE,RENAME TABLE,' .
 'CREATE INDEX,DROP INDEX,' .
@@ -199,7 +199,7 @@ $cfg['Servers'][$i]['tracking_default_statements'] =
 
 由于在创建特定版本时存储了完整的 SQL 代码以及自那时起发生的所有跟踪语句，我们可能希望以可执行形式重用它们。在**跟踪报告**面板的底部，有一个**导出为**对话框可用，提供了三种导出变体。如果我们选择**SQL 转储（文件下载）**菜单选项，那么为此版本存储的所有语句将转移到一个文件中，我们可以保存到我们的工作站。对于`author`表，这将产生一个包含以下行的文件：
 
-```go
+```sql
 # Tracking report for table `author`
 # 2011-10-14 14:24:12
 DROP TABLE IF EXISTS `author`;

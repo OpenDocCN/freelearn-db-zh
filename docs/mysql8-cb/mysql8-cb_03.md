@@ -30,7 +30,7 @@ JSON 文档以二进制格式存储，这使得以下操作成为可能：
 
 假设您想要存储有关员工的更多详细信息；您可以使用 JSON 保存它们：
 
-```go
+```sql
 CREATE TABLE emp_details( 
   emp_no int primary key, 
   details json 
@@ -39,7 +39,7 @@ CREATE TABLE emp_details(
 
 # 插入 JSON
 
-```go
+```sql
 INSERT INTO emp_details(emp_no, details)
 VALUES ('1',
 '{ "location": "IN", "phone": "+11800000000", "email": "abc@example.com", "address": { "line1": "abc", "line2": "xyz street", "city": "Bangalore", "pin": "560103"} }'
@@ -50,7 +50,7 @@ VALUES ('1',
 
 您可以使用`->`和`->>`运算符检索 JSON 列的字段：
 
-```go
+```sql
 mysql> SELECT emp_no, details->'$.address.pin' pin FROM emp_details;
 +--------+----------+
 | emp_no | pin      |
@@ -62,7 +62,7 @@ mysql> SELECT emp_no, details->'$.address.pin' pin FROM emp_details;
 
 要检索没有引号的数据，请使用`->>`运算符：
 
-```go
+```sql
 mysql> SELECT emp_no, details->>'$.address.pin' pin FROM emp_details;
 +--------+--------+
 | emp_no | pin    |
@@ -80,7 +80,7 @@ MySQL 提供了许多处理 JSON 数据的函数。让我们看看最常用的�
 
 要以漂亮的格式显示 JSON 值，请使用`JSON_PRETTY()`函数：
 
-```go
+```sql
 mysql> SELECT emp_no, JSON_PRETTY(details) FROM emp_details \G
 *************************** 1\. row ***************************
  emp_no: 1
@@ -100,7 +100,7 @@ JSON_PRETTY(details): {
 
 不漂亮的：
 
-```go
+```sql
 mysql> SELECT emp_no, details FROM emp_details \G
 *************************** 1\. row ***************************
  emp_no: 1
@@ -112,7 +112,7 @@ details: {"email": "abc@example.com", "phone": "+11800000000", "address": {"pin"
 
 您可以在`WHERE`子句中使用`col->>path`运算符引用 JSON 列：
 
-```go
+```sql
 mysql> SELECT emp_no FROM emp_details WHERE details->>'$.address.pin'="560103";
 +--------+
 | emp_no |
@@ -124,7 +124,7 @@ mysql> SELECT emp_no FROM emp_details WHERE details->>'$.address.pin'="560103";
 
 您还可以使用`JSON_CONTAINS`函数搜索数据。如果找到数据，则返回`1`，否则返回`0`：
 
-```go
+```sql
 mysql> SELECT JSON_CONTAINS(details->>'$.address.pin', "560103") FROM emp_details;
 +----------------------------------------------------+
 | JSON_CONTAINS(details->>'$.address.pin', "560103") |
@@ -136,7 +136,7 @@ mysql> SELECT JSON_CONTAINS(details->>'$.address.pin', "560103") FROM emp_detail
 
 如何搜索键？假设您想要检查`address.line1`是否存在：
 
-```go
+```sql
 mysql> SELECT JSON_CONTAINS_PATH(details, 'one', "$.address.line1") FROM emp_details;
 +--------------------------------------------------------------------------+
 | JSON_CONTAINS_PATH(details, 'one', "$.address.line1")                    |
@@ -148,7 +148,7 @@ mysql> SELECT JSON_CONTAINS_PATH(details, 'one', "$.address.line1") FROM emp_det
 
 在这里，`one`表示至少应该存在一个键。假设您想要检查`address.line1`或`address.line2`是否存在：
 
-```go
+```sql
 mysql> SELECT JSON_CONTAINS_PATH(details, 'one', "$.address.line1", "$.address.line5") FROM emp_details;
 +--------------------------------------------------------------------------+
 | JSON_CONTAINS_PATH(details, 'one', "$.address.line1", "$.address.line2") |
@@ -159,7 +159,7 @@ mysql> SELECT JSON_CONTAINS_PATH(details, 'one', "$.address.line1", "$.address.l
 
 如果要检查`address.line1`和`address.line5`是否都存在，可以使用`and`而不是`one`：
 
-```go
+```sql
 mysql> SELECT JSON_CONTAINS_PATH(details, 'all', "$.address.line1", "$.address.line5") FROM emp_details;
 +--------------------------------------------------------------------------+
 | JSON_CONTAINS_PATH(details, 'all', "$.address.line1", "$.address.line5") |
@@ -177,7 +177,7 @@ mysql> SELECT JSON_CONTAINS_PATH(details, 'all', "$.address.line1", "$.address.l
 
 假设您想要替换员工的邮政编码并添加昵称的详细信息：
 
-```go
+```sql
 mysql> UPDATE 
     emp_details 
 SET 
@@ -192,7 +192,7 @@ Rows matched: 1 Changed: 1 Warnings: 0
 
 假设您想要添加一个新列而不更新现有值；您可以使用`JSON_INSERT()`：
 
-```go
+```sql
 mysql> UPDATE emp_details SET details=JSON_INSERT(details, "$.address.pin", "560132", "$.address.line4", "A Wing") WHERE emp_no = 1;
 Query OK, 1 row affected (0.00 sec)
 Rows matched: 1 Changed: 1 Warnings: 0
@@ -204,7 +204,7 @@ Rows matched: 1 Changed: 1 Warnings: 0
 
 假设您只想替换字段而不添加新字段：
 
-```go
+```sql
 mysql> UPDATE emp_details SET details=JSON_REPLACE(details, "$.address.pin", "560132", "$.address.line5", "Landmark") WHERE 
 emp_no = 1;
 Query OK, 1 row affected (0.04 sec)
@@ -219,7 +219,7 @@ Rows matched: 1 Changed: 1 Warnings: 0
 
 假设您不再需要地址中的`line5`：
 
-```go
+```sql
 mysql> UPDATE emp_details SET details=JSON_REMOVE(details, "$.address.line5") WHERE emp_no = 1;
 Query OK, 1 row affected (0.04 sec)
 Rows matched: 1 Changed: 1 Warnings: 0
@@ -231,7 +231,7 @@ Rows matched: 1 Changed: 1 Warnings: 0
 
 +   `JSON_KEYS()`: 获取 JSON 文档中的所有键：
 
-```go
+```sql
 mysql> SELECT JSON_KEYS(details) FROM emp_details WHERE emp_no = 1;
 *************************** 1\. row ***************************
 JSON_KEYS(details): ["email", "phone", "address", "nickname", "locatation"]
@@ -239,7 +239,7 @@ JSON_KEYS(details): ["email", "phone", "address", "nickname", "locatation"]
 
 +   `JSON_LENGTH()`: 给出 JSON 文档中元素的数量：
 
-```go
+```sql
 mysql> SELECT JSON_LENGTH(details) FROM emp_details WHERE emp_no = 1;
 *************************** 1\. row ***************************
 JSON_LENGTH(details): 5
@@ -267,25 +267,25 @@ MySQL 8 支持公共表达式，包括非递归和递归。
 
 **派生表**
 
-```go
+```sql
 SELECT... FROM (subquery) AS derived, t1 ...
 ```
 
 **CTE**
 
-```go
+```sql
 SELECT... WITH derived AS (subquery) SELECT ... FROM derived, t1 ...
 ```
 
 CTE 可以在`SELECT`/`UPDATE`/`DELETE`之前，包括子查询`WITH`派生`AS`（子查询），例如：
 
-```go
+```sql
 DELETE FROM t1 WHERE t1.a IN (SELECT b FROM derived);
 ```
 
 假设您想要找出每年薪水相对于上一年的百分比增长。没有 CTE，您需要编写两个子查询，它们本质上是相同的。MySQL 不足够聪明，无法检测到这一点，并且子查询会执行两次：
 
-```go
+```sql
 mysql> SELECT 
     q1.year, 
     q2.year AS next_year, 
@@ -321,7 +321,7 @@ WHERE q1.year = q2.year-1;
 
 使用非递归 CTE，派生查询仅执行一次并被重用：
 
-```go
+```sql
 mysql> 
 WITH CTE AS 
     (SELECT year(from_date) AS year, SUM(salary) AS sum FROM salaries GROUP BY year) 
@@ -348,7 +348,7 @@ WHERE
 | 1996 |      1997 | 13888587737 | 15056011781 | 8.4056   |
 ```
 
-```go
+```sql
 | 1997 |      1998 | 15056011781 | 16220495471 | 7.7343   |
 | 1998 |      1999 | 16220495471 | 17360258862 | 7.0267   |
 | 1999 |      2000 | 17360258862 | 17535667603 | 1.0104   |
@@ -362,7 +362,7 @@ WHERE
 
 派生查询不能引用其他派生查询：
 
-```go
+```sql
 SELECT ...
  FROM (SELECT ... FROM ...) AS d1, (SELECT ... FROM d1 ...) AS d2 ...
 ERROR: 1146 (42S02): Table ‘db.d1’ doesn’t exist 
@@ -370,7 +370,7 @@ ERROR: 1146 (42S02): Table ‘db.d1’ doesn’t exist
 
 CTEs 可以引用其他 CTEs：
 
-```go
+```sql
 WITH d1 AS (SELECT ... FROM ...), d2 AS (SELECT ... FROM d1 ...) 
 SELECT
  FROM d1, d2 ... 
@@ -382,7 +382,7 @@ SELECT
 
 种子`SELECT`执行一次以创建初始数据子集；递归`SELECT`被重复执行以返回数据子集，直到获得完整的结果集。当迭代不再生成任何新行时，递归停止。这对于深入研究层次结构（父/子或部分/子部分）非常有用：
 
-```go
+```sql
 WITH RECURSIVE cte AS
 (SELECT ... FROM table_name /* seed SELECT */ 
 UNION ALL 
@@ -392,7 +392,7 @@ SELECT ... FROM cte;
 
 假设您想打印从`1`到`5`的所有数字：
 
-```go
+```sql
 mysql> WITH RECURSIVE cte (n) AS 
 ( SELECT 1 /* seed query */
   UNION ALL 
@@ -417,7 +417,7 @@ SELECT * FROM cte;
 
 创建一个带有`manager_id`的测试表：
 
-```go
+```sql
 mysql> CREATE TABLE employees_mgr (
  id INT PRIMARY KEY NOT NULL,
  name VARCHAR(100) NOT NULL,
@@ -429,7 +429,7 @@ FOREIGN KEY (manager_id) REFERENCES employees_mgr (id)
 
 插入示例数据：
 
-```go
+```sql
 mysql> INSERT INTO employees_mgr VALUES
 (333, "Yasmina", NULL), # Yasmina is the CEO (manager_id is NULL)
 (198, "John", 333), # John has ID 198 and reports to 333 (Yasmina)
@@ -442,7 +442,7 @@ mysql> INSERT INTO employees_mgr VALUES
 
 执行递归 CTE：
 
-```go
+```sql
 mysql> WITH RECURSIVE employee_paths (id, name, path) AS
 (
  SELECT id, name, CAST(id AS CHAR(200))
@@ -458,7 +458,7 @@ SELECT * FROM employee_paths ORDER BY path;
 
 它产生以下结果：
 
-```go
+```sql
 +------+---------+-----------------+
 | id   | name    | path            |
 +------+---------+-----------------+
@@ -495,7 +495,7 @@ SELECT * FROM employee_paths ORDER BY path;
 
 假设您的应用程序在从`employees`表中检索数据时使用`full_name`作为`concat('first_name'，' '，'last_name')`，而不是使用表达式，您可以使用虚拟列，该列在读取时计算`full_name`。您可以在表达式后面添加另一列：
 
-```go
+```sql
 mysql> CREATE TABLE `employees` (
   `emp_no` int(11) NOT NULL,
   `birth_date` date NOT NULL,
@@ -511,19 +511,19 @@ mysql> CREATE TABLE `employees` (
 
 请注意，您应该根据虚拟列修改插入语句。您可以选择使用完整的插入，如下所示：
 
-```go
+```sql
 mysql> INSERT INTO employees (emp_no, birth_date, first_name, last_name, gender, hire_date) VALUES (123456, '1987-10-02', 'ABC' , 'XYZ', 'F', '2008-07-28');
 ```
 
 如果您想在`INSERT`语句中包含`full_name`，可以将其指定为`DEFAULT`。所有其他值都会抛出`ERROR 3105 (HY000):`错误。在`employees`表中指定生成列`full_name`的值是不允许的：
 
-```go
+```sql
 mysql> INSERT INTO employees (emp_no, birth_date, first_name, last_name, gender, hire_date, full_name) VALUES (123456, '1987-10-02', 'ABC' , 'XYZ', 'F', '2008-07-28', DEFAULT);
 ```
 
 您可以直接从`employees`表中选择`full_name`：
 
-```go
+```sql
 mysql> SELECT * FROM employees WHERE emp_no=123456;
 +--------+------------+------------+-----------+--------+------------+-----------+
 | emp_no | birth_date | first_name | last_name | gender | hire_date  | full_name |
@@ -537,7 +537,7 @@ mysql> SELECT * FROM employees WHERE emp_no=123456;
 
 例子：
 
-```go
+```sql
 mysql> ALTER TABLE employees ADD hire_date_year YEAR AS (YEAR(hire_date)) VIRTUAL;
 ```
 
@@ -575,7 +575,7 @@ mysql> ALTER TABLE employees ADD hire_date_year YEAR AS (YEAR(hire_date)) VIRTUA
 
 窗口函数可以以各种方式使用。让我们在以下部分了解每一个。为了使这些示例起作用，您需要添加 hire_date_year 虚拟列
 
-```go
+```sql
 mysql> ALTER TABLE employees ADD hire_date_year YEAR AS (YEAR(hire_date)) VIRTUAL;
 ```
 
@@ -583,7 +583,7 @@ mysql> ALTER TABLE employees ADD hire_date_year YEAR AS (YEAR(hire_date)) VIRTUA
 
 您可以为每一行获取行号以对结果进行排名：
 
-```go
+```sql
 mysql> SELECT CONCAT(first_name, " ", last_name) AS full_name, salary, ROW_NUMBER() OVER(ORDER BY salary DESC) AS 'Rank'  FROM employees JOIN salaries ON salaries.emp_no=employees.emp_no LIMIT 10;
 +-------------------+--------+------+
 | full_name         | salary | Rank |
@@ -606,7 +606,7 @@ mysql> SELECT CONCAT(first_name, " ", last_name) AS full_name, salary, ROW_NUMBE
 
 您可以在`OVER`子句中对结果进行分区。假设您想要找出每年的薪水排名；可以按如下方式完成：
 
-```go
+```sql
 mysql> SELECT hire_date_year, salary, ROW_NUMBER() OVER(PARTITION BY hire_date_year ORDER BY salary DESC) AS 'Rank' FROM employees JOIN salaries ON salaries.emp_no=employees.emp_no ORDER BY salary DESC LIMIT 10;
 +----------------+--------+------+
 | hire_date_year | salary | Rank |
@@ -631,7 +631,7 @@ mysql> SELECT hire_date_year, salary, ROW_NUMBER() OVER(PARTITION BY hire_date_y
 
 您可以命名一个窗口，并且可以根据需要多次使用它，而不是每次重新定义它：
 
-```go
+```sql
 mysql> SELECT hire_date_year, salary, RANK() OVER w AS 'Rank' FROM employees join salaries ON salaries.emp_no=employees.emp_no WINDOW w AS (PARTITION BY hire_date_year ORDER BY salary DESC) ORDER BY salary DESC LIMIT 10;
 +----------------+--------+------+
 | hire_date_year | salary | Rank |
@@ -656,7 +656,7 @@ mysql> SELECT hire_date_year, salary, RANK() OVER w AS 'Rank' FROM employees joi
 
 假设您想要从窗口中找到第一个、最后一个和第三个值：
 
-```go
+```sql
 mysql> SELECT hire_date_year, salary, RANK() OVER w AS 'Rank', 
 FIRST_VALUE(salary) OVER w AS 'first', 
 NTH_VALUE(salary, 3) OVER w AS 'third', 

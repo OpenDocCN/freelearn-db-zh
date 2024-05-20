@@ -58,7 +58,7 @@ MySQL 是当今世界上最受欢迎和广泛使用的关系型数据库之一�
 
 当我们希望引起您对命令行语句的特定部分的注意时，相关行或项目将以粗体显示：
 
-```go
+```sql
 shell> sudo yum repolist all | grep mysql8
 mysql80-community/x86_64             MySQL 8.0 Community Server  enabled:     16
 mysql80-community-source             MySQL 8.0 Community Server  disabled
@@ -66,7 +66,7 @@ mysql80-community-source             MySQL 8.0 Community Server  disabled
 
 任何命令行输入或输出都以以下方式编写：
 
-```go
+```sql
 mysql> ALTER TABLE table_name REMOVE PARTITIONING;
 ```
 

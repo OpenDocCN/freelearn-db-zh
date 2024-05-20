@@ -18,32 +18,32 @@
 
 mongo shell 相当于关系数据库使用的管理控制台。连接到 mongo shell 就像输入以下代码一样简单：
 
-```go
+```sql
 $ mongo
 ```
 
 对于独立服务器或副本集，请在命令行上键入此代码。在 shell 中，您可以通过输入以下代码简单查看可用的数据库：
 
-```go
+```sql
 $ db
 ```
 
 然后，您可以通过输入以下代码连接到数据库：
 
-```go
+```sql
 > use <database_name>
 ```
 
 mongo shell 可用于查询和更新我们的数据库中的数据。可以通过以下方式将此文档插入到`books`集合中：
 
-```go
+```sql
 > db.books.insert({title: 'mastering mongoDB', isbn: '101'})
 WriteResult({ "nInserted" : 1 })
 ```
 
 然后，我们可以通过输入以下内容从名为`books`的集合中查找文档：
 
-```go
+```sql
 > db.books.find()
 { "_id" : ObjectId("592033f6141daf984112d07c"), "title" : "mastering mongoDB", "isbn" : "101" }
 ```
@@ -52,14 +52,14 @@ WriteResult({ "nInserted" : 1 })
 
 删除这个文档有类似的语法，并导致以下代码的结果：
 
-```go
+```sql
 > db.books.remove({isbn: '101'})
 WriteResult({ "nRemoved" : 1 })
 ```
 
 您可以尝试按照以下代码块中所示更新相同的文档：
 
-```go
+```sql
 > db.books.update({isbn:'101'}, {price: 30})
 WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
 > db.books.find()
@@ -76,21 +76,21 @@ WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
 
 默认情况下，MongoDB 中的`update`命令将使用我们在第二个参数中指定的文档替换我们文档的内容。如果我们想要更新文档并向其添加新字段，我们需要使用`$set`运算符，如下所示：
 
-```go
+```sql
 > db.books.update({isbn:'101'}, {$set: {price: 30}})
 WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
 ```
 
 现在，我们的文档与我们的预期相匹配：
 
-```go
+```sql
 > db.books.find()
 { "_id" : ObjectId("592035f6141daf984112d07f"), "title" : "mastering mongoDB", "isbn" : "101", "price" : 30 }
 ```
 
 但是，删除文档可以通过多种方式完成，最简单的方式是通过其唯一的`ObjectId`：
 
-```go
+```sql
 > db.books.remove("592035f6141daf984112d07f")
 WriteResult({ "nRemoved" : 1 })
 > db.books.find()
@@ -105,7 +105,7 @@ WriteResult({ "nRemoved" : 1 })
 
 我们可以在 shell 中声明和分配变量，如下所示：
 
-```go
+```sql
 > var title = 'MongoDB in a nutshell'
 > title
 MongoDB in a nutshell
@@ -119,20 +119,20 @@ WriteResult({ "nInserted" : 1 })
 
 由于它是一个 JavaScript shell，我们可以使用它来生成复杂结果的函数和脚本：
 
-```go
+```sql
 > queryBooksByIsbn = function(isbn) { return db.books.find({isbn: isbn})}
 ```
 
 使用这个一行代码，我们创建了一个名为`queryBooksByIsbn`的新函数，它接受一个参数，即`isbn`值。有了我们在集合中的数据，我们可以使用我们的新函数并按`isbn`获取书籍，如下面的代码所示：
 
-```go
+```sql
 > queryBooksByIsbn("101")
 { "_id" : ObjectId("592035f6141daf984112d07f"), "title" : "mastering mongoDB", "isbn" : "101", "price" : 30 }
 ```
 
 使用 shell，我们可以编写和测试这些脚本。一旦我们满意，我们可以将它们存储在`.js`文件中，并直接从命令行调用它们：
 
-```go
+```sql
 $ mongo <script_name>.js
 ```
 
@@ -170,14 +170,14 @@ $ mongo <script_name>.js
 
 在使用 shell 时，我们经常需要以编程方式插入大量文档。由于我们有一个 JavaScript shell，最直接的实现方式是通过循环迭代，逐步生成每个文档，并在每次循环迭代中执行写操作，如下所示：
 
-```go
+```sql
 > authorMongoFactory = function() {for(loop=0;loop<1000;loop++) {db.books.insert({name: "MongoDB factory book" + loop})}}
 function () {for(loop=0;loop<1000;loop++) {db.books.insert({name: "MongoDB factory book" + loop})}}
 ```
 
 在这个简单的例子中，我们为一个作者创建了一个`authorMongoFactory()`方法，他写了`1000`本关于 MongoDB 的书，每本书的名字略有不同：
 
-```go
+```sql
 > authorMongoFactory()
 ```
 
@@ -185,7 +185,7 @@ function () {for(loop=0;loop<1000;loop++) {db.books.insert({name: "MongoDB facto
 
 相反，使用`bulk`写入，我们可以使用事先准备好的`1000`个文档发出单个数据库`insert`命令，如下所示：
 
-```go
+```sql
 > fastAuthorMongoFactory = function() {
 var bulk = db.books.initializeUnorderedBulkOp();
 for(loop=0;loop<1000;loop++) {bulk.insert({name: "MongoDB factory book" + loop})}
@@ -195,7 +195,7 @@ bulk.execute();
 
 最终结果与之前相同，在我们的`books`集合中插入了`1000`个文档，结构如下：
 
-```go
+```sql
 > db.books.find()
 { "_id" : ObjectId("59204251141daf984112d851"), "name" : "MongoDB factory book0" }
 { "_id" : ObjectId("59204251141daf984112d852"), "name" : "MongoDB factory book1" }
@@ -212,7 +212,7 @@ bulk.execute();
 
 如果我们关心插入的顺序相同，我们可以使用`initializeOrderedBulkOp()`；通过更改函数的第二行，我们得到以下代码片段：
 
-```go
+```sql
 var bulk = db.books.initializeOrderedBulkOp();
 ```
 
@@ -222,14 +222,14 @@ var bulk = db.books.initializeOrderedBulkOp();
 
 然而，`bulk`可以用于比插入更多的操作。在下面的例子中，我们在`bookOrders`集合中有一本书，`isbn：101`，`name`为`Mastering MongoDB`，在`available`字段中有可购买的可用副本数量，有`99`本可供购买：
 
-```go
+```sql
 > db.bookOrders.find()
 { "_id" : ObjectId("59204793141daf984112dc3c"), "isbn" : 101, "name" : "Mastering MongoDB", "available" : 99 }
 ```
 
 通过一系列操作在单个`bulk`操作中，我们将向库存中添加一本书，然后订购`100`本书，最终总共可用的副本为零：
 
-```go
+```sql
 > var bulk = db.bookOrders.initializeOrderedBulkOp();
 > bulk.find({isbn: 101}).updateOne({$inc: {available : 1}});
 > bulk.find({isbn: 101}).updateOne({$inc: {available : -100}});
@@ -244,7 +244,7 @@ var bulk = db.books.initializeOrderedBulkOp();
 
 在执行有序操作列表时，MongoDB 将操作分成`1000`个批次，并按操作分组。例如，如果我们有`1002`个插入，`998`个更新，`1004`个删除，最后`5`个插入，我们最终会得到以下结果：
 
-```go
+```sql
 [1000 inserts]
 [2 inserts]
 [998 updates]
@@ -265,7 +265,7 @@ var bulk = db.books.initializeOrderedBulkOp();
 
 `bulkWrite`参数是我们要执行的操作系列。`WriteConcern`（默认值再次为`1`），以及写操作系列是否应按照它们在数组中出现的顺序应用（默认情况下将按顺序排列）：
 
-```go
+```sql
 > db.collection.bulkWrite(
  [ <operation 1>, <operation 2>, ... ],
  {
@@ -355,7 +355,7 @@ MongoDB 文档在磁盘上占据指定的空间。如果我们执行一个更新
 
 `compact`也可以接受`paddingFactor`参数，如下所示：
 
-```go
+```sql
 > db.runCommand ( { compact: '<collection>', paddingFactor: 2.0 } )
 ```
 
@@ -367,7 +367,7 @@ MongoDB 文档在磁盘上占据指定的空间。如果我们执行一个更新
 
 `db.currentOp()`将显示数据库中当前正在运行的操作，并尝试终止它。在运行`killOp()`之前，我们需要运行`use admin`命令。毋庸置疑，不建议或建议使用`killOp()`来终止内部 MongoDB 操作，因为数据库可能会处于未定义的状态。`killOp()`命令可以如下使用：
 
-```go
+```sql
 > db.runCommand( { "killOp": 1, "op": <operationId> } )
 ```
 
@@ -383,7 +383,7 @@ MongoDB 文档在磁盘上占据指定的空间。如果我们执行一个更新
 
 例如，对于之前的`bookOrders`示例，我们可以在每次插入或更新时设置`isbn`和`name`字段的`validator`，如下面的代码所示：
 
-```go
+```sql
 > db.runCommand( { collMod: "bookOrders",
 "validator" : {
  "$and" : [
@@ -404,13 +404,13 @@ MongoDB 文档在磁盘上占据指定的空间。如果我们执行一个更新
 
 在这里，我们得到了以下代码：
 
-```go
+```sql
 { "ok" : 1 }
 ```
 
 然后，如果我们尝试插入一个只有`isbn`字段的新文档，我们会收到一个错误：
 
-```go
+```sql
 > db.bookOrders.insert({isbn: 102})
 WriteResult({
 "nInserted" : 0,
@@ -428,7 +428,7 @@ WriteResult({
 
 `touch`命令将从存储中加载数据和/或索引数据到内存中。如果我们的脚本随后将使用这些数据，这通常是有用的，可以加快执行速度：
 
-```go
+```sql
 > db.runCommand({ touch: "bookOrders", data: true/false, index: true/false })
 ```
 
@@ -444,7 +444,7 @@ MapReduce 是一种从大量数据中获取聚合结果的数据处理方法。�
 
 在我们的例子中，MapReduce 的一个简单示例是，假设我们的输入书籍集合如下：
 
-```go
+```sql
 > db.books.find()
 { "_id" : ObjectId("592149c4aabac953a3a1e31e"), "isbn" : "101", "name" : "Mastering MongoDB", "price" : 30 }
 { "_id" : ObjectId("59214bc1aabac954263b24e0"), "isbn" : "102", "name" : "MongoDB in 7 years", "price" : 50 }
@@ -453,7 +453,7 @@ MapReduce 是一种从大量数据中获取聚合结果的数据处理方法。�
 
 我们的 map 和 reduce 函数定义如下：
 
-```go
+```sql
 > var mapper = function() {
  emit(this.id, 1);
  };
@@ -461,7 +461,7 @@ MapReduce 是一种从大量数据中获取聚合结果的数据处理方法。�
 
 在这个`mapper`中，我们只是输出每个文档的`id`键和值`1`：
 
-```go
+```sql
 > var reducer = function(id, count) {
  return Array.sum(count);
  };
@@ -469,7 +469,7 @@ MapReduce 是一种从大量数据中获取聚合结果的数据处理方法。�
 
 在`reducer`中，我们对所有值求和（每个值都是`1`）：
 
-```go
+```sql
 > db.books.mapReduce(mapper, reducer, { out:"books_count" });
 {
 "result" : "books_count",
@@ -497,7 +497,7 @@ MapReduce 是一种从大量数据中获取聚合结果的数据处理方法。�
 
 MapReduce 操作将放置几个短暂的锁，不应影响操作。然而，在`reduce`阶段结束时，如果我们将数据输出到现有集合，则`merge`、`reduce`和`replace`等输出操作将为整个服务器获取独占全局写锁，阻止对`db`实例的所有其他写入。如果我们想避免这种情况，那么我们应该以以下方式调用`mapReduce`：
 
-```go
+```sql
 > db.collection.mapReduce(
  mapper,
  reducer,
@@ -528,7 +528,7 @@ MapReduce 操作将放置几个短暂的锁，不应影响操作。然而，在`
 
 继续上一个例子，假设我们的输入数据集中每个文档都有一个`published`字段，如下所示：
 
-```go
+```sql
 > db.books.find()
 { "_id" : ObjectId("592149c4aabac953a3a1e31e"), "isbn" : "101", "name" : "Mastering MongoDB", "price" : 30, "published" : ISODate("2017-06-25T00:00:00Z") }
 { "_id" : ObjectId("59214bc1aabac954263b24e0"), "isbn" : "102", "name" : "MongoDB in 7 years", "price" : 50, "published" : ISODate("2017-06-26T00:00:00Z") }
@@ -536,7 +536,7 @@ MapReduce 操作将放置几个短暂的锁，不应影响操作。然而，在`
 
 使用我们之前计算书籍数量的例子，我们将得到以下代码：
 
-```go
+```sql
 var mapper = function() {
  emit(this.id, 1);
  };
@@ -561,7 +561,7 @@ var reducer = function(id, count) {
 
 现在我们在我们的`mongo_book`集合中得到了第三本书，内容如下：
 
-```go
+```sql
 { "_id" : ObjectId("59214bc1aabac954263b24e1"), "isbn" : "103", "name" : "MongoDB for experts", "price" : 40, "published" : ISODate("2017-07-01T00:00:00Z") }
 > db.books.mapReduce( mapper, reducer, { query: { published: { $gte: ISODate('2017-07-01 00:00:00') } }, out: { reduce: "books_count" } } )
 > db.books_count.find()
@@ -580,7 +580,7 @@ var reducer = function(id, count) {
 
 通过调试`mapper`阶段，我们可以重载“emit（）”函数来测试输出键值将是什么，如下所示：
 
-```go
+```sql
 > var emit = function(key, value) {
  print("debugging mapper's emit");
  print("key: " + key + "  value: " + tojson(value));
@@ -589,7 +589,7 @@ var reducer = function(id, count) {
 
 然后我们可以手动调用它来验证我们得到了预期的键值对：
 
-```go
+```sql
 > var myDoc = db.orders.findOne( { _id: ObjectId("50a8240b927d5d8b5891743c") } );
 > mapper.apply(myDoc);
 ```
@@ -608,19 +608,19 @@ var reducer = function(id, count) {
 
 +   **它必须是幂等的**：MapReduce 的设计可能会多次调用`reducer`函数，对于来自`mapper`阶段的相同键的多个值。它也不需要减少键的单个实例，因为它只是添加到集合中。无论执行顺序如何，最终值应该是相同的。这可以通过编写我们自己的`verifier`函数并强制`reducer`重新减少，或者像下面的代码片段中所示执行多次`reducer`来验证：
 
-```go
+```sql
 reduce( key, [ reduce(key, valuesArray) ] ) == reduce( key, valuesArray )
 ```
 
 +   **它必须是可交换的**：由于对于相同的“键”，可能会多次调用`reducer`函数，如果它有多个值，以下代码应该成立：
 
-```go
+```sql
 reduce(key, [ C, reduce(key, [ A, B ]) ] ) == reduce( key, [ C, A, B ] )
 ```
 
 +   **来自 mapper 函数的值的顺序对于 reducer 的结果并不重要**：我们可以测试`mapper`的值的顺序是否改变了`reducer`的输出，通过以不同的顺序将文档传递给`mapper`并验证我们得到了相同的结果：
 
-```go
+```sql
 reduce( key, [ A, B ] ) == reduce( key, [ B, A ] )
 ```
 
@@ -688,13 +688,13 @@ MongoDB 是一个以开发便利性为目标开发的数据库。因此，数据
 
 MongoDB 最基本的授权依赖于用户名/密码方法。默认情况下，MongoDB 不会启用授权。要启用它，我们需要使用`--auth`参数启动服务器。
 
-```go
+```sql
 $ mongod --auth
 ```
 
 为了设置授权，我们需要在没有授权的情况下启动服务器以设置用户。设置管理员用户很简单：
 
-```go
+```sql
 > use admin
 > db.createUser(
  {
@@ -733,7 +733,7 @@ $ mongod --auth
 
 其余的角色是在我们希望它们应用的数据库中定义的，通过更改前面的`db.createUser()`的角色子文档；例如，要为我们的`mongo_book`数据库创建`dbAdmin`，我们将使用以下代码：
 
-```go
+```sql
 > db.createUser(
  {
  user: <adminUser>,
@@ -747,7 +747,7 @@ $ mongod --auth
 
 最后，当我们使用`--auth`标志重新启动我们的数据库时，我们可以使用命令行或连接字符串（来自任何驱动程序）作为`admin`连接并创建具有预定义或自定义角色的新用户：
 
-```go
+```sql
 mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database][?options]]
 ```
 
@@ -763,7 +763,7 @@ mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][
 
 要使用 SSL 启动我们的 MongoDB 服务器，我们需要以下代码：
 
-```go
+```sql
 $ mongod --sslMode requireSSL --sslPEMKeyFile <pem> --sslCAFile <ca>
 ```
 
@@ -771,7 +771,7 @@ $ mongod --sslMode requireSSL --sslPEMKeyFile <pem> --sslCAFile <ca>
 
 这些选项也可以在我们的配置文件`mongod.conf`或`mongos.conf`中以 YAML 文件格式定义如下：
 
-```go
+```sql
 net:
   ssl:
      mode: requireSSL
@@ -794,7 +794,7 @@ net:
 
 保护任何服务器的最古老的安全方法是禁止它接受来自未知来源的连接。在 MongoDB 中，这是在配置文件中通过一行简单的代码完成的，如下所示：
 
-```go
+```sql
 net:
   bindIp: <string>
 ```
@@ -853,7 +853,7 @@ MongoDB 企业版还提供 Kerberos 身份验证。Kerberos 是根据希腊神�
 
 Kerberos 在 Windows 系统中广泛使用，通过与微软的 Active Directory 集成。要安装 Kerberos，我们需要启动未设置 Kerberos 的`mongod`，然后连接到`$external`数据库（而不是我们通常用于管理授权的 admin），并创建具有 Kerberos 角色和权限的用户：
 
-```go
+```sql
 use $external
 db.createUser(
   {
@@ -867,13 +867,13 @@ db.createUser(
 
 之后，我们需要通过传递`authenticationMechanisms`参数来启动支持 Kerberos 的服务器，如下所示：
 
-```go
+```sql
 --setParameter authenticationMechanisms=GSSAPI
 ```
 
 现在我们可以从我们的服务器或命令行连接，如下所示：
 
-```go
+```sql
 $ mongo.exe --host <mongoserver> --authenticationMechanism=GSSAPI --authenticationDatabase='$external' --username mongo_book_user@packt.net
 ```
 

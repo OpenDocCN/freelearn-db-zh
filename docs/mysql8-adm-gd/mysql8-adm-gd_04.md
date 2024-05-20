@@ -62,14 +62,14 @@ MySQL 支持所有标准 SQL 整数类型。
 
 以下是无符号整数列的列声明：
 
-```go
+```sql
 CREATE TABLE employees
 (salary INTEGER(5) UNSIGNED);
 ```
 
 `INT`和`INTEGER`可以互换使用。但是考虑一下，如果我们声明一个列：
 
-```go
+```sql
 CREATE TABLE employees
 (id INT(255));
 ```
@@ -78,7 +78,7 @@ CREATE TABLE employees
 
 `ZEROFILL`是一个属性，它表示如果数字值的长度小于列的长度，那么数字值应该以零填充。`CREATE`语句演示了声明带有`ZEROFILL`属性的列的方法。以下是一个例子：
 
-```go
+```sql
 CREATE TABLE documents
 (document_no INT(5) ZEROFILL);
 ```
@@ -91,7 +91,7 @@ CREATE TABLE documents
 
 以下代码块演示了`DECIMAL`数据类型的声明：
 
-```go
+```sql
 CREATE TABLE taxes
 (tax_rate DECIMAL(3, 2));
 ```
@@ -106,13 +106,13 @@ CREATE TABLE taxes
 
 标准 SQL 中定义`DECIMAL`类型的语法如下：
 
-```go
+```sql
 DECIMAL(M)
 ```
 
 在 MySQL 中，这相当于：
 
-```go
+```sql
 DECIMAL(M, 0)
 ```
 
@@ -140,7 +140,7 @@ MySQL 有两种用于存储近似值的浮点数据类型：`FLOAT`和`DOUBLE`�
 
 让我们通过以下代码示例来理解这一点：
 
-```go
+```sql
 mysql> CREATE TABLE typed_numbers(id TINYINT, float_values FLOAT, decimal_values DECIMAL(3, 2));
 
 mysql> INSERT INTO typed_numbers VALUES(1, 1.1, 1.1), (2, 1.1, 1.1), (3, 1.1, 1.1);
@@ -179,7 +179,7 @@ mysql> SELECT SUM(float_values), SUM(decimal_values) FROM typed_numbers;
 
 以下是`FLOAT`列声明属性的示例：
 
-```go
+```sql
 FLOAT(M, D) 
 where,
 M - number of digits in total
@@ -188,7 +188,7 @@ D - number of digits may be after the decimal point
 
 因此，定义为以下内容的列将存储值，例如 99.99：
 
-```go
+```sql
 FLOAT(4, 2)
 ```
 
@@ -202,7 +202,7 @@ FLOAT(4, 2)
 
 当我们在比较中使用浮点数时，前面的观点变得至关重要。考虑以下例子：
 
-```go
+```sql
 mysql> CREATE TABLE temp(id INT, col1 DOUBLE, col2 DOUBLE);
 
 mysql> INSERT INTO temp VALUES (1, 5.30, 2.30), (1, -3.00, 0.00),
@@ -232,7 +232,7 @@ mysql> SELECT id, SUM(col1) as v1, SUM(col2) as v2 FROM temp
 
 `BIT`类型的列可以定义为：
 
-```go
+```sql
 column_name BIT
 or
 column_name BIT(m)
@@ -243,7 +243,7 @@ where m = number of bits to be stored
 
 以下是定义`BIT`列的示例：
 
-```go
+```sql
 CREATE TABLE working_days (
 year INT,
 week INT,
@@ -255,7 +255,7 @@ PRIMARY KEY (year, week));
 
 以下是在`BIT`列中存储 11 和 55 的示例：
 
-```go
+```sql
 CREATE TABLE bit_values (val BIT(7));
 
 INSERT INTO bit_values VALUES(b'1011');
@@ -266,7 +266,7 @@ INSERT INTO bit_values VALUES(b'110111');
 
 我们如何定义一个`BIT`列来存储`boolean_values`？以下代码块显示了这一点：
 
-```go
+```sql
 CREATE TABLE boolean_values (value BIT(1));
 or
 CREATE TABLE boolean_values (value BIT);
@@ -299,7 +299,7 @@ INSERT INTO boolean_values VALUES(b'1');
 
 作为默认值，位字面值是一个二进制字符串。我们可以通过查询来确认这一点，如下面的代码块所示：
 
-```go
+```sql
 mysql> SELECT b'1010110', CHARSET(b'1010110');
 +--------------+----------------------+
 | b'1010110'  | CHARSET(b'1010110') |
@@ -321,13 +321,13 @@ mysql> SELECT 0b1100100, CHARSET(0b1100100);
 
 我们如何指定`2017`年第`4`周的星期一和星期五为非工作日？以下是此操作的`INSERT`查询：
 
-```go
+```sql
 INSERT INTO working_days VALUES(2017, 4, 0111011);
 ```
 
 如果我们使用`SELECT`查询获取`working_days`记录，输出如下：
 
-```go
+```sql
 mysql> SELECT year, week, days FROM working_days;
 +--------+---------+--------+
 |  year  |   week  |  days  |
@@ -340,7 +340,7 @@ mysql> SELECT year, week, days FROM working_days;
 
 答案是`BIN()` MySQL 函数。该函数将整数值转换为其二进制表示：
 
-```go
+```sql
 mysql> SELECT year, week, BIN(days) FROM working_days;
 +--------+---------+------------+
 |  year  |   week  |    days    |
@@ -351,7 +351,7 @@ mysql> SELECT year, week, BIN(days) FROM working_days;
 
 如您所见，在输出中，日期的位值中的前导零被移除了。为了在输出中实现表示，除了`BIN`函数之外，我们还可以使用`LPAD` MySQL 函数：
 
-```go
+```sql
 mysql> SELECT year, week, LPAD(BIN(days), 7, '0') FROM working_days;
 +--------+---------+------------+
 |  year  |   week  |    days    |
@@ -368,7 +368,7 @@ mysql> SELECT year, week, LPAD(BIN(days), 7, '0') FROM working_days;
 
 如前所述，MySQL 列定义提供了一个名为`ZEROFILL`的可选属性。当指定了这个可选属性时，它会用零替换左填充的空格。例如，对于以下定义的列，检索到的值为 00082：
 
-```go
+```sql
 INT(5) ZEROFILL
 ```
 
@@ -454,13 +454,13 @@ MySQL 对于日期或时间类型的存储和检索操作在格式的上下文�
 
 假设初始的 `time_zone` 值设置为 `+00:00`：
 
-```go
+```sql
 SET time_zone = '+00:00';
 ```
 
 让我们创建一个名为`datetime_temp`的表。该表有两列；一列是`DATETIME`，另一列是`TIMESTAMP`类型。我们将在两列中存储相同的日期和时间值。借助`SELECT`查询，我们将尝试了解输出中表示的差异：
 
-```go
+```sql
 mysql> CREATE TABLE datetime_temp(
  ts TIMESTAMP,
  dt DATETIME);
@@ -480,7 +480,7 @@ mysql> SELECT ts, dt FROM datetime_temp;
 
 让我们更改`time_zone`并观察输出：
 
-```go
+```sql
 mysql> SET time_zone = '+03:00';
 
 mysql> SELECT ts, dt FROM datetime_temp;
@@ -517,7 +517,7 @@ mysql> SELECT ts, dt FROM datetime_temp;
 
 `NOW()`是用于获取系统当前日期和时间的函数：
 
-```go
+```sql
 mysql> SET @dt = NOW();
 mysql> SELECT @dt;
 +---------------------+
@@ -529,7 +529,7 @@ mysql> SELECT @dt;
 
 `DATE()`函数用于从`DATETIME`值中提取日期信息：
 
-```go
+```sql
 mysql> SELECT DATE(@dt);
 +------------------+
 |    DATE(@dt)     |
@@ -540,7 +540,7 @@ mysql> SELECT DATE(@dt);
 
 `TIME()`函数用于从日期时间值中提取时间信息：
 
-```go
+```sql
 mysql> SELECT TIME(@dt);
 +------------------+
 |    TIME(@dt)     |
@@ -553,7 +553,7 @@ mysql> SELECT TIME(@dt);
 
 如果我们想从`DATETIME`或`TIMESTAMP`值中提取`YEAR`、`MONTH`、`DAY`、`QUARTER`、`WEEK`、`HOUR`、`MINUTE`和`SECOND`信息，相应的函数是可用的：
 
-```go
+```sql
 mysql> SELECT
  HOUR(@dt),
  MINUTE(@dt),
@@ -585,7 +585,7 @@ MySQL 的`DATETIME`或`TIMESTAMP`数据类型用于表示特定日期的特定�
 
 MySQL 的`TIME`列定义如下：
 
-```go
+```sql
 column_name TIME;
 ```
 
@@ -595,7 +595,7 @@ MySQL 的`TIME`列还可以存储小数秒部分，最多可以达到微秒（�
 
 MySQL 的`TIME`列也可以有一个可选值：
 
-```go
+```sql
 column_name TIME(N);
 where N represents number of fractional part, which is up to 6 digits.
 ```
@@ -627,7 +627,7 @@ MySQL 接受字符串和数字值作为`TIME`值。
 
 `CURRENT_TIME()`函数可用于查找服务器上的当前时间。还可以使用`ADDTIME`和`SUBTIME`函数添加或减去时间值。例如，以下示例将两小时添加到服务器的当前时间：
 
-```go
+```sql
 mysql> SELECT 
  CURRENT_TIME() AS 'CUR_TIME',
  ADDTIME(CURRENT_TIME(), 020000) AS 'ADDTIME',
@@ -648,7 +648,7 @@ mysql> SELECT
 
 `YEAR`列可以声明为：
 
-```go
+```sql
 manufacturing_year YEAR
 or
 manufacturing_year YEAR(4)
@@ -678,7 +678,7 @@ MySQL 将无效的`YEAR`值转换为 0000。
 
 如前所述，MySQL 8 不支持`YEAR(2)`类型。尝试创建一个数据类型为`YEAR(2)`的列将会产生以下错误：
 
-```go
+```sql
 mysql> CREATE TABLE temp(year YEAR(2));
 ERROR 1818 (HY000): Supports only YEAR or YEAR(4) column.
 ```
@@ -707,7 +707,7 @@ ERROR 1818 (HY000): Supports only YEAR or YEAR(4) column.
 
 `CHAR`数据类型是 MySQL 中的固定长度字符串数据类型。`CHAR`数据类型通常声明为可以存储的最大字符数，如下所示：
 
-```go
+```sql
 data CHAR(20);
 ```
 
@@ -717,7 +717,7 @@ data CHAR(20);
 
 长度从 0 到 255 不等。`CHAR`列中的值不能超过表创建时声明的最大长度。如果字符串的长度小于允许的最大长度，MySQL 会在右侧添加填充以达到指定的长度。在检索时，尾随空格会被移除。以下是一个例子：
 
-```go
+```sql
 mysql> CREATE TABLE char_temp (
  data CHAR(3)
 );
@@ -741,7 +741,7 @@ mysql> SELECT data, LENGTH(data)
 
 在`NO PAD`排序规则的情况下，尾随空格被视为任何其他字符。以下是一个示例：
 
-```go
+```sql
 mysql> CREATE TABLE employees (emp_name CHAR(10));
 
 mysql> INSERT INTO employees VALUES ('Jack');
@@ -784,7 +784,7 @@ MySQL 如何比较二进制值？答案是基于值中字节的数值进行比�
 
 `BINARY`值在指定列长度右侧填充了填充值 0x00（零字节）。插入时添加填充值，但在检索时不会删除尾随字节。在比较`BINARY`值时，所有字节都被视为重要。这也适用于`ORDER BY`和`DISTINCT`运算符。当与*0x00 < space*进行比较时，零字节和空格是不同的。以下是插入二进制值的示例：
 
-```go
+```sql
 mysql> CREATE TABLE temp(
  data BINARY(3));
 
@@ -799,7 +799,7 @@ mysql> INSERT INTO temp(data) VALUES('a ');
 
 以下示例解释了在比较中`BINARY`值的填充：
 
-```go
+```sql
 mysql> CREATE TABLE bin_temp (data BINARY(3));
 
 mysql> INSERT INTO bin_temp(data) VALUES('c');
@@ -850,7 +850,7 @@ MySQL 提供了一种数据类型，可以在创建表时预定义允许的值�
 
 以下是展示`ENUM`何时有用的示例：
 
-```go
+```sql
 mysql> CREATE TABLE subjects (
  name VARCHAR(40),
  stream ENUM('arts', 'commerce', 'science')
@@ -860,7 +860,7 @@ mysql> INSERT INTO subjects (name, stream) VALUES ('biology','science'), ('stati
 
 ```
 
-```go
+```sql
 mysql> SELECT name, stream FROM subjects WHERE stream = 'commerce';
 +------------+----------+
 |    name    |  stream  |
@@ -889,7 +889,7 @@ mysql> UPDATE subjects SET stream = 'science' WHERE stream = 'commerce';
 
 如果在数字上下文中使用 `ENUM` 值，则使用索引。以下是在数字上下文中使用 `ENUM` 值的示例查询：
 
-```go
+```sql
 mysql> SELECT stream+1 FROM subjects;
 +--------------+
 |   stream+1   |
@@ -920,7 +920,7 @@ MySQL `SET` 是一种数据类型，可以具有零个或多个值。在创建�
 
 以下是在 `SET` 数据类型中插入值的示例：
 
-```go
+```sql
 mysql> CREATE TABLE temp(
  hobbies SET('Travel', 'Sports', 'Fine Dining', 'Dancing'));
 
@@ -950,7 +950,7 @@ JSON 列不能有默认值。JSON 数据类型需要与`LONGTEXT`或`LONGBLOB`�
 
 以下是在表中插入 JSON 值的示例：
 
-```go
+```sql
 mysql> CREATE TABLE users(
  user_id INT UNSIGNED NOT NULL,
  preferences JSON NOT NULL);
@@ -968,7 +968,7 @@ mysql> SELECT preferences FROM users;
 
 在前面的示例中，我们已经格式化了 JSON 值。作为替代，我们也可以使用内置的`JSON_OBJECT`函数。该函数接受一组键/值对并返回一个 JSON 对象。以下是一个示例：
 
-```go
+```sql
 mysql> INSERT INTO users(user_id, preferences)
  VALUES(2, JSON_OBJECT("page_size", 1, "network", JSON_ARRAY("GSM", "CDMA", "WIFI")));
 ```

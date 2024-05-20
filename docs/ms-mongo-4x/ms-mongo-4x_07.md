@@ -159,7 +159,7 @@ PostgreSQL 使用默认（和可配置的）读取提交的隔离级别。由于
 
 银行必须提供的基本功能是帐户和在它们之间转移货币金额。在引入事务之前，MongoDB 开发人员有两个选择。第一种选择是 MongoDB 的处理方式，即将数据嵌入文档中，可以是子文档或值数组。对于帐户，这可能会导致以下代码块中的数据结构：
 
-```go
+```sql
 {accounts: [ {account_id: 1, account_name: ‘alex’, balance: 100}, {account_id: 2, account_name: ‘bob’, balance: 50}]}
 ```
 
@@ -169,7 +169,7 @@ PostgreSQL 使用默认（和可配置的）读取提交的隔离级别。由于
 
 MongoDB 的多文档 ACID 事务方法类似于我们在关系数据库中处理事务的方式。从 MongoDB Inc.于 2018 年 6 月发布的《MongoDB 多文档 ACID 事务》白皮书中，最简单的例子是，MongoDB 中的通用事务将如下代码块所示：
 
-```go
+```sql
 s.start_transaction()
 orders.insert_one(order, session=s)
 stock.update_one(item, stockUpdate, session=s)
@@ -178,7 +178,7 @@ s.commit_transaction()
 
 然而，在 MySQL 中进行相同的事务将如下所示：
 
-```go
+```sql
 db.start_transaction()
 cursor.execute(orderInsert, orderData)
 cursor.execute(stockUpdate, stockData)
@@ -191,13 +191,13 @@ db.commit()
 
 我们将使用一个包含两个帐户的示例`init_data.json`文件。Alex 有 100 个 hypnotons 虚拟货币，而 Mary 有 50 个：
 
-```go
+```sql
 {"collection": "accounts", "account_id": "1", "account_name": "Alex", "account_balance":100}{"collection": "accounts", "account_id": "2", "account_name": "Mary", "account_balance":50}
 ```
 
 使用以下 Python 代码，我们可以将这些值插入到我们的数据库中：
 
-```go
+```sql
 import json
 class InitData:
    def __init__(self):
@@ -227,7 +227,7 @@ class InitData:
 
 这将导致我们的`mongo_bank`数据库在我们的`accounts`集合中具有以下文档：
 
-```go
+```sql
 > db.accounts.find()
 { "_id" : ObjectId("5bc1fa7ef8d89f2209d4afac"), "account_id" : "1", "name" : "Alex", "balance" : 100 }
 { "_id" : ObjectId("5bc1fa7ef8d89f2209d4afad"), "account_id" : "2", "name" : "Mary", "balance" : 50 }
@@ -237,7 +237,7 @@ class InitData:
 
 作为 MongoDB 开发人员，模拟事务的最常见方法是在代码中实现基本检查。对于我们的示例帐户文档，您可能会尝试实现帐户转移如下：
 
-```go
+```sql
    def transfer(self, source_account, target_account, value):
        print(f'transferring {value} Hypnotons from {source_account} to {target_account}')
        with self.client.start_session() as ses:
@@ -254,14 +254,14 @@ class InitData:
 
 在 Python 中调用此方法将从帐户 1 转移 300 个 hypnotons 到帐户 2：
 
-```go
+```sql
 >>> obj = InitData.new
 >>> obj.transfer('1', '2', 300)
 ```
 
 这将导致以下结果：
 
-```go
+```sql
 > db.accounts.find()
 { "_id" : ObjectId("5bc1fe25f8d89f2337ae40cf"), "account_id" : "1", "name" : "Alex", "balance" : -200 }
 { "_id" : ObjectId("5bc1fe26f8d89f2337ae40d0"), "account_id" : "2", "name" : "Mary", "balance" : 350 }
@@ -273,13 +273,13 @@ class InitData:
 
 这里发生的是，我们启动了一个事务会话，如下所示：
 
-```go
+```sql
        with self.client.start_session() as ses:
 ```
 
 然后完全忽略了这一点，通过非事务方式进行所有更新。然后我们调用了`abort_transaction`，如下所示：
 
-```go
+```sql
                ses.abort_transaction()
 ```
 
@@ -289,7 +289,7 @@ class InitData:
 
 实现事务的正确方法是在每个我们想要在最后提交或回滚的操作中使用会话对象，如下所示：
 
-```go
+```sql
    def tx_transfer_err(self, source_account, target_account, value):
        print(f'transferring {value} Hypnotons from {source_account} to {target_account}')
        with self.client.start_session() as ses:
@@ -307,7 +307,7 @@ class InitData:
 
 现在唯一的区别是我们在两个更新语句中都传递了`session=ses`。为了验证我们是否有足够的资金来实际进行转账，我们编写了一个辅助方法`__validate_transfer`，其参数是源和目标账户 ID：
 
-```go
+```sql
    def __validate_transfer(self, source_account, target_account):
        source_balance = self.accounts.find_one({'account_id': source_account})['balance']
        target_balance = self.accounts.find_one({'account_id': target_account})['balance']
@@ -324,7 +324,7 @@ class InitData:
 
 解决转账问题的正确实现将如下代码所示（完整的代码示例附在代码包中）：
 
-```go
+```sql
 from pymongo import MongoClient
 import json
 
@@ -401,7 +401,7 @@ if __name__ == '__main__':
 
 继续使用 Ruby 进行相同的示例，我们有第三部分的以下代码：
 
-```go
+```sql
 require 'mongo'
 
 class MongoBank
@@ -465,7 +465,7 @@ MongoBank.new
 
 我们的第一个集合是`users`集合，每个用户一个文档：
 
-```go
+```sql
 > db.users.find()
 { "_id" : ObjectId("5bc22f35f8d89f2b9e01d0fd"), "user_id" : 1, "name" : "alex" }
 { "_id" : ObjectId("5bc22f35f8d89f2b9e01d0fe"), "user_id" : 2, "name" : "barbara" }
@@ -473,7 +473,7 @@ MongoBank.new
 
 然后我们有一个`carts`集合，每个购物车一个文档，通过`user_id`与我们的用户相关联：
 
-```go
+```sql
 > db.carts.find()
 { "_id" : ObjectId("5bc2f9de8e72b42f77a20ac8"), "cart_id" : 1, "user_id" : 1 }
 { "_id" : ObjectId("5bc2f9de8e72b42f77a20ac9"), "cart_id" : 2, "user_id" : 2 }
@@ -481,14 +481,14 @@ MongoBank.new
 
 `payments`集合保存通过的任何已完成付款，存储`cart_id`和`item_id`以链接到它所属的购物车和已支付的商品：
 
-```go
+```sql
 > db.payments.find()
 { "_id" : ObjectId("5bc2f9de8e72b42f77a20aca"), "cart_id" : 1, "name" : "alex", "item_id" : 101, "status" : "paid" }
 ```
 
 最后，`inventories`集合保存我们当前可用的物品数量（按`item_id`），以及它们的价格和简短描述：
 
-```go
+```sql
 > db.inventories.find()
 { "_id" : ObjectId("5bc2f9de8e72b42f77a20acb"), "item_id" : 101, "description" : "bull bearing", "price" : 100, "quantity" : 5 }
 ```
@@ -497,7 +497,7 @@ MongoBank.new
 
 MongoDB shell 格式中的`validator`对象如下：
 
-```go
+```sql
 validator = { validator:
  { $jsonSchema:
  { bsonType: "object",
@@ -533,7 +533,7 @@ JSON 模式可用于实现我们在 Rails 或 Django 中通常在模型中具有
 
 要使用 JSON 模式，我们必须在创建集合时指定它，如下所示：
 
-```go
+```sql
 > db.createCollection("inventories", validator)
 ```
 
@@ -541,7 +541,7 @@ JSON 模式可用于实现我们在 Rails 或 Django 中通常在模型中具有
 
 如预期的那样，第二个订单不会通过，因为我们的库存中没有足够的滚珠来满足它。我们将在以下代码中看到这一点：
 
-```go
+```sql
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
 from pymongo.errors import OperationFailure
@@ -614,7 +614,7 @@ if __name__ == '__main__':
 
 我们将把前面的例子分解为有趣的部分，如下所示：
 
-```go
+```sql
    def add_to_cart(self, user, item, quantity):
        # find cart for user
        cart_id = self.carts.find_one({'user_id':user})['cart_id']
@@ -626,7 +626,7 @@ if __name__ == '__main__':
 
 然后，在`place_order()`方法中，我们启动会话，然后随后在此会话中启动事务。与前一个用例类似，我们需要确保在我们想要在事务上下文中执行的每个操作的末尾添加`session=ses`参数：
 
-```go
+```sql
     def place_order(self, cart_id):
  while True:
  try:
@@ -665,7 +665,7 @@ if __name__ == '__main__':
 
 最后，我们的数据库看起来像下面的代码块：
 
-```go
+```sql
 > db.payments.find()
 { "_id" : ObjectId("5bc307178e72b431c0de385f"), "cart_id" : 1, "name" : "alex", "item_id" : 101, "status" : "paid" }
 { "_id" : ObjectId("5bc307178e72b431c0de3861"), "cart_id" : 1, "item_id" : 101, "status" : "paid" }
@@ -673,14 +673,14 @@ if __name__ == '__main__':
 
 我们刚刚进行的付款没有名称字段，与我们在滚动事务之前插入数据库的示例付款相反：
 
-```go
+```sql
 > db.inventories.find()
 { "_id" : ObjectId("5bc303468e72b43118dda074"), "item_id" : 101, "description" : "bull bearing", "price" : 100, "quantity" : 3 }
 ```
 
 我们的库存中有正确数量的滚珠轴承，三个（五减去 Alex 订购的两个），如下面的代码块所示：
 
-```go
+```sql
 > db.carts.find()
 { "_id" : ObjectId("5bc307178e72b431c0de385d"), "cart_id" : 1, "user_id" : 1, "item" : 101, "quantity" : 0 }
 { "_id" : ObjectId("5bc307178e72b431c0de385e"), "cart_id" : 2, "user_id" : 2, "item" : 101, "quantity" : 4 }
@@ -692,7 +692,7 @@ if __name__ == '__main__':
 
 在 Ruby 中继续使用相同的示例，我们有以下代码块：
 
-```go
+```sql
 require 'mongo'
 
 class ECommerce

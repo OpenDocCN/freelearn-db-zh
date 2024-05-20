@@ -80,7 +80,7 @@
 
 任何命令行输入或输出都是这样写的：
 
-```go
+```sql
 CREATE TABLE working_days (
 year INT,
 week INT,

@@ -20,7 +20,7 @@
 
 错误日志子系统由执行日志事件过滤和写入的组件以及一个名为`log_error_services`的系统变量组成，该变量配置了要启用哪些组件以实现所需的日志记录结果。`global.log_error_services`的默认值是`log_filter_internal; log_sink_internal`：
 
-```go
+```sql
 mysql> SELECT @@global.log_error_services;
 +----------------------------------------+
 | @@global.log_error_services            |
@@ -51,7 +51,7 @@ mysql> SELECT @@global.log_error_services;
 
 要更改错误日志位置，请编辑配置文件并重新启动 MySQL：
 
-```go
+```sql
 shell> sudo mkdir /var/log/mysql
 shell> sudo chown -R mysql:mysql /var/log/mysql
 
@@ -64,7 +64,7 @@ shell> sudo systemctl restart mysql
 
 验证错误日志：
 
-```go
+```sql
 mysql> SHOW VARIABLES LIKE 'log_error';
 +---------------+---------------------------+
 | Variable_name | Value                     |
@@ -76,7 +76,7 @@ mysql> SHOW VARIABLES LIKE 'log_error';
 
 要调整详细程度，您可以动态更改`log_error_verbosity`变量。但是，建议保持默认值`3`，以便记录错误、警告和注释消息：
 
-```go
+```sql
 mysql> SET @@GLOBAL.log_error_verbosity=2;
 Query OK, 0 rows affected (0.00 sec)
 
@@ -93,7 +93,7 @@ mysql> SELECT @@GLOBAL.log_error_verbosity;
 
 假设错误日志文件变得更大，您想要对其进行旋转；您可以简单地移动文件并执行`FLUSH LOGS`命令：
 
-```go
+```sql
 shell> sudo mv /var/log/mysql/mysqld.log /var/log/mysql/mysqld.log.0; 
 
 shell> mysqladmin -u root -p<password> flush-logs
@@ -110,7 +110,7 @@ shell> ls -lhtr /var/log/mysql/mysqld.log.0
 
 如果错误日志文件的位置对服务器不可写，日志刷新操作将无法创建新的日志文件：
 
-```go
+```sql
 shell> sudo mv /var/log/mysqld.log /var/log/mysqld.log.0 && mysqladmin flush-logs -u root -p<password>
 mysqladmin: [Warning] Using a password on the command line interface can be insecure.
 mysqladmin: refresh failed; error: 'Unknown error'
@@ -122,14 +122,14 @@ mysqladmin: refresh failed; error: 'Unknown error'
 
 1.  加载系统日志写入器：
 
-```go
+```sql
 mysql> INSTALL COMPONENT 'file://component_log_sink_syseventlog';
 Query OK, 0 rows affected (0.43 sec)
 ```
 
 1.  使其在重新启动时持久化：
 
-```go
+```sql
 mysql> SET PERSIST log_error_services = 'log_filter_internal; log_sink_syseventlog';
 Query OK, 0 rows affected (0.00 sec)
 
@@ -146,7 +146,7 @@ mysql> SHOW VARIABLES LIKE 'log_error_services';
 
 为了演示，服务器已重新启动。您可以在系统日志中看到这些日志：
 
-```go
+```sql
 shell> sudo grep mysqld /var/log/messages | tail
 Oct 10 14:50:31 centos7 mysqld[20953]: InnoDB: Buffer pool(s) dump completed at 171010 14:50:31
 Oct 10 14:50:32 centos7 mysqld[20953]: InnoDB: Shutdown completed; log sequence number 350327631
@@ -164,7 +164,7 @@ Oct 10 14:50:33 centos7 mysqld[21220]: /usr/sbin/mysqld: ready for connections. 
 
 例如，您可以为实例添加标签，如`instance1`：
 
-```go
+```sql
 mysql> SELECT @@GLOBAL.log_syslog_tag;
 +-------------------------+
 | @@GLOBAL.log_syslog_tag |
@@ -203,7 +203,7 @@ Oct 10 14:59:22 centos7 mysqld[21309]: /usr/sbin/mysqld: ready for connections. 
 
 如果要切换回原始日志记录，可以将`log_error_services`设置为`'log_filter_internal; log_sink_internal'`：
 
-```go
+```sql
 mysql> SET @@global.log_error_services='log_filter_internal; log_sink_internal';
 Query OK, 0 rows affected (0.00 sec)
 ```
@@ -214,21 +214,21 @@ Query OK, 0 rows affected (0.00 sec)
 
 1.  安装 JSON 日志写入器：
 
-```go
+```sql
 mysql> INSTALL COMPONENT 'file://component_log_sink_json';
 Query OK, 0 rows affected (0.05 sec)
 ```
 
 1.  使其在重新启动后保持不变：
 
-```go
+```sql
 mysql> SET PERSIST log_error_services = 'log_filter_internal; log_sink_json';
 Query OK, 0 rows affected (0.00 sec)
 ```
 
 1.  JSON 日志写入器根据`log_error`系统变量给出的默认错误日志目的地确定其输出目的地：
 
-```go
+```sql
 mysql> SHOW VARIABLES LIKE 'log_error';
 +---------------+---------------------------+
 | Variable_name | Value                     |
@@ -242,7 +242,7 @@ mysql> SHOW VARIABLES LIKE 'log_error';
 
 重新启动后，JSON 日志文件如下所示：
 
-```go
+```sql
 shell> sudo less /var/log/mysql/mysqld.log.00.json
 { "prio" : 2, "err_code" : 4356, "subsystem" : "", "SQL_state" : "HY000", "source_file" : "sql_plugin.cc", "function" : "reap_plugins", "msg" : "Shutting down plugin 'sha256_password'", "time" : "2017-10-15T12:29:08.862969Z", "err_symbol" : "ER_PLUGIN_SHUTTING_DOWN_PLUGIN", "label" : "Note" }
 { "prio" : 2, "err_code" : 4356, "subsystem" : "", "SQL_state" : "HY000", "source_file" : "sql_plugin.cc", "function" : "reap_plugins", "msg" : "Shutting down plugin 'mysql_native_password'", "time" : "2017-10-15T12:29:08.862975Z", "err_symbol" : "ER_PLUGIN_SHUTTING_DOWN_PLUGIN", "label" : "Note" }
@@ -253,7 +253,7 @@ shell> sudo less /var/log/mysql/mysqld.log.00.json
 
 如果要切换回原始日志记录，可以将`log_error_services`设置为`'log_filter_internal; log_sink_internal'`：
 
-```go
+```sql
 mysql> SET @@global.log_error_services='log_filter_internal; log_sink_internal';
 Query OK, 0 rows affected (0.00 sec)
 ```
@@ -278,21 +278,21 @@ Query OK, 0 rows affected (0.00 sec)
 
 服务器会在`data directory`中创建文件，除非给出绝对路径名以指定不同的目录：
 
-```go
+```sql
 mysql> SET @@GLOBAL.general_log_file='/var/log/mysql/general_query_log';
 Query OK, 0 rows affected (0.04 sec)
 ```
 
 1.  启用一般查询日志：
 
-```go
+```sql
 mysql> SET GLOBAL general_log = 'ON';
 Query OK, 0 rows affected (0.00 sec)
 ```
 
 1.  您可以看到查询已记录：
 
-```go
+```sql
 shell> sudo cat /var/log/mysql/general_query_log
 /usr/sbin/mysqld, Version: 8.0.3-rc-log (MySQL Community Server (GPL)). started with:
 Tcp port: 3306  Unix socket: /var/lib/mysql/mysql.sock
@@ -334,7 +334,7 @@ Time                 Id Command    Argument
 
 1.  验证`long_query_time`并根据您的要求进行调整：
 
-```go
+```sql
 mysql> SELECT @@GLOBAL.LONG_QUERY_TIME;
 +--------------------------+
 | @@GLOBAL.LONG_QUERY_TIME |
@@ -357,7 +357,7 @@ mysql> SELECT @@GLOBAL.LONG_QUERY_TIME;
 
 1.  验证慢查询文件。默认情况下，它将在`data directory`中以`hostname-slow`日志的形式存在：
 
-```go
+```sql
 mysql> SELECT @@GLOBAL.slow_query_log_file;
 +---------------------------------+
 | @@GLOBAL.slow_query_log_file    |
@@ -382,7 +382,7 @@ Query OK, 0 rows affected (0.03 sec)
 
 1.  启用慢查询日志：
 
-```go
+```sql
 mysql> SELECT @@GLOBAL.slow_query_log;
 +-------------------------+
 | @@GLOBAL.slow_query_log |
@@ -405,7 +405,7 @@ mysql> SELECT @@GLOBAL.slow_query_log;
 
 1.  验证查询是否已记录（您必须执行一些长时间运行的查询才能在慢查询日志中看到它们）：
 
-```go
+```sql
 mysql> SELECT SLEEP(2);
 +----------+
 | SLEEP(2) |
@@ -435,7 +435,7 @@ SELECT SLEEP(2);
 
 例如：
 
-```go
+```sql
 mysql> SET @@GLOBAL.log_output='TABLE';
 Query OK, 0 rows affected (0.00 sec)
 
@@ -445,7 +445,7 @@ Query OK, 0 rows affected (0.02 sec)
 
 执行一些查询，然后查询`mysql.general_log`表：
 
-```go
+```sql
 mysql> SELECT * FROM mysql.general_log WHERE command_type='Query' \G
 ~
 ~
@@ -481,7 +481,7 @@ command_type: Query
 
 您可以以类似的方式使用`slow_log`表：
 
-```go
+```sql
 mysql> SET @@GLOBAL.slow_query_log=1;
 Query OK, 0 rows affected (0.00 sec)
 
@@ -517,7 +517,7 @@ last_insert_id: 0
 
 1.  创建一个新表`mysql.general_log_new`：
 
-```go
+```sql
 mysql> DROP TABLE IF EXISTS mysql.general_log_new;
 Query OK, 0 rows affected, 1 warning (0.19 sec)
 
@@ -527,7 +527,7 @@ Query OK, 0 rows affected (0.10 sec)
 
 1.  使用`RENAME TABLE`命令交换表：
 
-```go
+```sql
 mysql> RENAME TABLE mysql.general_log TO mysql.general_log_1, mysql.general_log_new TO mysql.general_log;
 Query OK, 0 rows affected (0.00 sec)
 ```
@@ -546,11 +546,11 @@ Query OK, 0 rows affected (0.00 sec)
 
 1.  连接到任何一个服务器并执行`mysqlbinlogpurge`脚本：
 
-```go
+```sql
 shell> mysqlbinlogpurge --master=dbadmin:<pass>@master:3306 --slaves=dbadmin:<pass>@slave1:3306,dbadmin:<pass>@slave2:3306
 ```
 
-```go
+```sql
 mysql> SHOW BINARY LOGS;
 +--------------------+-----------+
 | Log_name           | File_size |
@@ -574,7 +574,7 @@ shell> mysqlbinlogpurge --master=dbadmin:<pass>@master:3306 --slaves=dbadmin:<pa
 
 1.  如果您希望在命令中不指定的情况下发现所有的从服务器，您应该在所有的从服务器上设置`report_host`和`report_port`，并重新启动 MySQL 服务器。在每个从服务器上：
 
-```go
+```sql
 shell> sudo vi /etc/my.cnf
 [mysqld]
 report-host     = slave1
@@ -596,7 +596,7 @@ mysql> SHOW VARIABLES LIKE 'report%';
 
 1.  使用`discover-slaves-login`选项执行`mysqlbinlogpurge`：
 
-```go
+```sql
 mysql> SHOW BINARY LOGS;
 +--------------------+-----------+
 | Log_name           | File_size |

@@ -24,7 +24,7 @@ JPA 是一个广泛使用的 ORM 规范，特别是与关系数据库一起使�
 
 从开发人员的角度来看，当程序需要与 MongoDB 实例交互时，他们需要使用特定平台的相应客户端 API。这样做的麻烦在于我们需要编写大量的样板代码，而且不一定是面向对象的。例如，我们有一个名为`Person`的类，具有各种属性，如`name`、`age`、`address`等。相应的 JSON 文档与这个`person`类的结构类似。
 
-```go
+```sql
 {
   name:"…",
   age:..,
@@ -52,7 +52,7 @@ JPA 是一个广泛使用的 ORM 规范，特别是与关系数据库一起使�
 
 1.  或者，如果不使用 IDE，可以在命令提示符中使用 maven 执行所有测试，当前目录在`SpringDataMongoTest`项目的根目录中：
 
-```go
+```sql
 $ mvn clean test
 
 ```
@@ -63,7 +63,7 @@ $ mvn clean test
 
 让我们首先看一下 XML 配置文件的相关部分：
 
-```go
+```sql
   <mongo:repositories base-package="com.packtpub.mongo.cookbook" />
   <mongo:mongo id="mongo" host="localhost" port="27017"/>
   <mongo:db-factory id="factory" dbname="test" mongo-ref="mongo"/>
@@ -74,7 +74,7 @@ $ mvn clean test
 
 第一行是所有 CRUD 存储库的基本包的命名空间声明。在这个包中，我们有一个接口，具有以下内容：
 
-```go
+```sql
 public interface PersonRepository extends PagingAndSortingRepository<Person, Integer>{
 
   /**
@@ -96,7 +96,7 @@ public interface PersonRepository extends PagingAndSortingRepository<Person, Int
 
 查看集合中的文档，只需执行`com.packtpub.mongo.cookbook.MongoCrudRepositoryTest`类中的一个测试用例`saveAndQueryPerson`方法。现在，连接到 mongo shell 中的 MongoDB 实例并执行以下查询：
 
-```go
+```sql
 > use test
 > db.person.findOne({_id:1})
 {
@@ -119,7 +119,7 @@ public interface PersonRepository extends PagingAndSortingRepository<Person, Int
 
 要了解更多关于这些`findBy`方法，我们有另一个测试`MongoCrudRepositoryTest2`类。在您的 IDE 中打开这个类，可以与本文一起阅读。我们已经执行了这个测试用例；现在，让我们看看这些`findBy`方法的使用和它们的行为。这个接口中有七个`findBy`方法，其中一个方法是同一接口中另一个方法的变体。为了清楚地了解查询，我们将首先查看测试数据库中`personTwo`集合中的一个文档。在连接到运行在 localhost 上的 MongoDB 服务器的 mongo shell 中执行以下操作：
 
-```go
+```sql
 > use test
 > db.personTwo.findOne({firstName:'Amit'})
 {
@@ -173,28 +173,28 @@ spring-data-mongodb 支持许多`findBy`方法，这里并未涵盖所有。有�
 
 在前面的表中，当谈到更新时，我们提到了`Query`和`Update`类。这些是 spring-data-mongodb 中的特殊便捷类，它们让我们使用易于理解且具有改进可读性的语法构建 MongoDB 查询。例如，在 mongo 中检查`lastName`是否为`Johnson`的查询是`{'lastName':'Johnson'}`。在 spring-data-mongodb 中，可以按照以下方式构建相同的查询：
 
-```go
+```sql
 new Query(Criteria.where("lastName").is("Johnson"))
 
 ```
 
 与以 JSON 形式给出查询相比，这种语法看起来更整洁。让我们举另一个例子，我们想要在我们的数据库中找到所有 30 岁以下的女性。现在查询将构建如下：
 
-```go
+```sql
 new Query(Criteria.where("age").lt(30).and("gender").is("Female"))
 
 ```
 
 同样，对于更新，我们希望根据一些条件为一些客户设置一个布尔标志`youngCustomer`为`true`。要在文档中设置此标志，MongoDB 格式如下：
 
-```go
+```sql
 {'$set' : {'youngCustomer' : true}}
 
 ```
 
 在 spring-data-mongodb 中，可以通过以下方式实现：
 
-```go
+```sql
 new Update().set("youngCustomer", true)
 
 ```
@@ -205,7 +205,7 @@ new Update().set("youngCustomer", true)
 
 说到聚合，我们还有一个名为`aggregationTest`的测试用例方法，用于对集合执行聚合操作。我们在 MongoDB 中有一个`postalCodes`集合，其中包含各个城市的邮政编码详细信息。集合中的一个示例文档如下：
 
-```go
+```sql
 {
         "_id" : ObjectId("539743b26412fd18f3510f1b"),
         "postOfficeName" : "A S D Mello Road Fuller Marg",
@@ -218,7 +218,7 @@ new Update().set("youngCustomer", true)
 
 我们的聚合操作意图是找到集合中文档数量前五名的州。在 mongo 中，聚合管道如下所示：
 
-```go
+```sql
 [
 {'$project':{'state':1, '_id':0}},
 {'$group':{'_id':'$state', 'count':{'$sum':1}}}
@@ -229,7 +229,7 @@ new Update().set("youngCustomer", true)
 
 在 spring-data-mongodb 中，我们使用`MongoTemplate`调用了聚合操作：
 
-```go
+```sql
 Aggregation aggregation = newAggregation(
 
     project("state", "_id"),
@@ -264,7 +264,7 @@ AggregationResults<DBObject> results = mongoTemplate.aggregate(
 
 1.  转到`DataNucleusMongoJPA`项目的根目录，并在 shell 中执行以下操作：
 
-```go
+```sql
 $ mvn clean test
 
 ```
@@ -275,7 +275,7 @@ $ mvn clean test
 
 1.  在 shell 中执行以下查询：
 
-```go
+```sql
 > use test
 > db.personJPA.find().pretty()
 
@@ -285,7 +285,7 @@ $ mvn clean test
 
 首先，让我们看一下在`personJPA`集合中创建的示例文档：
 
-```go
+```sql
 {
         "_id" : NumberLong(2),
         "residentialAddress" : {
@@ -304,7 +304,7 @@ $ mvn clean test
 
 我们执行的步骤非常简单；让我们逐个查看使用的类。我们从`com.packtpub.mongo.cookbook.domain.Person`类开始。在类的顶部（包和导入之后），我们有以下内容：
 
-```go
+```sql
 @Entity
 @Table(name="personJPA")
 public class Person {
@@ -314,7 +314,7 @@ public class Person {
 
 这里有一个问题。字段的名称太长，占用了不必要的空间。解决方案是在`@Column`注解中使用较短的值。例如，`@Column(name="ln")`注解代替`@Column(name="lastName")`，将在文档中创建一个名为`ln`的键。不幸的是，这在嵌入的`ResidentialAddress`类中不起作用；在这种情况下，您将不得不处理较短的变量名。现在我们已经看到了实体类，让我们看看`persistence.xml`：
 
-```go
+```sql
 <persistence-unit name="DataNucleusMongo">
   <class>com.packtpub.mongo.cookbook.domain.Person</class>
   <properties>
@@ -329,7 +329,7 @@ public class Person {
 
 最后，让我们看一下`pom.xml`，特别是我们使用的增强器插件，如下所示：
 
-```go
+```sql
 <plugin>
   <groupId>org.datanucleus</groupId>
   <artifactId>datanucleus-maven-plugin</artifactId>
@@ -373,21 +373,21 @@ public class Person {
 
 1.  如果要从命令提示符中作为 maven 项目执行该项目，转到项目的根目录并运行以下命令：
 
-```go
+```sql
 mvn spring-boot:run
 
 ```
 
 1.  如果一切顺利，服务器已经启动，命令提示符上将看到以下行：
 
-```go
+```sql
 [INFO] Attaching agents: []
 
 ```
 
 1.  无论以何种方式启动服务器，都在浏览器的地址栏中输入`http://localhost:8080/people`，我们应该看到以下 JSON 响应。因为底层的人员集合是空的，所以会看到这个响应。
 
-```go
+```sql
 {
   "_links" : {
     "self" : {
@@ -409,7 +409,7 @@ mvn spring-boot:run
 
 1.  我们现在将使用 HTTP POST 请求将一个新文档插入到人员集合中，请求将被发送到`http://localhost:8080/people`。我们将使用 Chrome 浏览器的 Advanced REST Client 扩展来向服务器发送 POST 请求。发送的文档是：
 
-```go
+```sql
 {"lastName":"Cruise", "firstName":"Tom", "age":52, "id":1}.
 
 ```
@@ -436,7 +436,7 @@ mvn spring-boot:run
 
 我们不会在这个教程中再次重复 spring-data-mongodb 的概念，而是将看一些我们专门为 REST 接口添加的注释。第一个是在类名的顶部，如下所示：
 
-```go
+```sql
 @RepositoryRestResource(path="people")
 public interface PersonRepository extends PagingAndSortingRepository<Person, Integer> {
 ```
@@ -445,7 +445,7 @@ public interface PersonRepository extends PagingAndSortingRepository<Person, Int
 
 第二个注释在`findByLastName`方法中。我们有以下方法签名：
 
-```go
+```sql
 Person findByLastName(@Param("lastName") String lastName);
 ```
 
@@ -485,7 +485,7 @@ spring-data-rest 的主页位于[`projects.spring.io/spring-data-rest/`](http://
 
 1.  在 mongod 服务器启动后，从命令提示符导入以下两个集合：
 
-```go
+```sql
 $ mongoimport --type json personTwo.json -c personTwo -d test –drop
 $ mongoimport --type csv -c postalCodes -d test pincodes.csv --headerline –drop
 
@@ -513,7 +513,7 @@ $ mongoimport --type csv -c postalCodes -d test pincodes.csv --headerline –dro
 
 1.  让我们看看当我们查询具有嵌套文档的集合时会发生什么；`personTwo`是一个具有以下示例文档的集合：
 
-```go
+```sql
 {
   "_id" : 1,
   "_class" : "com.packtpub.mongo.cookbook.domain.Person2",
@@ -542,7 +542,7 @@ $ mongoimport --type csv -c postalCodes -d test pincodes.csv --headerline –dro
 
 +   我们可以从选项卡中选择所需的视图类型，包括**树形视图**、**表格视图**或**文本视图**。查询计划也会显示。每次运行任何操作时，底部的 Learn shell 会显示实际执行的 Mongo 查询。在这种情况下，我们看到以下内容：
 
-```go
+```sql
 [ 11:17:07 PM ]
 db.postalCodes.find({ "city" : /Mumbai/i }).limit(50);
 db.postalCodes.find({ "city" : /Mumbai/i }).limit(50).explain();
@@ -559,7 +559,7 @@ db.postalCodes.find({ "city" : /Mumbai/i }).limit(50).explain();
 
 +   将出现另一个弹出窗口，在那里您可以选择输入单个 JSON 文档或包含要导入的 JSON 文档的有效文本文件。我们通过导入单个文档导入了以下文档：
 
-```go
+```sql
 {
   "_id" : 4, 
   "firstName" : "Jack",
@@ -617,7 +617,7 @@ db.postalCodes.find({ "city" : /Mumbai/i }).limit(50).explain();
 
 +   我们将输入以下聚合管道：
 
-```go
+```sql
 {'$project' : {'state':1, '_id':0}},
 {'$group': {'_id':'$state', 'count':{'$sum':1}}},
 {'$sort':{'count':-1}},
@@ -636,7 +636,7 @@ db.postalCodes.find({ "city" : /Mumbai/i }).limit(50).explain();
 
 +   `Map`函数就是以下内容：
 
-```go
+```sql
 function Map() {
   emit(this.state, 1)
 }
@@ -644,7 +644,7 @@ function Map() {
 
 +   `Reduce`函数如下：
 
-```go
+```sql
 function Reduce(key, values) {
   return Array.sum(values)
 }
@@ -656,7 +656,7 @@ function Reduce(key, values) {
 
 +   我们将输出打印到`mongoVue_mr`集合。使用以下查询查询`mongoVue_mr`集合：
 
-```go
+```sql
 db.mongoVue_mr.find().sort({value:-1}).limit(5)
 ```
 

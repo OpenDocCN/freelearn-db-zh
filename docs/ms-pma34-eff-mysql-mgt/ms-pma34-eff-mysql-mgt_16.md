@@ -172,7 +172,7 @@ phpMyAdmin 可以检测到正确的 GD2 库的存在，但这种检测需要一�
 
 对于我们的测试 URL，您应该输入以下选项：
 
-```go
+```sql
 '','100','123'
 
 ```
@@ -247,7 +247,7 @@ IP（v4）地址可以编码为长整型（例如，通过 PHP 的`iptolong()`�
 
 首先，在 phpMyAdmin 安装目录中，我们编辑`libraries/transformations/`中的`text_plain__external.inc.php`文件，并找到以下部分：
 
-```go
+```sql
 $allowed_programs = array();
 //$allowed_programs[0] = '/usr/local/bin/tidy';
 //$allowed_programs[1] = '/usr/local/bin/validate';
@@ -272,7 +272,7 @@ $allowed_programs = array();
 
 这个例子展示了如何对单个单元格的文本内容进行排序。我们首先修改`text_plain__external.inc.php`脚本，如前一节所述，添加`sort`程序：
 
-```go
+```sql
 $allowed_programs[0] = '/bin/sort';
 
 ```

@@ -46,7 +46,7 @@
 
 1.  我们将在`atomicOperationsTest`集合中测试一个文档。从 shell 执行以下操作：
 
-```go
+```sql
 > db.atomicOperationsTest.drop()
 > db.atomicOperationsTest.insert({i:1})
 
@@ -54,7 +54,7 @@
 
 1.  从 mongo shell 执行以下操作并观察输出：
 
-```go
+```sql
 > db.atomicOperationsTest.findAndModify({
  query: {i: 1},
  update: {$set : {text : 'Test String'}},
@@ -66,7 +66,7 @@
 
 1.  这次我们将执行另一个操作，但参数略有不同；观察此操作的输出：
 
-```go
+```sql
 > db.atomicOperationsTest.findAndModify({
  query: {i: 1},
  update: {$set : {text : 'Updated String'}}, fields: {i: 1, text :1, _id:0},
@@ -78,7 +78,7 @@
 
 1.  这次我们将执行另一个更新，将会插入文档，如下所示：
 
-```go
+```sql
 >db.atomicOperationsTest.findAndModify({
  query: {i: 2},
  update: {$set : {text : 'Test String'}},
@@ -92,14 +92,14 @@
 
 1.  现在，按照以下方式查询集合并查看当前存在的文档：
 
-```go
+```sql
 > db.atomicOperationsTest.find().pretty()
 
 ```
 
 1.  最后，我们将按以下方式执行删除：
 
-```go
+```sql
 >db.atomicOperationsTest.findAndModify({
  query: {i: 2},
  remove: true,
@@ -140,7 +140,7 @@
 
 1.  从 mongo shell 中执行以下代码：
 
-```go
+```sql
 > function getNextSequence(counterId) {
  return db.counters.findAndModify(
  {
@@ -157,7 +157,7 @@
 
 1.  现在从 shell 中调用以下命令：
 
-```go
+```sql
 > getNextSequence('Posts Counter')
 > getNextSequence('Posts Counter')
 > getNextSequence('Profile Counter')
@@ -170,7 +170,7 @@
 
 在调用此方法三次（就像我们做的那样）后，我们应该在计数器集合中看到以下内容。只需执行以下查询：
 
-```go
+```sql
 >db.counters.find()
 { "_id" : "Posts Counter", "count" : 2 }
 { "_id" : "Profile Counter", "count" : 1 }
@@ -201,7 +201,7 @@
 
 1.  创建一个名为`add`的新函数，并将其保存到集合`db.system.js`中，如下所示。当前数据库应该是 test：
 
-```go
+```sql
 > use test
 > db.system.js.save({ _id : 'add', value : function(num1, num2) {return num1 + num2}})
 
@@ -209,21 +209,21 @@
 
 1.  现在这个函数已经定义，加载所有函数如下：
 
-```go
+```sql
 > db.loadServerScripts()
 
 ```
 
 1.  现在，调用`add`并查看是否有效：
 
-```go
+```sql
 > add(1, 2)
 
 ```
 
 1.  现在我们将使用这个函数，并在服务器端执行它：从 shell 执行以下操作：
 
-```go
+```sql
 > use test
 > db.eval('return add(1, 2)')
 
@@ -231,7 +231,7 @@
 
 1.  执行以下步骤（可以执行前面的命令）：
 
-```go
+```sql
 > use test1
 > db.eval('return add(1, 2)')
 
@@ -255,7 +255,7 @@
 
 在评估函数之前，写操作会获取全局锁；如果使用参数`nolock`，则可以跳过这一步。例如，可以按照以下方式调用前面的`add`函数，而不是调用`db.eval`并获得相同的结果。我们另外提供了`nolock`字段，指示服务器在评估函数之前不要获取全局锁。如果此函数要在集合上执行写操作，则`nolock`字段将被忽略。
 
-```go
+```sql
 > db.runCommand({eval: function (num1, num2) {return num1 + num2}, args:[1, 2],nolock:true})
 
 ```
@@ -288,21 +288,21 @@
 
 1.  如果已存在具有此名称的集合，请删除该集合。
 
-```go
+```sql
 > db.testCapped.drop()
 
 ```
 
 1.  现在按以下方式创建一个有限集合。请注意，此处给定的大小是为集合分配的字节数，而不是它包含的文档数量：
 
-```go
+```sql
 > db.createCollection('testCapped', {capped : true, size:100})
 
 ```
 
 1.  现在我们将按以下方式在有限集合中插入 100 个文档：
 
-```go
+```sql
 > for(i = 1; i < 100; i++) {
 db.testCapped.insert({'i':i, val:'Test capped'})
  }
@@ -311,14 +311,14 @@ db.testCapped.insert({'i':i, val:'Test capped'})
 
 1.  现在按以下方式查询集合：
 
-```go
+```sql
 > db.testCapped.find()
 
 ```
 
 1.  尝试按以下方式从集合中删除数据：
 
-```go
+```sql
 > db.testCapped.remove()
 
 ```
@@ -327,7 +327,7 @@ db.testCapped.insert({'i':i, val:'Test capped'})
 
 1.  要在集合中插入数据，我们将使用以下代码片段。在 shell 中执行此代码片段：
 
-```go
+```sql
 > for(i = 101 ; i < 500 ; i++) {
  sleep(1000)
  db.testCapped.insert({'i': i, val :'Test Capped'})
@@ -337,7 +337,7 @@ db.testCapped.insert({'i':i, val:'Test capped'})
 
 1.  要追加有限集合，我们使用以下代码片段：
 
-```go
+```sql
 > var cursor = db.testCapped.find().addOption(DBQuery.Option.tailable).addOption(DBQuery.Option.awaitData)
 while(cursor.hasNext()) {
  var next = cursor.next()
@@ -374,14 +374,14 @@ while(cursor.hasNext()) {
 
 1.  执行以下操作以确保您在`test`数据库中：
 
-```go
+```sql
 > use test
 
 ```
 
 1.  按照以下方式创建一个普通集合。我们将向其添加 100 个文档，将以下代码片段输入/复制到 mongo shell 上并执行。命令如下：
 
-```go
+```sql
 for(i = 1 ; i <= 100 ; i++) {
  db.normalCollection.insert({'i': i, val :'Some Text Content'})
 }
@@ -390,35 +390,35 @@ for(i = 1 ; i <= 100 ; i++) {
 
 1.  按照以下方式查询集合以确认其中包含数据：
 
-```go
+```sql
 > db.normalCollection.find()
 
 ```
 
 1.  现在，按照以下方式查询集合`system.namespaces`，并注意结果文档：
 
-```go
+```sql
 > db.system.namespaces.find({name : 'test.normalCollection'})
 
 ```
 
 1.  执行以下命令将集合转换为固定集合：
 
-```go
+```sql
 > db.runCommand({convertToCapped : 'normalCollection', size : 100})
 
 ```
 
 1.  查询集合以查看数据：
 
-```go
+```sql
 > db.normalCollection.find()
 
 ```
 
 1.  按照以下方式查询集合`system.namespaces`，并注意结果文档：
 
-```go
+```sql
 > db.system.namespaces.find({name : 'test.normalCollection'})
 
 ```
@@ -443,7 +443,7 @@ Oplog 是 MongoDB 中用于复制的重要集合，是一个有上限的集合�
 
 1.  在操作系统 shell 中，`mongo-cookbook-bindata`项目的当前目录中存在`pom.xml`，执行以下命令：
 
-```go
+```sql
 $ mvn exec:java -Dexec.mainClass=com.packtpub.mongo.cookbook.BinaryDataTest
 
 ```
@@ -452,7 +452,7 @@ $ mvn exec:java -Dexec.mainClass=com.packtpub.mongo.cookbook.BinaryDataTest
 
 1.  切换到连接到本地实例的 mongo shell 并执行以下查询：
 
-```go
+```sql
 > db.binaryDataTest.findOne()
 
 ```
@@ -465,7 +465,7 @@ $ mvn exec:java -Dexec.mainClass=com.packtpub.mongo.cookbook.BinaryDataTest
 
 以下代码行显示了我们如何填充添加到集合中的 DBObject：
 
-```go
+```sql
 DBObject doc = new BasicDBObject("_id", 1);
 doc.put("fileName", resourceName);
 doc.put("size", imageBytes.length);
@@ -492,14 +492,14 @@ MongoDB 中的文档大小可以达到 16 MB。 但这是否意味着我们不�
 
 1.  在服务器运行并且当前目录为主目录的情况下，从操作系统的 shell 中执行以下命令。 这里有两个参数。 第一个是本地文件系统上文件的名称，第二个是将附加到 MongoDB 中上传内容的名称。
 
-```go
+```sql
 $ mongofiles put -l glimpse_of_universe-wide.jpg universe.jpg
 
 ```
 
 1.  现在让我们查询集合，看看这些内容实际上是如何在幕后的集合中存储的。 打开 shell，执行以下两个查询。 确保在第二个查询中，您确保不选择数据字段。
 
-```go
+```sql
 > db.fs.files.findOne({filename:'universe.jpg'})
 > db.fs.chunks.find({}, {data:0})
 
@@ -507,21 +507,21 @@ $ mongofiles put -l glimpse_of_universe-wide.jpg universe.jpg
 
 1.  现在我们已经从操作系统的本地文件系统中将文件放入了 GridFS，我们将看到如何将文件获取到本地文件系统。 从操作系统 shell 中执行以下操作：
 
-```go
+```sql
 $ mongofiles get -l UploadedImage.jpg universe.jpg
 
 ```
 
 1.  最后，我们将删除我们上传的文件。 从操作系统 shell 中，执行以下操作：
 
-```go
+```sql
 $ mongofiles delete universe.jpg
 
 ```
 
 1.  再次使用以下查询确认删除：
 
-```go
+```sql
 > db.fs.files.findOne({filename:'universe.jpg'})
 > db.fs.chunks.find({}, {data:0})
 
@@ -535,7 +535,7 @@ Mongo 分发包带有一个名为 mongofiles 的工具，它允许我们将大�
 
 成功执行后，我们应该在控制台上看到以下内容：
 
-```go
+```sql
 connected to: 127.0.0.1
 added file: { _id: ObjectId('5310d531d1e91f93635588fe'), filename: "universe.jpg
 ", chunkSize: 262144, uploadDate: new Date(1393612082137), md5: 
@@ -549,7 +549,7 @@ done!
 
 在测试数据库的 mongo shell 中执行以下查询：
 
-```go
+```sql
 > db.fs.files.findOne({filename:'universe.jpg'})
 
 ```
@@ -558,14 +558,14 @@ done!
 
 文件内容是包含这些数据的内容。让我们执行以下查询：
 
-```go
+```sql
 > db.fs.chunks.find({}, {data:0})
 
 ```
 
 我们故意从所选结果中省略了数据字段。让我们看一下结果文档的结构：
 
-```go
+```sql
 {
 _id: <Unique identifier of type ObjectId representing this chunk>,
 file_id: <ObjectId of the document in fs.files for the file whose chunk this document represent>,
@@ -610,7 +610,7 @@ data: <BSON binary content  for the data uploaded for the file>
 
 1.  我们假设 GridFS 的集合是干净的，没有先前上传的数据。如果数据库中没有重要数据，您可以执行以下操作来清除集合。在删除集合之前，请小心行事。
 
-```go
+```sql
 > use test
 > db.fs.chunks.drop()
 > db.fs.files.drop()
@@ -619,7 +619,7 @@ data: <BSON binary content  for the data uploaded for the file>
 
 1.  打开操作系统 shell 并执行以下操作：
 
-```go
+```sql
 $ mvn exec:java -Dexec.mainClass=com.packtpub.mongo.cookbook.GridFSTests -Dexec.args="put ~/glimpse_of_universe-wide.jpg universe.jpg"
 
 ```
@@ -628,7 +628,7 @@ $ mvn exec:java -Dexec.mainClass=com.packtpub.mongo.cookbook.GridFSTests -Dexec.
 
 1.  如果前面的命令成功运行，我们应该期望在命令行输出以下内容：
 
-```go
+```sql
 Successfully written to universe.jpg, details are:
 Upload Identifier: 5314c05e1c52e2f520201698
 Length: 2711259
@@ -640,7 +640,7 @@ Total Number Of Chunks: 11
 
 1.  一旦前面的执行成功，我们可以从控制台输出确认，然后从 mongo shell 执行以下操作：
 
-```go
+```sql
 > db.fs.files.findOne({filename:'universe.jpg'})
 > db.fs.chunks.find({}, {data:0})
 
@@ -648,14 +648,14 @@ Total Number Of Chunks: 11
 
 1.  现在，我们将从 GridFS 获取文件到本地文件系统，执行以下操作来执行此操作：
 
-```go
+```sql
 $ mvn exec:java -Dexec.mainClass=com.packtpub.mongo.cookbook.GridFSTests -Dexec.args="get '~/universe.jpg' universe.jpg"
 
 ```
 
 确认文件是否存在于所述位置的本地文件系统上。我们应该看到以下内容打印到控制台输出，以指示成功的写操作：
 
-```go
+```sql
 Connected successfully..
 Successfully written 2711259 bytes to ~/universe.jpg
 
@@ -663,14 +663,14 @@ Successfully written 2711259 bytes to ~/universe.jpg
 
 1.  最后，我们将从 GridFS 中删除文件：
 
-```go
+```sql
 $ mvn exec:java -Dexec.mainClass=com.packtpub.mongo.cookbook.GridFSTests -Dexec.args="delete universe.jpg"
 
 ```
 
 1.  成功删除后，我们应该在控制台中看到以下输出：
 
-```go
+```sql
 Connected successfully..
 Removed file with name 'universe.jpg' from GridFS
 
@@ -688,7 +688,7 @@ Removed file with name 'universe.jpg' from GridFS
 
 无论我们执行什么操作，我们都将创建`com.mongodb.gridfs.GridFS`类的实例。在我们的情况下，我们将其实例化如下：
 
-```go
+```sql
 GridFS gfs = new GridFS(client.getDB("test"));
 ```
 
@@ -718,14 +718,14 @@ GridFS gfs = new GridFS(client.getDB("test"));
 
 1.  通过在操作系统 shell 中输入以下内容来打开 Python 解释器。请注意，当前目录与放置图像文件`glimpse_of_universe-wide.jpg`的目录相同：
 
-```go
+```sql
 $ python
 
 ```
 
 1.  按如下方式导入所需的包：
 
-```go
+```sql
 >>>import pymongo
 >>>import gridfs
 
@@ -733,7 +733,7 @@ $ python
 
 1.  一旦打开了 Python shell，就按如下方式创建`MongoClient`和数据库对象到测试数据库：
 
-```go
+```sql
 >>>client = pymongo.MongoClient('mongodb://localhost:27017')
 >>>db = client.test
 
@@ -741,7 +741,7 @@ $ python
 
 1.  要清除与 GridFS 相关的集合，请执行以下操作：
 
-```go
+```sql
 >>> db.fs.files.drop()
 >>> db.fs.chunks.drop()
 
@@ -749,21 +749,21 @@ $ python
 
 1.  创建 GridFS 的实例如下：
 
-```go
+```sql
 >>>fs = gridfs.GridFS(db)
 
 ```
 
 1.  现在，我们将读取文件并将其内容上传到 GridFS。首先，按如下方式创建文件对象：
 
-```go
+```sql
 >>>file = open('glimpse_of_universe-wide.jpg', 'rb')
 
 ```
 
 1.  现在按如下方式将文件放入 GridFS
 
-```go
+```sql
 >>>fs.put(file, filename='universe.jpg')
 
 ```
@@ -772,28 +772,28 @@ $ python
 
 1.  从 Python shell 执行以下查询。它应该打印出包含上传详细信息的`dict`对象。验证内容
 
-```go
+```sql
 >>> db.fs.files.find_one()
 
 ```
 
 1.  现在，我们将获取上传的内容并将其写入本地文件系统中的文件。让我们获取表示要从 GridFS 中读取数据的`GridOut`实例，如下所示：
 
-```go
+```sql
 >>> gout = fs.get_last_version('universe.jpg')
 
 ```
 
 1.  有了这个实例，让我们按如下方式将数据写入本地文件系统中的文件。首先，按如下方式打开本地文件系统上的文件句柄以进行写入：
 
-```go
+```sql
 >>> fout = open('universe.jpg', 'wb')
 
 ```
 
 1.  然后，我们将按如下方式向其写入内容：
 
-```go
+```sql
 >>>fout.write(gout.read())
 >>>fout.close()
 >>>gout.close()
@@ -838,21 +838,21 @@ $ python
 
 1.  打开操作系统 shell 并执行以下操作：
 
-```go
+```sql
 $ mvn exec:java -Dexec.mainClass=com.packtpub.mongo.cookbook.OplogTrigger -Dexec.args="test.oplogTriggerTest"
 
 ```
 
 1.  Java 程序启动后，我们将打开 shell，当前目录中存在文件`TriggerOperations.js`，mongod 实例监听端口`27000`作为主服务器：
 
-```go
+```sql
 $ mongo --port 27000 TriggerOperations.js --shell
 
 ```
 
 1.  连接到 shell 后，执行我们从 JavaScript 中加载的以下函数：
 
-```go
+```sql
 test:PRIMARY> triggerOperations()
 
 ```
@@ -867,7 +867,7 @@ test:PRIMARY> triggerOperations()
 
 当我们执行 JavaScript 函数时，应该看到类似以下内容打印到输出控制台：
 
-```go
+```sql
 [INFO] <<< exec-maven-plugin:1.2.1:java (default-cli) @ mongo-cookbook-oplogtriger <<<
 [INFO]
 [INFO] --- exec-maven-plugin:1.2.1:java (default-cli) @ mongo-cookbook-oplogtriger ---
@@ -901,7 +901,7 @@ Maven 程序将持续运行，永远不会终止，因为 Java 程序不会。�
 
 让我们分析一下 Java 程序，这是内容的核心所在。首先假设这个程序要工作，必须设置一个副本集，因为我们将使用 Mongo 的 oplog 集合。Java 程序创建了一个连接到副本集成员的主服务器，连接到本地数据库，并获取了`oplog.rs`集合。然后，它所做的就是找到 oplog 中的最后一个或几乎最后一个时间戳。这样做是为了防止在启动时重放整个 oplog，而是标记 oplog 末尾的一个点。以下是找到这个时间戳值的代码：
 
-```go
+```sql
 DBCursor cursor = collection.find().sort(new BasicDBObject("$natural", -1)).limit(1);
 int current = (int) (System.currentTimeMillis() / 1000);
 return cursor.hasNext() ? (BSONTimestamp)cursor.next().get("ts") : new BSONTimestamp(current, 1);
@@ -911,7 +911,7 @@ oplog 按照自然逆序排序，以找到其中最后一个文档中的时间�
 
 完成后，像以前一样找到时间戳，我们通常查询操作日志集合，但增加了两个额外的选项：
 
-```go
+```sql
 DBCursor cursor = collection.find(QueryBuilder.start("ts")
           .greaterThan(lastreadTimestamp).get())
           .addOption(Bytes.QUERYOPTION_TAILABLE)
@@ -948,14 +948,14 @@ MongoDB 直到 2.4 版本之前都没有文本搜索功能，之前所有的全�
 
 1.  从操作系统 shell 执行以下命令将数据导入到集合中。文件`2dMapLegacyData.json`位于当前目录中。
 
-```go
+```sql
 $ mongoimport -c areaMap -d test --drop 2dMapLegacyData.json
 
 ```
 
 1.  如果我们在屏幕上看到类似以下内容，我们可以确认导入已成功进行：
 
-```go
+```sql
 connected to: 127.0.0.1
 Mon Mar 17 23:58:27.880 dropping: test.areaMap
 Mon Mar 17 23:58:27.932 check 9 26
@@ -965,7 +965,7 @@ Mon Mar 17 23:58:27.934 imported 26 objects
 
 1.  成功导入后，从打开的 mongo shell 中，通过执行以下查询验证集合及其内容：
 
-```go
+```sql
 > db.areaMap.find()
 
 ```
@@ -974,14 +974,14 @@ Mon Mar 17 23:58:27.934 imported 26 objects
 
 1.  下一步是在这些数据上创建 2D 地理空间索引。执行以下命令创建 2D 索引：
 
-```go
+```sql
 $ db.areaMap.ensureIndex({co:'2d'})
 
 ```
 
 1.  创建了索引后，我们现在将尝试找到离一个人所站的地方最近的餐厅。假设这个人对美食不挑剔，让我们执行以下查询，假设这个人站在位置(12, 8)，如图所示。此外，我们只对最近的三个地方感兴趣。
 
-```go
+```sql
 $ db.areaMap.find({co:{$near:[12, 8]}, type:'R'}).limit(3)
 
 ```
@@ -990,7 +990,7 @@ $ db.areaMap.find({co:{$near:[12, 8]}, type:'R'}).limit(3)
 
 1.  让我们给查询添加更多选项。个人需要步行，因此希望结果中的距离受到限制。让我们使用以下修改重新编写查询：
 
-```go
+```sql
 $ db.areaMap.find({co:{$near:[12, 8], $maxDistance:4}, type:'R'})
 
 ```
@@ -1013,14 +1013,14 @@ $ db.areaMap.find({co:{$near:[12, 8], $maxDistance:4}, type:'R'})
 
 创建 2D 索引后，我们可以使用它来查询集合并找到一些接近查询点的点。执行以下查询：
 
-```go
+```sql
 > db.areaMap.find({co:{$near:[12, 8]}, type:'R'}).limit(3)
 
 ```
 
 它将查询类型为 R 的文档，这些文档的类型是`restaurants`，并且接近坐标（12,8）。此查询返回的结果将按照与所查询点（在本例中为（12,8））的距离递增的顺序排列。限制只是将结果限制为前三个文档。我们还可以在查询中提供`$maxDistance`，它将限制距离小于或等于提供的值的结果。我们查询的位置不超过四个单位，如下所示：
 
-```go
+```sql
 > db.areaMap.find({co:{$near:[12, 8], $maxDistance:4}, type:'R'})
 
 ```
@@ -1033,14 +1033,14 @@ $ db.areaMap.find({co:{$near:[12, 8], $maxDistance:4}, type:'R'})
 
 +   非标准格式的文档：
 
-```go
+```sql
 {"_id":1, "name":"White Street", "type":"B", co:[4, 23]}
 
 ```
 
 +   GeoJSON 格式的文档：
 
-```go
+```sql
 {"_id":1, "name":"White Street", "type":"B", co:{type: 'Point', coordinates : [4, 23]}}
 
 ```
@@ -1059,7 +1059,7 @@ $ db.areaMap.find({co:{$near:[12, 8], $maxDistance:4}, type:'R'})
 
 1.  按照以下方式将 GeoJSON 兼容数据导入新集合。这包含了 26 个类似于我们上次导入的文档，只是它们是使用 GeoJSON 格式进行格式化的。
 
-```go
+```sql
 $ mongoimport -c areaMapGeoJSON -d test --drop 2dMapGeoJSONData.json
 $ mongoimport -c worldMap -d test --drop countries.geo.json
 
@@ -1067,7 +1067,7 @@ $ mongoimport -c worldMap -d test --drop countries.geo.json
 
 1.  在这些集合上创建一个地理空间索引，如下所示：
 
-```go
+```sql
 > db.areaMapGeoJSON.ensureIndex({"co" : "2dsphere"})
 > db.worldMap.ensureIndex({geometry:'2dsphere'})
 
@@ -1075,7 +1075,7 @@ $ mongoimport -c worldMap -d test --drop countries.geo.json
 
 1.  我们现在将首先查询`areaMapGeoJSON`集合，如下所示：
 
-```go
+```sql
 > db.areaMapGeoJSON.find(
 {  co:{
  $near:{
@@ -1094,7 +1094,7 @@ $ mongoimport -c worldMap -d test --drop countries.geo.json
 
 1.  编写以下查询并观察结果：
 
-```go
+```sql
 > db.areaMapGeoJSON.find(
 {  co:{
  $geoIntersects:{
@@ -1113,7 +1113,7 @@ $ mongoimport -c worldMap -d test --drop countries.geo.json
 
 1.  接下来，我们将尝试执行一些操作，找到完全位于另一个封闭多边形内的所有匹配对象。假设我们想找到一些位于给定正方形街区内的公交车站。可以使用`$geoWithin`操作符来解决这类用例，实现它的查询如下：
 
-```go
+```sql
 > db.areaMapGeoJSON.find(
  {co:{
  $geoWithin:{
@@ -1130,7 +1130,7 @@ $ mongoimport -c worldMap -d test --drop countries.geo.json
 
 1.  当我们执行上述命令时，它们只是按距离升序打印文档。但是，我们在结果中看不到实际的距离。让我们执行与第 3 点中相同的查询，并额外获取计算出的距离如下：
 
-```go
+```sql
 > db.runCommand({ 
  geoNear: "areaMapGeoJSON",
  near: [ 12, 8 ],
@@ -1146,7 +1146,7 @@ $ mongoimport -c worldMap -d test --drop countries.geo.json
 
 1.  最后，我们将在世界地图集合上查询，找出提供的坐标位于哪个国家。从 mongo shell 执行以下查询：
 
-```go
+```sql
 > db.worldMap.find(
  {geometry:{
  $geoWithin:{
@@ -1176,7 +1176,7 @@ $ mongoimport -c worldMap -d test --drop countries.geo.json
 
 为了使用 GeoJSON 兼容的文档，我们将 JSON 文档导入到`areaMapGeoJSON`集合中，并按以下方式创建索引：
 
-```go
+```sql
 > db.areaMapGeoJSON.ensureIndex({"co" : "2dsphere"})
 
 ```
@@ -1189,7 +1189,7 @@ $ mongoimport -c worldMap -d test --drop countries.geo.json
 
 我们在本示例的第 5 点中使用了`$geoIntersects`运算符。这只有在数据库中以 GeoJSON 格式存储文档时才可能。查询简单地找到我们的情况下与我们创建的任何形状相交的所有点。我们使用 GeoJSON 格式创建多边形如下：
 
-```go
+```sql
 {
   type:'Polygon',
   coordinates:[[[0, 0], [0, 11], [11, 11], [11, 0], [0, 0]]]
@@ -1220,21 +1220,21 @@ $ mongoimport -c worldMap -d test --drop countries.geo.json
 
 1.  启动 MongoDB 服务器监听端口`27017`，如下所示。一旦服务器启动，我们将按以下方式在集合中创建测试数据。将文件`BlogEntries.json`放在当前目录中，我们将使用`mongoimport`创建`userBlog`集合，如下所示：
 
-```go
+```sql
 $ mongoimport -d test -c userBlog --drop BlogEntries.json
 
 ```
 
 1.  现在，通过在操作系统 shell 中输入以下命令，从 mongo shell 连接到`mongo`进程：
 
-```go
+```sql
 $ mongo
 
 ```
 
 1.  连接后，按照以下步骤对`userBlog`集合中的文档有所了解：
 
-```go
+```sql
 > db.userBlog.findOne()
 
 ```
@@ -1243,14 +1243,14 @@ $ mongo
 
 1.  按照以下步骤在文档的`blog_text`字段上创建文本索引：
 
-```go
+```sql
 > db.userBlog.ensureIndex({'blog_text':'text'})
 
 ```
 
 1.  现在，在 mongo shell 中对集合执行以下搜索：
 
-```go
+```sql
 $ db.userBlog.find({$text: {$search : 'plot zoo'}})
 
 ```
@@ -1259,7 +1259,7 @@ $ db.userBlog.find({$text: {$search : 'plot zoo'}})
 
 1.  执行另一个搜索，如下所示：
 
-```go
+```sql
 $ db.userBlog.find({$text: {$search : 'Zoo -plot'}})
 
 ```
@@ -1282,14 +1282,14 @@ $ db.userBlog.find({$text: {$search : 'Zoo -plot'}})
 
 要在结果中获取得分，我们需要稍微修改查询，如下所示：
 
-```go
+```sql
 db.userBlog.find({$text:{$search:'plot zoo'}}, {score: { $meta: "textScore"}})
 
 ```
 
 现在我们在`find`方法中提供了一个额外的文档，询问文本匹配的计算得分。结果仍然没有按得分降序排序。让我们看看如何按得分排序：
 
-```go
+```sql
 db.userBlog.find({$text:{$search:'plot zoo'}}, { score: { $meta: "textScore" }}).sort({score: { $meta: "textScore"}})
 
 ```
@@ -1302,7 +1302,7 @@ db.userBlog.find({$text:{$search:'plot zoo'}}, { score: { $meta: "textScore" }})
 
 如果多个字段用于创建索引，则文档中的不同字段可能具有不同的权重。例如，假设`blog_text1`和`blog_text2`是集合的两个字段。我们可以创建一个索引，其中`blog_text1`的权重高于`blog_text2`，如下所示：
 
-```go
+```sql
 db.collection.ensureIndex(
   {
     blog_text1: "text", blog_text2: "text"
@@ -1325,14 +1325,14 @@ db.collection.ensureIndex(
 
 那么，在创建索引时如何选择语言呢？默认情况下，如果没有提供任何内容，索引将被创建，假定语言是英语。但是，如果我们知道语言是法语，我们将如下创建索引：
 
-```go
+```sql
 db.userBlog.ensureIndex({'text':'text'}, {'default_language':'french'})
 
 ```
 
 假设我们最初是使用法语创建索引的，`getIndexes`方法将返回以下文档：
 
-```go
+```sql
 [
   {
     "v" : 1,
@@ -1362,7 +1362,7 @@ db.userBlog.ensureIndex({'text':'text'}, {'default_language':'french'})
 
 但是，如果每个文档的语言不同，这在博客等场景中非常常见，我们有一种方法。如果我们查看上面的文档，`language_override`字段的值是 language。这意味着我们可以使用此字段在每个文档的基础上存储内容的语言。如果没有，该值将被假定为默认值，在前面的情况下为`french`。因此，我们可以有以下内容：
 
-```go
+```sql
 {_id:1, language:'english', text: ….}  //Language is English
 {_id:2, language:'german', text: ….}  //Language is German
 {_id:3, text: ….}      //Language is the default one, French in this case
@@ -1412,7 +1412,7 @@ MongoDB 已经集成了文本搜索功能，就像我们在上一个配方中看
 
 请注意，我们也可以使用 pip 以非常简单的方式安装 mongo-connector，如下所示：
 
-```go
+```sql
 pip install mongo-connector
 
 ```
@@ -1425,7 +1425,7 @@ pip install mongo-connector
 
 1.  在这一点上，假设 Python 和 PyMongo 已安装，并且为您的操作系统平台安装了 pip。我们现在将从源代码获取 mongo-connector。如果您已经安装了 Git 客户端，我们将在操作系统 shell 上执行以下操作。如果您决定将存储库下载为存档，则可以跳过此步骤。转到您想要克隆连接器存储库的目录，并执行以下操作：
 
-```go
+```sql
 $ git clone https://github.com/10gen-labs/mongo-connector.git
 $ cd mongo-connector
 $ python setup.py install
@@ -1436,21 +1436,21 @@ $ python setup.py install
 
 1.  我们现在将启动单个 mongo 实例，但作为副本集。从操作系统控制台执行以下操作：
 
-```go
+```sql
 $  mongod --dbpath /data/mongo/db --replSet textSearch --smallfiles --oplogSize 50
 
 ```
 
 1.  启动 mongo shell 并连接到已启动的实例：
 
-```go
+```sql
 $ mongo
 
 ```
 
 1.  从 mongo shell 开始初始化副本集如下：
 
-```go
+```sql
 > rs.initiate()
 
 ```
@@ -1459,7 +1459,7 @@ $ mongo
 
 1.  在提取的`elasticsearch`存档的`bin`目录中执行以下命令：
 
-```go
+```sql
 $ elasticsearch
 
 ```
@@ -1470,7 +1470,7 @@ $ elasticsearch
 
 1.  如果我们看到以下 JSON 文档，给出了进程详细信息，我们已成功启动了`elasticsearch`。
 
-```go
+```sql
 {
  "cluster_name" : "elasticsearch",
  "nodes" : {
@@ -1498,14 +1498,14 @@ $ elasticsearch
 
 1.  从操作系统 shell 启动 mongo-connector 如下。以下命令是在 mongo-connector 的目录中执行的。
 
-```go
+```sql
 $ python mongo_connector/connector.py -m localhost:27017 -t http://localhost:9200 -n test.user_blog --fields blog_text -d mongo_connector/doc_managers/elastic_doc_manager.py
 
 ```
 
 1.  使用`mongoimport`实用程序将`BlogEntries.json`文件导入集合如下。该命令是在当前目录中执行的`.json`文件。
 
-```go
+```sql
 $ mongoimport -d test -c user_blog BlogEntries.json --drop
 
 ```

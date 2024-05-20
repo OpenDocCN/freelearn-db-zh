@@ -80,28 +80,28 @@
 
 1.  添加用户后，按照以下步骤启动 mongo shell，假设数据库名称为`mongolab-test`，用户名和密码为`testUser`：
 
-```go
+```sql
 $ mongo <host-name>/mongolab-test –u testUser –p testUser
 
 ```
 
 连接后，在 shell 中执行以下操作，并检查数据库名称是否为`mongolab-test`：
 
-```go
+```sql
 > db
 
 ```
 
 1.  按以下方式向集合中插入一个文档：
 
-```go
+```sql
 > db.messages.insert({_id:1, message:'Hello mongolab'})
 
 ```
 
 1.  按以下方式查询集合：
 
-```go
+```sql
 > db.messages.findOne()
 
 ```
@@ -140,7 +140,7 @@ $ mongo <host-name>/mongolab-test –u testUser –p testUser
 
 1.  还有另一种查看文档的方法，即作为表格。单击**显示**模式中的**表格**单选按钮，并单击链接以创建/编辑表视图。在显示的弹出窗口中，输入以下消息集合的文档，然后单击**提交**：
 
-```go
+```sql
 {
     "id": "_id",
     "Message Text": "message"
@@ -175,7 +175,7 @@ $ mongo <host-name>/mongolab-test –u testUser –p testUser
 
 步骤 1 到 5 非常简单。在第 6 步，我们提供了一个 JSON 文档，以表格格式显示结果。文档的格式如下：
 
-```go
+```sql
 {
   <display column 1> : <name of the field in the JSON document> ,
   <display column 2> : <name of the field in the JSON document> ,
@@ -186,7 +186,7 @@ $ mongo <host-name>/mongolab-test –u testUser –p testUser
 
 键是要显示的列的名称，值是实际文档中字段的名称，其值将显示为此列的值。为了更清楚地理解，请查看为消息集合定义的文档，然后查看显示的表格数据。以下是我们提供的 JSON 文档，其中将列的名称作为键的值，并将文档中的实际字段作为列的值：
 
-```go
+```sql
 {
     "id": "_id",
     "Message Text": "message"
@@ -257,42 +257,42 @@ $ mongo <host-name>/mongolab-test –u testUser –p testUser
 
 1.  在添加 MongoDB 存储库之前，我们需要按照以下步骤导入 MongoDB 公钥：
 
-```go
+```sql
 $ sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
 
 ```
 
 1.  在操作系统 shell 中执行以下命令：
 
-```go
+```sql
 $ echo "deb http://repo.mongodb.org/apt/ubuntu trusty/mongodb-org/3.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.0.list
 
 ```
 
 1.  通过执行以下命令加载本地数据库：
 
-```go
+```sql
 $ sudo apt-get install mongodb-org
 
 ```
 
 1.  执行以下命令以创建所需的目录：
 
-```go
+```sql
 $ sudo mkdir /data /log
 
 ```
 
 1.  按照以下步骤启动`mongod`进程：
 
-```go
+```sql
 $ sudo mongod --dbpath /data --logpath /log/mongodb.log --smallfiles --oplogsize 50 –fork
 
 ```
 
 为了确保服务器进程正在运行，执行以下命令，并且我们应该在日志中看到以下内容：
 
-```go
+```sql
 $ tail /log/mongodb.log
 2015-05-04T13:41:16.533+0000 [initandlisten] journal dir=/data/journal
 2015-05-04T13:41:16.534+0000 [initandlisten] recover : no journal files present, no recovery needed
@@ -302,7 +302,7 @@ $ tail /log/mongodb.log
 
 1.  按照以下步骤启动 mongo shell 并执行以下命令：
 
-```go
+```sql
 $ mongo
 > db.ec2Test.insert({_id: 1, message: 'Hello World !'})
 > db.ec2Test.findOne()
@@ -335,14 +335,14 @@ $ mongo
 
 1.  首先，我们需要在我们的 Ubuntu 服务器上安装 Docker，可以通过运行此命令来完成：
 
-```go
+```sql
 $ wget -qO- https://get.docker.com/ | sh
 
 ```
 
 1.  启动 Docker 服务：
 
-```go
+```sql
 $ service docker start 
 > docker start/running, process 24369
 
@@ -350,7 +350,7 @@ $ service docker start
 
 1.  确认 Docker 是否正在运行如下：
 
-```go
+```sql
 $ docker info
 > Containers: 40
 > Images: 311
@@ -368,21 +368,21 @@ $ docker info
 
 1.  从 Docker Hub 获取默认的 MongoDB 图像如下：
 
-```go
+```sql
 $ docker pull mongo
 
 ```
 
 1.  让我们确认图像是否已安装以下命令：
 
-```go
+```sql
 $ docker images | grep mongo
 
 ```
 
 1.  启动 MongoDB 服务器：
 
-```go
+```sql
 $ docker run -d  --name mongo-server-1 mongo
 > dfe7684dbc057f2d075450e3c6c96871dea98ff6b78abe72944360f4c239a72e
 
@@ -392,7 +392,7 @@ $ docker run -d  --name mongo-server-1 mongo
 
 1.  获取此容器的 IP：
 
-```go
+```sql
 $ docker inspect mongo-server-1 | grep IPAddress
 > "IPAddress": "172.17.0.3",
 
@@ -400,7 +400,7 @@ $ docker inspect mongo-server-1 | grep IPAddress
 
 1.  使用 mongo 客户端连接到我们的新容器：
 
-```go
+```sql
 $ mongo  172.17.0.3
 >MongoDB shell version: 3.0.4
 > connecting to: 172.17.0.3/test
@@ -410,21 +410,21 @@ $ mongo  172.17.0.3
 
 1.  在服务器上创建一个目录：
 
-```go
+```sql
 $ mkdir –p /data/db2
 
 ```
 
 1.  启动一个新的 MongoDB 容器：
 
-```go
+```sql
 $ docker run -d --name mongo-server-2 -v /data/db1:/data/db mongo
 
 ```
 
 1.  获取此新容器的 IP，如第 4 步所述，并使用 Mongo 客户端进行连接：
 
-```go
+```sql
 $ docker inspect mongo-server-2 | grep IPAddress
 > "IPAddress": "172.17.0.4",
 $ mongo  172.17.0.4
@@ -436,21 +436,21 @@ $ mongo  172.17.0.4
 
 1.  让我们为我们的最终容器创建另一个目录：
 
-```go
+```sql
 $ mkdir –p /data/db3 
 
 ```
 
 启动一个新的 MongoDB 容器：
 
-```go
+```sql
 $ docker run -d --name mongo-server-3  -v /data/db3:/data/db -p 9999:27017 mongo
 
 ```
 
 1.  让我们通过 localhost 连接到这个容器：
 
-```go
+```sql
 $ mongo localhost:9999
 > MongoDB shell version: 3.0.4
 > connecting to: localhost:9999/test

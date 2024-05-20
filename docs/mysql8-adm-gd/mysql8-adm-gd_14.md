@@ -72,7 +72,7 @@ Sysbench 是一个很好的工具，可以模拟你的工作负载，无论是�
 
 首先，让我们从所有的`InnoDB`表中获取所有列名。以下是我们执行的查询：
 
-```go
+```sql
 SELECT t.table_schema, t.table_name, c.column_name
 FROM information_schema.tables t,
 information_schema.columns c
@@ -87,7 +87,7 @@ AND t.engine='InnoDB';
 
 接着，我们还进行了基准测试，以查找静态表元数据。以下是我们执行的查询：
 
-```go
+```sql
 SELECT TABLE_SCHEMA, TABLE_NAME, TABLE_TYPE, ENGINE, ROW_FORMAT 
 FROM INFORMATION_SCHEMA.TABLES
 WHERE TABLE_SCHEMA LIKE 'chintan%';
@@ -101,7 +101,7 @@ WHERE TABLE_SCHEMA LIKE 'chintan%';
 
 以下是我们执行的查询：
 
-```go
+```sql
 SELECT TABLE_ROWS
 FROM INFORMATION_SCHEMA.TABLES
 WHERE TABLE_SCHEMA LIKE 'chintan%';

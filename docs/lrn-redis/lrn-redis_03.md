@@ -44,7 +44,7 @@ Redis 是一个数据结构服务器，具有许多内置数据类型，这使�
 
 **字符串**类型是 Redis 中的基本数据类型。尽管术语上有些误导，但在 Redis 中，字符串可以被视为一个可以容纳字符串、整数、图像、文件和可序列化对象的字节数组。这些字节数组在性质上是二进制安全的，它们可以容纳的最大大小为 512MB。在 Redis 中，字符串被称为**Simple Dynamic String**（**SDS**），在 C 语言中实现为`Char`数组，还有一些其他属性，如`len`和`free`。这些字符串也是二进制安全的。SDS 头文件在`sds.h`文件中定义如下：
 
-```go
+```sql
 struct sdshdr {
             long len;
            long free;
@@ -90,7 +90,7 @@ Redis 中的命令可以按以下部分对字符串进行分类：
 
 以下是一个演示字符串命令简单用法的示例程序。执行程序并自行分析结果。
 
-```go
+```sql
 package org.learningredis.chapter.three.datastruct;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -248,7 +248,7 @@ Redis 字符串可用于存储对象 ID。例如，会话 ID、XML、JSON 等配
 
 以下是一个演示哈希命令简单用法的示例程序。执行程序并自行分析结果。
 
-```go
+```sql
   package org.learningredis.chapter.three.datastruct;
 import java.util.HashMap;
 import java.util.Map;
@@ -360,7 +360,7 @@ Redis 中的列表命令通常以`L`开头。这也可以解释为所有命令�
 
 以下是一个演示列表命令简单用法的示例程序。执行程序并自行分析结果：
 
-```go
+```sql
 package org.learningredis.chapter.three.datastruct;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -468,7 +468,7 @@ Redis 中用于集合的命令可以分为以下几部分：
 
 以下是用于集合的简单用法的示例程序。执行程序并自行分析结果：
 
-```go
+```sql
 package org.learningredis.chapter.three.datastruct;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -572,7 +572,7 @@ Redis 中有关有序集合的命令可以分为以下几个部分：
 
 以下是一个演示有序集合命令简单用法的示例程序。执行程序并自行分析结果：
 
-```go
+```sql
 package org.learningredis.chapter.three.datastruct;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -717,7 +717,7 @@ Redis 中的响应可以分为两种类型：
 
 +   `ConnectionProperties.java`：这是将保存主机和端口的配置值的类。
 
-```go
+```sql
 package org.learningredis.chapter.three;
 public interface ConnectionProperties {
   public String host="localhost";
@@ -727,7 +727,7 @@ public interface ConnectionProperties {
 
 +   `TestClient.java`：如图所示，这是客户端，将执行设置值和获取值的命令。
 
-```go
+```sql
 package org.learningredis.chapter.three;
 public class TestClient {
   public void execute(Command command){
@@ -765,7 +765,7 @@ public class TestClient {
 
 现在，让我们尝试传递一个在`Get`命令中不存在的键。代码片段将看起来像下面显示的样子（在`wrong-key`中传递的键不存在）：
 
-```go
+```sql
 package org.learningredis.chapter.three;
 public class TestClient {
   public void execute(Command command){
@@ -795,7 +795,7 @@ Command.java 的表示
 
 第一个字符是`*`字符，后跟**我们将传递的参数数量**。这意味着如果我们打算执行**Set**命令，即**SET MSG Hello**，那么这里的参数总数是三。如果我们打算传递**Get**命令，比如**GET MSG**，那么参数数量是两。在参数数量之后，我们将使用**CRLF**作为分隔符。随后的消息将遵循一个重复的模式。这个模式非常简单易懂，即**$**后跟参数的字节长度，后跟**CRLF**，后跟参数本身。如果有更多的参数，那么将遵循相同的模式，但它们将由 CRLF 分隔符分隔。以下是`Command.java`的代码：
 
-```go
+```sql
 package org.learningredis.chapter.three;
 import java.io.IOException;
 import java.net.Socket;
@@ -836,7 +836,7 @@ messageList)
 
 +   `GetCommand.java`：这是实现`GET KEY`命令的类。该类扩展了`Command.java`。以下是`GetCommand`的源代码：
 
-```go
+```sql
 package org.learningredis.chapter.three;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -890,7 +890,7 @@ in = new BufferedReader(new
 
 +   `SetCommand`：这与前一个命令类似，但在这个类中，我们将设置值。该类将扩展`Command.java`类。以下是`SetCommand`的源代码：
 
-```go
+```sql
 package org.learningredis.chapter.three;
 import java.io.BufferedReader;
 import java.io.IOException;

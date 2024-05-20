@@ -106,7 +106,7 @@ Redis 没有提供直接机制来支持数据的内部分片，因此为了实�
 
 让我们打开编辑器，输入以下程序：
 
-```go
+```sql
 package org.learningredis.chap8;
 import java.util.Arrays;
 import redis.clients.jedis.Jedis;
@@ -152,7 +152,7 @@ public class Test {
 
 控制台输出的响应应该如下所示：
 
-```go
+```sql
 myvalue-1 : this is stored in SHARD-1
 myvalue-2 : this is stored in SHARD-1
 myvalue-4 : this is stored in SHARD-1
@@ -191,7 +191,7 @@ myvalue-9
 
 1.  让我们输入一个新的程序，其中添加了客户端的新分片信息：
 
-```go
+```sql
 package org.learningredis.chap8;
 import java.util.Arrays;
 import redis.clients.jedis.Jedis;
@@ -245,7 +245,7 @@ public class Test {
 
 1.  结果将如下所示，因为我们可以看到来自`SHARD_1`和`SHARD_2`的数据在`SHARD_3`中被复制。这*复制的数据*实际上就是由于先前的执行而存在于`SHARD_1`和`SHARD_2`中的旧数据。在生产环境中，这可能是危险的，因为它增加了无法核算的死数据：
 
-```go
+```sql
 myvalue-1 : this is stored in SHARD-1
 myvalue-2 : this is stored in SHARD-1
 myvalue-4 : this is stored in SHARD-1
@@ -275,7 +275,7 @@ myvalue-9
 
 1.  为相同的数据集添加一个新的主节点，并清理`SHARD_1`和`SHARD_2`节点中的所有先前数据，结果将如下：
 
-```go
+```sql
 The response in the output console should be as follows 
 myvalue-1 : this is stored in SHARD-1
 myvalue-2 : this is stored in SHARD-1
@@ -407,7 +407,7 @@ Sentinel 的工作
 
 1.  让我们输入程序：
 
-```go
+```sql
 package simple.sharded;
 import redis.clients.jedis.Jedis;
 public class TestSentinel {
@@ -492,7 +492,7 @@ public class TestSentinel {
 
 1.  将以下文本添加到默认的 Sentinel 配置中：
 
-```go
+```sql
 sentinel monitor slave2master 127.0.0.1 6382 1
 sentinel down-after-milliseconds slave2master 10000
 sentinel failover-timeout slave2master 900000

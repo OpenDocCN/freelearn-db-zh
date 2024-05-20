@@ -44,13 +44,13 @@ MongoDB 为不同的需求提供了各种索引类型。在接下来的章节中
 
 基于我们在前几章中使用的`mongo_book`数据库的单字段索引定义如下：
 
-```go
+```sql
 > db.books.createIndex( { price: 1 } )
 ```
 
 在这里，我们按照索引创建的顺序对字段名称创建索引。对于降序，相同的索引将如下创建：
 
-```go
+```sql
 > db.books.createIndex( { price: -1 } )
 ```
 
@@ -68,7 +68,7 @@ MongoDB 为不同的需求提供了各种索引类型。在接下来的章节中
 
 删除索引与创建索引一样简单。我们可以通过名称或由其组成的字段引用索引：
 
-```go
+```sql
 > db.books.dropIndex( { price: -1 } ) > db.books.dropIndex( "price_index" )
 ```
 
@@ -78,7 +78,7 @@ MongoDB 为不同的需求提供了各种索引类型。在接下来的章节中
 
 在我们的`books`集合示例中，我们可以有以下类似的文档：
 
-```go
+```sql
 {
 "_id" : ObjectId("5969ccb614ae9238fe76d7f1"),
 "name" : "MongoDB Indexing Cookbook",
@@ -93,13 +93,13 @@ MongoDB 为不同的需求提供了各种索引类型。在接下来的章节中
 
 在这里，`meta_data`字段本身是一个文档，具有`page_count`和`average_customer_review`字段。同样，我们可以按照以下方式在`page_count`上创建索引：
 
-```go
+```sql
 db.books.createIndex( { "meta_data.page_count": 1 } )
 ```
 
 这可以回答关于`meta_data.page_count`字段的相等和范围比较的查询，如下所示：
 
-```go
+```sql
 > db.books.find({"meta_data.page_count": { $gte: 200 } })
 > db.books.find({"meta_data.page_count": 256 })
 ```
@@ -110,13 +110,13 @@ db.books.createIndex( { "meta_data.page_count": 1 } )
 
 我们还可以像索引嵌入字段一样索引整个嵌入文档：
 
-```go
+```sql
 > db.books.createIndex( { "meta_data": 1 } )
 ```
 
 在这里，我们正在索引整个文档，期望针对其整体进行查询，如下所示：
 
-```go
+```sql
 > db.books.find({"meta_data": {"page_count":256, "average_customer_review":4.8}})
 ```
 
@@ -128,7 +128,7 @@ db.books.createIndex( { "meta_data.page_count": 1 } )
 
 索引可以在前台创建，阻塞集合中的所有操作，直到它们建立完成，或者可以在后台创建，允许并发操作。通过传递`background: true`参数来在后台构建索引：
 
-```go
+```sql
 > db.books.createIndex( { price: 1 }, { background: true } )
 ```
 
@@ -142,7 +142,7 @@ db.books.createIndex( { "meta_data.page_count": 1 } )
 
 复合索引的声明方式与单个索引类似，通过定义要索引的字段和索引的顺序来定义：
 
-```go
+```sql
 > db.books.createIndex({"name": 1, "isbn": 1})
 ```
 
@@ -152,13 +152,13 @@ db.books.createIndex( { "meta_data.page_count": 1 } )
 
 然而，在多字段索引中，排序可以决定我们是否可以使用此索引进行排序。在前面的示例中，与我们索引创建的排序方向匹配的查询将使用我们的索引，如下所示：
 
-```go
+```sql
 > db.books.find().sort( { "name": 1, "isbn": 1 })
 ```
 
 它还将使用所有`sort`字段反转的`sort`查询：
 
-```go
+```sql
 > db.books.find().sort( { "name": -1, "isbn": -1 })
 ```
 
@@ -166,7 +166,7 @@ db.books.createIndex( { "meta_data.page_count": 1 } )
 
 另外两种排序顺序如下：
 
-```go
+```sql
 > db.books.find().sort( { "name": -1, "isbn": 1 })
 > db.books.find().sort( { "name": 1, "isbn": -1 })
 ```
@@ -179,13 +179,13 @@ db.books.createIndex( { "meta_data.page_count": 1 } )
 
 考虑我们之前创建的复合（多字段）索引：
 
-```go
+```sql
 > db.books.createIndex({"name": 1, "isbn": 1})
 ```
 
 这可以用于对`name`或`{name, isbn}`进行查询：
 
-```go
+```sql
 > db.books.find({"name":"MongoDB Indexing"})
 > db.books.find({"isbn": "1001", "name":"MongoDB Indexing"})
 ```
@@ -194,7 +194,7 @@ db.books.createIndex( { "meta_data.page_count": 1 } )
 
 然而，我们索引中字段的顺序是重要的。仅针对`isbn`字段的查询无法使用我们的索引：
 
-```go
+```sql
 > db.books.find({"isbn": "1001"})
 ```
 
@@ -212,19 +212,19 @@ db.books.createIndex( { "meta_data.page_count": 1 } )
 
 创建多键索引与创建常规索引相同：
 
-```go
+```sql
 > db.books.createIndex({"tags":1})
 ```
 
 假设我们已经在我们的`books`集合中创建了一个文档，使用以下命令：
 
-```go
+```sql
 > db.books.insert({"name": "MongoDB Multikeys Cheatsheet", "isbn": "1002", "available": 1, "meta_data": {"page_count":128, "average_customer_review":3.9}, "tags": ["mongodb", "index","cheatsheet","new"] })
 ```
 
 我们的新索引将是一个多键索引，允许我们找到包含数组中任何标签的文档：
 
-```go
+```sql
 > db.books.find({tags:"new"})
 {
 "_id" : ObjectId("5969f4bc14ae9238fe76d7f2"),
@@ -249,7 +249,7 @@ db.books.createIndex( { "meta_data.page_count": 1 } )
 
 例如，如果我们的数据库中有以下文档，那么在`tags`、`analytics_data`上创建的复合索引将无法创建：
 
-```go
+```sql
 {
 "_id" : ObjectId("5969f71314ae9238fe76d7f3"),
 "name": "Mastering parallel arrays indexing",
@@ -274,7 +274,7 @@ db.books.createIndex( { "meta_data.page_count": 1 } )
 
 因此，如果我们首先在空集合上创建索引，然后尝试插入此文档，插入将失败，并显示以下错误：
 
-```go
+```sql
 > db.books.find({isbn:"1001"}).hint("international_standard_book_number_index").explain()
 {
  "queryPlanner" : {
@@ -330,7 +330,7 @@ r_index",
 
 在第一步中，索引将用于检索数组的第一个值，然后顺序扫描将运行数组中其余的元素；示例如下：
 
-```go
+```sql
 > db.books.find({tags: [ "mongodb", "index", "cheatsheet", "new" ] })
 ```
 
@@ -348,7 +348,7 @@ r_index",
 
 文本索引可以类似于常规索引进行指定，方法是用单词`text`替换索引排序顺序（`-1`，`1），如下所示：
 
-```go
+```sql
 > db.books.createIndex({"name": "text"})
 ```
 
@@ -358,7 +358,7 @@ r_index",
 
 幸运的是，此索引也可以是复合索引：
 
-```go
+```sql
 > db.books.createIndex( { "available": 1, "meta_data.page_count": 1,  "$**": "text" } )
 ```
 
@@ -366,7 +366,7 @@ r_index",
 
 我们还可以盲目地对包含字符串的每个字段进行`text`索引：
 
-```go
+```sql
 > db.books.createIndex( { "$**": "text" } )
 ```
 
@@ -386,7 +386,7 @@ r_index",
 
 散列索引包含索引字段的`hashed`值：
 
-```go
+```sql
 > db.books.createIndex( { name: "hashed" } )
 ```
 
@@ -396,7 +396,7 @@ r_index",
 
 **生存时间**（**TTL**）索引用于在过期时间后自动删除文档。它们的语法如下：
 
-```go
+```sql
 > db.books.createIndex( { "created_at_date": 1 }, { expireAfterSeconds: 86400 } )
 ```
 
@@ -414,7 +414,7 @@ TTL 索引是常规的单字段索引。它可以用于像常规索引一样的�
 
 我们将使用我们熟悉的`books`集合，如下所示：
 
-```go
+```sql
 > db.books.createIndex(
  { price: 1, name: 1 },
  { partialFilterExpression: { price: { $gt: 30 } } }
@@ -441,7 +441,7 @@ TTL 索引是常规的单字段索引。它可以用于像常规索引一样的�
 
 `partialFilterExpression`不需要是稀疏索引字段的一部分。以下索引是有效的稀疏索引：
 
-```go
+```sql
 
  > db.books.createIndex({ name: 1 },{ partialFilterExpression: { price: { $gt: 30 } } })
 ```
@@ -456,7 +456,7 @@ TTL 索引是常规的单字段索引。它可以用于像常规索引一样的�
 
 `sparse`索引只索引包含以下字段的值：
 
-```go
+```sql
 > db.books.createIndex( { "price": 1 }, { sparse: true } )
 ```
 
@@ -480,7 +480,7 @@ TTL 索引是常规的单字段索引。它可以用于像常规索引一样的�
 
 唯一索引类似于 RDBMS 唯一索引，禁止索引字段的重复值。MongoDB 默认在每个插入的文档的`_id`字段上创建唯一索引：
 
-```go
+```sql
 > db.books.createIndex( { "name": 1 }, { unique: true } )
 ```
 
@@ -488,7 +488,7 @@ TTL 索引是常规的单字段索引。它可以用于像常规索引一样的�
 
 在复合索引中，唯一性是在索引的所有字段的值的组合中强制执行的；例如，以下内容不会违反唯一索引：
 
-```go
+```sql
 > db.books.createIndex( { "name": 1, "isbn": 1 }, { unique: true } )
 > db.books.insert({"name": "Mastering MongoDB", "isbn": "101"})
 > db.books.insert({"name": "Mastering MongoDB", "isbn": "102"})
@@ -512,7 +512,7 @@ TTL 索引是常规的单字段索引。它可以用于像常规索引一样的�
 
 使用我们熟悉的`books`集合，我们可以在名称上创建一个不区分大小写的索引，如下所示：
 
-```go
+```sql
 > db.books.createIndex( { "name" : 1 },
  { collation: {
  locale : 'en',
@@ -533,13 +533,13 @@ TTL 索引是常规的单字段索引。它可以用于像常规索引一样的�
 
 使用`collation`创建索引不足以获得不区分大小写的结果。我们需要在查询中指定`collation`，如下所示：
 
-```go
+```sql
 > db.books.find( { name: "Mastering MongoDB" } ).collation( { locale: 'en', strength: 1 } )
 ```
 
 如果我们在查询中指定与我们的索引相同级别的`collation`，那么将使用该索引。我们可以按如下方式指定不同级别的`collation`：
 
-```go
+```sql
 > db.books.find( { name: "Mastering MongoDB" } ).collation( { locale: 'en', strength: 2 } )
 ```
 
@@ -551,19 +551,19 @@ TTL 索引是常规的单字段索引。它可以用于像常规索引一样的�
 
 假设我们创建了一个`collation`级别为 1 的集合，如下所示：
 
-```go
+```sql
 > db.createCollection("case_sensitive_books", { collation: { locale: 'en_US', strength: 1 } } )
 ```
 
 以下索引也将具有`name: 1`的排序：
 
-```go
+```sql
 > db.case_sensitive_books.createIndex( { name: 1 } )
 ```
 
 对该集合的默认查询将使用排序`strength: 1`，区分大小写。如果我们想在查询中覆盖这一点，我们需要在查询中指定不同级别的`collation`，或者完全忽略`strength`部分。以下两个查询将返回`case_sensitive_books`集合中不区分大小写的默认`collation`级别结果：
 
-```go
+```sql
 > db.case_sensitive_books.find( { name: "Mastering MongoDB" } ).collation( { locale: 'en', strength: 3 } ) // default collation strength value
 > db.case_sensitive_books.find( { name: "Mastering MongoDB" } ).collation( { locale: 'en'  } ) // no value for collation, will reset to global default (3) instead of default for case_sensitive_books collection (1)
 ```
@@ -584,19 +584,19 @@ TTL 索引是常规的单字段索引。它可以用于像常规索引一样的�
 
 自 MongoDB 3.2 以来的当前版本是版本 3。默认情况下，它是稀疏索引，只索引具有`2dsphere`字段值的文档。假设我们的`books`集合中有一个位置字段，跟踪每本书的主要作者的家庭地址，我们可以按如下方式在该字段上创建索引：
 
-```go
+```sql
 > db.books.createIndex( { "location" : "2dsphere" } )
 ```
 
 `location`字段需要是一个 GeoJSON 对象，就像这样一个：
 
-```go
+```sql
 location : { type: "Point", coordinates: [ 51.5876, 0.1643 ] }
 ```
 
 `2dsphere`索引也可以作为复合索引的一部分，作为第一个字段或其他字段：
 
-```go
+```sql
 > db.books.createIndex( { name: 1, location : "2dsphere" } )
 ```
 
@@ -606,7 +606,7 @@ location : { type: "Point", coordinates: [ 51.5876, 0.1643 ] }
 
 我们将创建一个`geoHaystack`索引，如下所示：
 
-```go
+```sql
 > db.books.createIndex( { "location" : "geoHaystack" ,
  "name": 1 } ,
  { bucketSize: 2 } )
@@ -616,7 +616,7 @@ location : { type: "Point", coordinates: [ 51.5876, 0.1643 ] }
 
 在这里，使用前面的`location`示例：
 
-```go
+```sql
 location : { type: "Point", coordinates: [ 51.5876, 0.1643 ] }
 ```
 
@@ -632,7 +632,7 @@ location : { type: "Point", coordinates: [ 51.5876, 0.1643 ] }
 
 我们还可以通过在 shell 中的索引命令中添加`{background: true}`参数来在后台构建索引。后台索引只会阻塞当前连接/线程。我们可以打开一个新连接（即在命令行中使用`mongo`）连接到同一个数据库：
 
-```go
+```sql
 > db.books.createIndex( { name: 1 }, { background: true } )
 ```
 
@@ -646,7 +646,7 @@ location : { type: "Point", coordinates: [ 51.5876, 0.1643 ] }
 
 我们可以通过应用`hint()`参数来强制 MongoDB 使用索引：
 
-```go
+```sql
 > db.books.createIndex( { isbn: 1 }, { background: true } )
 {
 "createdCollectionAutomatically" : false,
@@ -660,7 +660,7 @@ location : { type: "Point", coordinates: [ 51.5876, 0.1643 ] }
 
 现在，如果我们尝试通过`isbn`搜索书籍，我们可以使用`explain()`命令来查看`winningPlan`子文档，从中我们可以找到使用的查询计划：
 
-```go
+```sql
 > db.books.find({isbn: "1001"}).explain()
 …
 "winningPlan" : {
@@ -677,7 +677,7 @@ location : { type: "Point", coordinates: [ 51.5876, 0.1643 ] }
 
 这意味着使用了具有`isbn`为`1`和`name`为`1`的索引，而不是我们新创建的索引。我们还可以在输出的`rejectedPlans`子文档中查看我们的索引，如下所示：
 
-```go
+```sql
 …
 "rejectedPlans" : [
 {
@@ -697,7 +697,7 @@ location : { type: "Point", coordinates: [ 51.5876, 0.1643 ] }
 
 我们可以强制 MongoDB 使用我们新创建的索引，如下所示：
 
-```go
+```sql
 > db.books.find({isbn: "1001"}).hint("international_standard_book_number_index")
 .explain()
 {
@@ -760,7 +760,7 @@ location : { type: "Point", coordinates: [ 51.5876, 0.1643 ] }
 
 默认情况下，索引名称是根据字段索引和索引方向（`1`，`-1`）自动分配的。如果我们想在创建时分配自己的`name`，我们可以这样做：
 
-```go
+```sql
 > db.books.createIndex( { isbn: 1 }, { name: "international_standard_book_number_index" } )
 ```
 
@@ -794,7 +794,7 @@ location : { type: "Point", coordinates: [ 51.5876, 0.1643 ] }
 
 通过在查询末尾链接它来调用它，如下所示：
 
-```go
+```sql
 > db.books.find().explain()
 ```
 
@@ -802,7 +802,7 @@ location : { type: "Point", coordinates: [ 51.5876, 0.1643 ] }
 
 让我们使用最详细的输出，`allPlansExecution`：
 
-```go
+```sql
 > db.books.find().explain("allPlansExecution")
 ```
 
@@ -850,7 +850,7 @@ location : { type: "Point", coordinates: [ 51.5876, 0.1643 ] }
 
 例如，考虑对我们的`books`集合的查询如下：
 
-```go
+```sql
 > db.books.find({ "isbn":"101", "price": { $gt: 20 }})
 ```
 

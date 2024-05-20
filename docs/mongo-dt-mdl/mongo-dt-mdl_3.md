@@ -22,14 +22,14 @@
 
 在 MongoDB 中，我们可以通过`find`接口执行查询。`find`接口可以接受查询作为条件和投影作为参数。这将产生一个游标。游标有可以用作执行查询的修饰符的方法，比如`limit`、`map`、`skip`和`sort`。例如，看一下以下查询：
 
-```go
+```sql
 db.customers.find({"username": "johnclay"})
 
 ```
 
 这将返回以下文档：
 
-```go
+```sql
 {
  "_id" : ObjectId("54835d0ff059b08503e200d4"),
  "username" : "johnclay",
@@ -70,7 +70,7 @@ db.customers.find({"username": "johnclay"})
 
 如前所述，我们将在这些`find`接口参数中使用 JSON 文档。我们可以以以下方式使用`find`接口：
 
-```go
+```sql
 db.collection.find(
  {criteria}, 
  {projection}
@@ -88,7 +88,7 @@ db.collection.find(
 
 让我们执行以下示例：
 
-```go
+```sql
 db.customers.find(
 {"username": "johnclay"}, 
 {_id: 1, username: 1, details: 1}
@@ -104,7 +104,7 @@ db.customers.find(
 
 这个查询将产生这个文档：
 
-```go
+```sql
 {
  "_id" : ObjectId("54835d0ff059b08503e200d4"),
  "username" : "johnclay",
@@ -128,14 +128,14 @@ db.customers.find(
 
 因此，`products`集合中的查询以这种方式执行：
 
-```go
+```sql
 db.products.find()
 
 ```
 
 它将返回：
 
-```go
+```sql
 { 
  "_id" : ObjectId("54837b61f059b08503e200db"), 
  "name" : "Product 1", 
@@ -172,14 +172,14 @@ db.products.find()
 
 让我们检查以下示例查询。我们想选择属性名称为`Product 1`的文档：
 
-```go
+```sql
 db.products.find({name: "Product 1"});
 
 ```
 
 这将给我们一个结果：
 
-```go
+```sql
 {
  "_id" : ObjectId("54837b61f059b08503e200db"),
  "name" : "Product 1",
@@ -197,14 +197,14 @@ db.products.find({name: "Product 1"});
 
 以下示例演示了如何选择所有价格大于 10 的文档：
 
-```go
+```sql
 db.products.find({price: {$gt: 10}});
 
 ```
 
 这将产生如下结果：
 
-```go
+```sql
 { 
  "_id" : ObjectId("54837b65f059b08503e200dc"), 
  "name" : "Product 2", 
@@ -234,7 +234,7 @@ db.products.find({price: {$gt: 10}});
 
 例如，我们从 `products` 集合中选择的文档如下所示：
 
-```go
+```sql
 {
  "_id" : ObjectId("54837b61f059b08503e200db"),
  "name" : "Product 1",
@@ -316,7 +316,7 @@ MongoDB 为我们提供了一种定义值之间相等关系的方式。通过比
 
 +   `$gte` 运算符负责搜索等于或大于查询中指定值的值。如果我们执行查询 `db.products.find({price: {$gte: 20}})`，它将返回：
 
-```go
+```sql
 {
  "_id" : ObjectId("54837b65f059b08503e200dc"),
  "name" : "Product 2",
@@ -370,7 +370,7 @@ MongoDB 为我们提供了一种定义值之间相等关系的方式。通过比
 
 +   使用 `$lt` 运算符，可以搜索小于查询中请求的值的值。查询 `db.products.find({price: {$lt: 20}})` 将返回：
 
-```go
+```sql
 {
  "_id" : ObjectId("54837b61f059b08503e200db"),
  "name" : "Product 1",
@@ -400,7 +400,7 @@ MongoDB 为我们提供了一种定义值之间相等关系的方式。通过比
 
 +   `$lte` 运算符搜索小于或等于查询中请求的值的值。如果我们执行查询 `db.products.find({price: {$lte: 20}})`，它将返回：
 
-```go
+```sql
 {
  "_id" : ObjectId("54837b61f059b08503e200db"),
  "name" : "Product 1",
@@ -454,7 +454,7 @@ MongoDB 为我们提供了一种定义值之间相等关系的方式。通过比
 
 +   `$in` 运算符能够搜索任何字段值等于查询中请求的数组中指定的值的文档。执行查询 `db.products.find({price:{$in: [5, 10, 15]}})` 将返回：
 
-```go
+```sql
 {
  "_id" : ObjectId("54837b61f059b08503e200db"),
  "name" : "Product 1",
@@ -484,7 +484,7 @@ MongoDB 为我们提供了一种定义值之间相等关系的方式。通过比
 
 +   `$nin` 运算符将匹配不包含在指定数组中的值。执行 `db.products.find({price:{$nin: [10, 20]}})` 查询将产生：
 
-```go
+```sql
 {
  "_id" : ObjectId("54837b69f059b08503e200dd"),
  "name" : "Product 3",
@@ -514,7 +514,7 @@ MongoDB 为我们提供了一种定义值之间相等关系的方式。通过比
 
 +   `$ne` 运算符将匹配任何不等于查询中指定值的值。执行 `db.products.find({name: {$ne: "Product 1"}})` 查询将产生：
 
-```go
+```sql
 {
  "_id" : ObjectId("54837b65f059b08503e200dc"),
  "name" : "Product 2",
@@ -572,7 +572,7 @@ MongoDB 为我们提供了一种定义值之间相等关系的方式。通过比
 
 +   `$and` 运算符将在表达式数组中执行逻辑 *AND* 操作，并返回匹配所有指定条件的值。执行 `db.products.find({$and: [{price: {$lt: 30}}, {name: "Product 2"}]})` 查询将产生：
 
-```go
+```sql
 {
  "_id" : ObjectId("54837b65f059b08503e200dc"),
  "name" : "Product 2",
@@ -602,7 +602,7 @@ MongoDB 为我们提供了一种定义值之间相等关系的方式。通过比
 
 +   `$or` 运算符将在表达式数组中执行逻辑 *OR* 操作，并返回匹配任一指定条件的所有值。执行 `db.products.find({$or: [{price: {$gt: 50}}, {name: "Product 3"}]})` 查询将产生：
 
-```go
+```sql
 {
  "_id" : ObjectId("54837b69f059b08503e200dd"),
  "name" : "Product 3",
@@ -632,7 +632,7 @@ MongoDB 为我们提供了一种定义值之间相等关系的方式。通过比
 
 +   `$not` 运算符反转查询效果，并返回不匹配指定运算符表达式的值。它用于否定任何操作。执行 `db.products.find({price: {$not: {$gt: 10}}})` 查询将产生：
 
-```go
+```sql
 {
  "_id" : ObjectId("54837b61f059b08503e200db"),
  "name" : "Product 1",
@@ -662,7 +662,7 @@ MongoDB 为我们提供了一种定义值之间相等关系的方式。通过比
 
 +   `$nor` 运算符将在表达式数组中执行逻辑 *NOR* 操作，并返回所有未能匹配数组中所有指定表达式的值。执行 `db.products.find({$nor:[{price:{$gt: 35}}, {price:{$lte: 20}}]})` 查询将产生：
 
-```go
+```sql
 {
  "_id" : ObjectId("54837b69f059b08503e200dd"),
  "name" : "Product 3",
@@ -702,7 +702,7 @@ MongoDB 为我们提供了一种定义值之间相等关系的方式。通过比
 
 +   `$regex` 运算符将返回所有匹配正则表达式的值。执行 `db.products.find({name: {$regex: /2/}})` 将返回：
 
-```go
+```sql
 {
  "_id" : ObjectId("54837b65f059b08503e200dc"),
  "name" : "Product 2",
@@ -738,7 +738,7 @@ MongoDB 为我们提供了一种定义值之间相等关系的方式。通过比
 
 `db.products.find({review: {$elemMatch: {stars: {$gt: 5}, customer: {email: "customer@customer.com"}}}})`查询将查看所有集合文档，其中`review`字段有文档，`stars`字段值大于`5`，并且`customer email`是`customer@customer.com`：
 
-```go
+```sql
 {
  "_id" : ObjectId("54837b65f059b08503e200dc"),
  "name" : "Product 2",
@@ -778,14 +778,14 @@ MongoDB 为我们提供了一种定义值之间相等关系的方式。通过比
 
 通过在上一节中使用的相同示例集合，具有投影的查询示例将是：
 
-```go
+```sql
 db.products.find({price: {$not: {$gt: 10}}}, {name: 1, description: 1})
 
 ```
 
 这个查询产生：
 
-```go
+```sql
 {
  "_id" : ObjectId("54837b61f059b08503e200db"),
  "name" : "Product 1",
@@ -804,7 +804,7 @@ db.products.find({price: {$not: {$gt: 10}}}, {name: 1, description: 1})
 
 `db.products.find({price: {$not: {$gt: 10}}}, {_id: 0, name: 1, "supplier.name": 1})`查询将显示以下文档：
 
-```go
+```sql
 { "name" : "Product 1", "supplier" : { "name" : "Supplier 1" } }
 
 ```
@@ -813,7 +813,7 @@ db.products.find({price: {$not: {$gt: 10}}}, {name: 1, description: 1})
 
 `db.products.find({price: {$gt: 20}}, {review: {$elemMatch: {stars: 5}}})` 查询将产生：
 
-```go
+```sql
 {
  "_id" : ObjectId("54837b69f059b08503e200dd"),
  "review" : [
@@ -844,7 +844,7 @@ db.products.find({price: {$not: {$gt: 10}}}, {name: 1, description: 1})
 
 `insert`接口是在 MongoDB 中创建新文档的可能方式之一。`insert`接口具有以下语法：
 
-```go
+```sql
 db.collection.insert(
  <document or array of documents>, 
  { 
@@ -865,7 +865,7 @@ db.collection.insert(
 
 在下面的示例中，我们可以看到如何使用`insert`操作：
 
-```go
+```sql
 db.customers.insert({
  username: "customer1", 
  email: "customer1@customer.com", 
@@ -876,7 +876,7 @@ db.customers.insert({
 
 由于我们没有为`_id`字段指定值，它将自动生成具有唯一`ObjectId`值的值。此`insert`操作创建的文档是：
 
-```go
+```sql
 { 
  "_id" : ObjectId("5487ada1db4ff374fd6ae6f5"), 
  "username" : "customer1", 
@@ -896,7 +896,7 @@ db.customers.insert({
 
 `update`接口表示为：
 
-```go
+```sql
 db.collection.update(
  <query>,
  <update>,
@@ -923,7 +923,7 @@ db.collection.update(
 
 使用上一节中创建的文档，示例更新将是：
 
-```go
+```sql
 db.customers.update(
  {username: "customer1"}, 
  {$set: {email: "customer1@customer1.com"}}
@@ -933,7 +933,7 @@ db.customers.update(
 
 修改后的文档是：
 
-```go
+```sql
 { 
  "_id" : ObjectId("5487ada1db4ff374fd6ae6f5"), 
  "username" : "customer1", 
@@ -947,7 +947,7 @@ db.customers.update(
 
 否则，您可能会有此更新：
 
-```go
+```sql
 db.customers.update(
  {username: "customer1"}, 
  {email: "customer1@customer1.com"}
@@ -957,7 +957,7 @@ db.customers.update(
 
 在这种情况下，修改后的文档将是：
 
-```go
+```sql
 { 
  "_id" : ObjectId("5487ada1db4ff374fd6ae6f5"), 
  "email" : "customer1@customer1.com" 
@@ -969,7 +969,7 @@ db.customers.update(
 
 +   `$inc`增加具有指定值的字段的值：
 
-```go
+```sql
 db.customers.update(
  {username: "johnclay"}, 
  {$inc: {"details.age": 1}}
@@ -981,7 +981,7 @@ db.customers.update(
 
 +   `$rename`将重命名指定的字段：
 
-```go
+```sql
 db.customers.update(
  {email: "customer1@customer1.com"}, 
  {$rename: {username: "login"}}
@@ -993,7 +993,7 @@ db.customers.update(
 
 +   `$unset`将从匹配的文档中删除字段：
 
-```go
+```sql
 db.customers.update(
  {email: "customer1@customer1.com"}, 
  {$unset: {login: ""}}
@@ -1035,7 +1035,7 @@ MongoDB 提供给我们的写入关注点级别是：
 
 在以下示例中，我们在`customers`集合中进行了一个未确认的写入操作：
 
-```go
+```sql
 db.customers.insert(
 {username: "customer1", email: "customer1@customer.com", password: hex_md5("customer1paswd")}, 
 {writeConcern: {w: 0}}
@@ -1053,7 +1053,7 @@ db.customers.insert(
 
 在以下示例中，我们在`customers`集合中进行了一个已确认的写入操作：
 
-```go
+```sql
 db.customers.insert(
 {username: "customer1", email: "customer1@customer.com", password: hex_md5("customer1paswd")}, 
 {writeConcert: {w: 1}}
@@ -1071,7 +1071,7 @@ db.customers.insert(
 
 在下面的示例中，我们在`customers`集合中使用了一个日志写关注的`insert`：
 
-```go
+```sql
 db.customers.insert(
 {username: "customer1", email: "customer1@customer.com", password: hex_md5("customer1paswd")}, 
 {writeConcern: {w: 1, j: true}} 
@@ -1089,7 +1089,7 @@ db.customers.insert(
 
 在下面的示例中，我们将等待写操作传播到主节点和至少两个辅助节点：
 
-```go
+```sql
 db.customers.insert(
 {username: "customer1", email: "customer1@customer.com", password: hex_md5("customer1paswd")}, 
 {writeConcern: {w: 3}}
@@ -1101,7 +1101,7 @@ db.customers.insert(
 
 在下面的示例中，我们将等待写操作传播到主节点和至少两个辅助节点，并设置了三秒的超时。如果我们期望响应的两个辅助节点中的一个失败，那么该方法将在三秒后超时：
 
-```go
+```sql
 db.customers.insert(
 {username: "customer1", email: "customer1@customer.com", password: hex_md5("customer1paswd")}, 
 {writeConcern: {w: 3, wtimeout: 3000}}
@@ -1121,7 +1121,7 @@ db.customers.insert(
 
 在下面的示例中，我们使用`insert`方法进行批量插入：
 
-```go
+```sql
 db.customers.insert(
 [
 {username: "customer3", email: "customer3@customer.com", password: hex_md5("customer3paswd")}, 
@@ -1134,7 +1134,7 @@ db.customers.insert(
 
 在下面的示例中，我们使用新的批量方法进行无序批量插入：
 
-```go
+```sql
 var bulk = db.customers.initializeUnorderedBulkOp();
 bulk.insert({username: "customer1", email: "customer1@customer.com", password: hex_md5("customer1paswd")});
 bulk.insert({username: "customer2", email: "customer2@customer.com", password: hex_md5("customer2paswd")});

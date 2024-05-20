@@ -60,14 +60,14 @@
 
 1.  一旦服务器启动，并假设它在默认端口`27017`上监听客户端连接，从 shell 执行以下命令连接到它：
 
-```go
+```sql
 > mongo
 
 ```
 
 1.  连接后，使用默认的测试数据库。让我们创建一个带有一些测试数据的集合。我们将使用的集合名称是：
 
-```go
+```sql
 sloppyNamedCollection.
 > for(i = 0 ; i < 10 ; i++) { db.sloppyNamedCollection.insert({'i':i}) };
 
@@ -77,7 +77,7 @@ sloppyNamedCollection.
 
 1.  将集合`neatNamedCollection`重命名为：
 
-```go
+```sql
 > db.sloppyNamedCollection.renameCollection('neatNamedCollection')
 { "ok" : 1 }
 
@@ -85,14 +85,14 @@ sloppyNamedCollection.
 
 1.  通过执行以下命令验证`slappyNamedCollection`集合是否不再存在：
 
-```go
+```sql
 > show collections
 
 ```
 
 1.  最后，查询`neatNamedCollection`集合，验证最初在`sloppyNamedCollection`中的数据确实存在其中。只需在 mongo shell 上执行以下命令：
 
-```go
+```sql
 > db.neatNamedCollection.find()
 
 ```
@@ -101,7 +101,7 @@ sloppyNamedCollection.
 
 重命名集合非常简单。它是通过`renameCollection`方法实现的，该方法接受两个参数。通常，函数签名如下：
 
-```go
+```sql
 > db.<collection to rename>.renameCollection('<target name of the collection>', <drop target if exists>)
 
 ```
@@ -110,7 +110,7 @@ sloppyNamedCollection.
 
 我们没有使用的第二个参数是一个布尔值，告诉命令是否删除目标集合（如果存在）。这个值默认为 false，这意味着不要删除目标，而是报错。这是一个明智的默认值，否则如果我们意外给出一个存在的集合名称并且不希望删除它，结果会很可怕。但是，如果你知道自己在做什么，并且希望在重命名集合时删除目标，将第二个参数传递为 true。这个参数的名称是`dropTarget`。在我们的情况下，调用应该是：
 
-```go
+```sql
 > db.sloppyNamedCollection.renameCollection('neatNamedCollection', true)
 
 ```
@@ -119,14 +119,14 @@ sloppyNamedCollection.
 
 请注意，重命名操作将保留原始的和新重命名的集合在同一个数据库中。这个`renameCollection`方法不足以将集合移动/重命名到另一个数据库。在这种情况下，我们需要运行类似于以下命令的`renameCollection`命令：
 
-```go
+```sql
 > db.runCommand({ renameCollection: "<source_namespace>", to: "<target_namespace>", dropTarget: <true|false> });
 
 ```
 
 假设我们想要将集合`sloppyNamedCollection`重命名为`neatNamedCollection`，并将其从`test`数据库移动到`newDatabase`，我们可以通过执行以下命令来执行此操作。请注意，使用的`dropTarget: true`开关旨在删除现有的目标集合（`newDatabase.neatNamedCollection`）（如果存在）。
 
-```go
+```sql
 > db.runCommand({ renameCollection: "test.sloppyNamedCollection ", to: " newDatabase.neatNamedCollection", dropTarget: true });
 
 ```
@@ -147,28 +147,28 @@ sloppyNamedCollection.
 
 1.  打开 mongo shell 并连接到正在运行的 MongoDB 实例。如果您在默认端口上启动了 mongo，请执行以下操作：
 
-```go
+```sql
 $ mongo
 
 ```
 
 1.  导入数据后，如果`pincode`字段上不存在索引，则在该字段上创建一个索引：
 
-```go
+```sql
 > db.postalCodes.ensureIndex({'pincode':1})
 
 ```
 
 1.  在 mongo 终端上执行以下操作：
 
-```go
+```sql
 > db.postalCodes.stats()
 
 ```
 
 1.  观察输出并在 shell 上执行以下操作：
 
-```go
+```sql
 > db.postalCodes.stats(1024)
 
 ```
@@ -181,7 +181,7 @@ $ mongo
 
 如果我们观察这两个命令的输出，我们会发现第二个命令中的所有数字都是以 KB 为单位，而第一个命令中的数字是以字节为单位。提供的参数称为比例，所有指示大小的数字都会除以这个比例。在这种情况下，由于我们给出的值是`1024`，我们得到的所有值都是以 KB 为单位，而如果将`1024 * 1024`作为比例的值（显示的大小将以 MB 为单位）。对于我们的分析，我们将使用以 KB 显示大小的值。
 
-```go
+```sql
 > db.postalCodes.stats(1024)
 {
  "ns" : "test.postalCodes",
@@ -242,21 +242,21 @@ $ mongo
 
 1.  使用 mongo shell 连接到服务器，通过在操作系统终端中输入以下命令。假设服务器正在监听端口`27017`。
 
-```go
+```sql
 $ mongo
 
 ```
 
 1.  在 shell 上，执行以下命令并观察输出：
 
-```go
+```sql
 > db.stats()
 
 ```
 
 1.  在 shell 上，再次执行以下命令，但这次我们添加了 scale 参数。观察输出：
 
-```go
+```sql
 > db.stats(1024)
 
 ```
@@ -265,7 +265,7 @@ $ mongo
 
 `scale`参数是`stats`函数的一个参数，它将字节数除以给定的 scale 值。在这种情况下，它是`1024`，因此所有值将以 KB 为单位。我们分析以下输出：
 
-```go
+```sql
 > db.stats(1024)
 {
  "db" : "test",
@@ -346,7 +346,7 @@ $ mongo
 
 1.  我们定义一个小函数，它将向文档添加一个名为`padField`的字段，并将字符串值的数组添加到文档中。其代码如下：
 
-```go
+```sql
 function padDocument(doc) {
   doc.padField = []
   for(i = 0 ; i < 20 ; i++) {
@@ -359,7 +359,7 @@ function padDocument(doc) {
 
 1.  下一步是插入一个文档。我们将定义另一个名为`insert`的函数来执行：
 
-```go
+```sql
 function insert(collection, doc) {
    //1\. Pad the document with the padField
   padDocument(doc);
@@ -380,13 +380,13 @@ collection.update({'_id':_id}, {$unset:{'padField':1}})
 
 1.  现在我们将通过在集合`testCol`中插入一个文档来将其付诸实践：
 
-```go
+```sql
 insert(db.testCol, {i:1})
 ```
 
 1.  您可以使用以下查询查询`testCol`，并检查插入的文档是否存在：
 
-```go
+```sql
 > db.testCol.findOne({i:1})
 
 ```
@@ -397,7 +397,7 @@ insert(db.testCol, {i:1})
 
 `insert`函数是不言自明的，并且其中有注释来说明它的作用。一个明显的问题是，我们如何相信这确实是我们打算做的事情。为此，我们将进行一个小活动如下。我们将在`manualPadTest`集合上进行这个目的。从 mongo shell 执行以下操作：
 
-```go
+```sql
 > db.manualPadTest.drop()
 > db.manualPadTest.insert({i:1})
 > db.manualPadTest.insert({i:2})
@@ -407,7 +407,7 @@ insert(db.testCol, {i:1})
 
 在统计信息中注意`avgObjSize`字段。接下来，从 mongo shell 执行以下操作：
 
-```go
+```sql
 > db.manualPadTest.drop()
 > insert(db.manualPadTest , {i:1})
 > insert(db.manualPadTest , {i:2})
@@ -435,14 +435,14 @@ insert(db.testCol, {i:1})
 
 1.  在另一个终端中，执行提供的 JavaScript `KeepServerBusy.js`如下：
 
-```go
+```sql
 $ mongo KeepServerBusy.js –quiet
 
 ```
 
 1.  打开一个新的操作系统终端并执行以下命令：
 
-```go
+```sql
 $ mongostat
 
 ```
@@ -451,7 +451,7 @@ $ mongostat
 
 1.  现在，从终端执行以下命令：
 
-```go
+```sql
 $ mongotop
 
 ```
@@ -466,7 +466,7 @@ $ mongotop
 
 我们首先分析`mongostat`。在我的笔记本电脑上，使用`mongostat`进行捕获如下：
 
-```go
+```sql
 mongostat
 connected to: 127.0.0.1
 insert query update delete getmore command flushes mapped vsize   res faults idx miss % qr|qw ar|aw netIn netOut conn     time
@@ -504,7 +504,7 @@ insert query update delete getmore command flushes mapped vsize   res faults idx
 
 除了`mongostat`，我们还使用了`mongotop`实用程序来捕获统计数据。让我们看看它的输出并理解一些：
 
-```go
+```sql
 $>mongotop
 connected to: 127.0.0.1
  ns           total          read         write
@@ -536,7 +536,7 @@ connected to: 127.0.0.1
 
 `mongotop`命令接受命令行上的参数，如下所示：
 
-```go
+```sql
 $ mongotop 5
 
 ```
@@ -567,7 +567,7 @@ $ mongotop 5
 
 1.  要开始这个测试，让我们在 mongo shell 上执行以下操作：
 
-```go
+```sql
 > db.currentOpTest.drop()
 > for(i = 1 ; i < 10000000 ; i++) { db.currentOpTest.insert({'i':i})}
 
@@ -579,14 +579,14 @@ $ mongotop 5
 
 1.  在文档中的字段`i`上创建一个后台索引。这个索引创建操作是我们将从`currentOp`操作中查看的，也是我们将尝试使用终止操作来终止的操作。在一个 shell 中执行以下操作来启动后台索引创建操作。这需要相当长的时间，在我的笔记本电脑上花了 100 多秒。
 
-```go
+```sql
 > db.currentOpTest.ensureIndex({i:1}, {background:1})
 
 ```
 
 1.  在第二个 shell 中，执行以下命令以获取当前正在执行的操作：
 
-```go
+```sql
 > db.currentOp().inprog
 
 ```
@@ -595,7 +595,7 @@ $ mongotop 5
 
 1.  使用以下命令从 shell 中终止操作，使用我们之前得到的`opid`（操作 ID）：
 
-```go
+```sql
 > db.killOp(11587458)
 
 ```
@@ -608,7 +608,7 @@ $ mongotop 5
 
 在执行`db.currentOp()`操作时，我们会得到一个文档作为结果，其中包含一个`inprog`字段，其值是另一个文档的数组，每个文档代表一个当前正在运行的操作。在繁忙的系统上通常会得到一个大型文档列表。这是一个用于索引创建操作的文档：
 
-```go
+```sql
 {
         "desc" : "conn12",
         "threadId" : "0x3be96c0",
@@ -714,28 +714,28 @@ $ mongotop 5
 
 1.  要查看正在执行的系统操作，我们需要将 true 值作为参数传递给`currentOp`函数调用，如下所示：
 
-```go
+```sql
 > db.currentOp(true)
 
 ```
 
 1.  接下来，我们将看到如何使用`killOp`函数终止用户发起的操作。操作可以简单地如下所示：
 
-```go
+```sql
 > db.killOp(<operation id>)
 
 ```
 
 在我们的情况下，索引创建过程的进程 ID 为 11587458，因此将如下终止它：
 
-```go
+```sql
 > db.killOp(11587458)
 
 ```
 
 无论给定的操作 ID 是否存在，终止任何操作，我们都会在控制台上看到以下消息：
 
-```go
+```sql
 { "info" : "attempting to kill op" }
 
 ```
@@ -744,7 +744,7 @@ $ mongotop 5
 
 1.  如果某些操作无法立即终止，并且为其发出了`killOp`命令，则`currentOp`中的`killPending`字段将开始出现给定操作。例如，在 shell 上执行以下查询：
 
-```go
+```sql
 > db.currentOpTest.find({$where:'sleep(100000)'})
 
 ```
@@ -763,7 +763,7 @@ $ mongotop 5
 
 1.  一旦服务器启动并且 shell 连接到它，执行以下内容以获取当前的分析级别：
 
-```go
+```sql
 > db.getProfilingLevel()
 
 ```
@@ -772,14 +772,14 @@ $ mongotop 5
 
 1.  让我们将分析级别设置为`1`（仅记录慢操作），并记录所有慢于`50`毫秒的操作。在 shell 上执行以下操作：
 
-```go
+```sql
 > db.setProfilingLevel(1, 50)
 
 ```
 
 1.  现在，让我们执行一个插入操作到一个收集中，然后执行一些查询：
 
-```go
+```sql
 > db.profilingTest.insert({i:1})
 > db.profilingTest.find()
 > db.profilingTest.find({$where:'sleep(70)'})
@@ -788,7 +788,7 @@ $ mongotop 5
 
 1.  现在，在以下收集上执行查询：
 
-```go
+```sql
 > db.system.profile.find().pretty()
 
 ```
@@ -819,14 +819,14 @@ $ mongotop 5
 
 显然，这种分析会带来一些开销，但可以忽略不计。因此，我们不会默认启用它，只有在我们想要分析慢操作时才会启用。另一个问题是，“这种分析收集会随时间增加吗？”答案是“不会”，因为这是一个有上限的收集。有上限的收集是固定大小的收集，保留插入顺序，并充当循环队列，在新文档填满时丢弃最旧的文档。对`system.namespaces`的查询应该显示统计信息。对`system.profile`收集的查询执行将显示以下内容：
 
-```go
+```sql
 {"name":"test.system.profile", "options":{"capped":true, "size":1048576 }}
 
 ```
 
 正如我们所看到的，这个收集的大小是 1MB，非常小。因此，将分析级别设置为`2`会很容易覆盖繁忙系统上的数据。如果希望保留更多操作，也可以选择显式创建一个名为`system.profile`的有上限的收集，并设置任何所需的大小。要显式创建一个有上限的收集，可以执行以下操作：
 
-```go
+```sql
 db.createCollection('system.profile', {capped:1, size: 1048576})
 
 ```
@@ -837,7 +837,7 @@ db.createCollection('system.profile', {capped:1, size: 1048576})
 
 我们最终将查看插入到`system.profile`集合中的文档，并查看它记录了哪些操作：
 
-```go
+```sql
 {
         "op" : "query",
         "ns" : "test.profilingTest",
@@ -910,7 +910,7 @@ db.createCollection('system.profile', {capped:1, size: 1048576})
 
 1.  首先，我们从 admin 数据库开始创建管理员用户如下：
 
-```go
+```sql
 > use admin
 > db.createUser({
  user:'admin', pwd:'admin',
@@ -922,7 +922,7 @@ db.createCollection('system.profile', {capped:1, size: 1048576})
 
 1.  我们将添加`read_user`和`write_user`到测试数据库。要添加用户，请从 mongo shell 执行以下操作：
 
-```go
+```sql
 > use test
 > db.createUser({
  user:'read_user', pwd:'read_user',
@@ -941,7 +941,7 @@ db.createCollection('system.profile', {capped:1, size: 1048576})
 
 1.  现在关闭 mongo 服务器并关闭 shell。在命令行上重新启动 mongo 服务器，但使用`--auth`选项：
 
-```go
+```sql
 $ mongod .. <other options as provided earlier> --auth
 
 ```
@@ -950,7 +950,7 @@ $ mongod .. <other options as provided earlier> --auth
 
 1.  现在从新打开的 mongo shell 连接到服务器并执行以下操作：
 
-```go
+```sql
 > db.testAuth.find()
 
 ```
@@ -959,28 +959,28 @@ $ mongod .. <other options as provided earlier> --auth
 
 1.  我们现在将使用`read_user`从 shell 登录如下：
 
-```go
+```sql
 > db.auth('read_user', 'read_user')
 
 ```
 
 1.  我们现在将执行相同的`find`操作如下。它不应该出现错误，根据集合是否存在，可能不会返回任何结果：
 
-```go
+```sql
 > db.testAuth.find()
 
 ```
 
 1.  现在，我们将尝试插入一个文档如下。我们应该会收到一个错误，表示您未被授权在此集合中插入数据。
 
-```go
+```sql
 > db.testAuth.insert({i:1})
 
 ```
 
 1.  我们现在将注销并再次登录，但是使用 write 用户如下。请注意，这次我们登录的方式与以前不同。我们为`auth`函数提供了一个文档作为参数，而在以前的情况下，我们为用户名和密码传递了两个参数：
 
-```go
+```sql
 > db.logout()
 > db.auth({user:'write_user', pwd:'write_user'})
 Now to execute the insert again as follows, this time around it should work
@@ -990,14 +990,14 @@ Now to execute the insert again as follows, this time around it should work
 
 1.  现在，在 shell 上执行以下操作。您应该会收到未经授权的错误：
 
-```go
+```sql
 > db.serverStatus()
 
 ```
 
 1.  我们现在将切换到`admin`数据库。我们当前使用具有`test`数据库上读写权限的`write_user`连接到服务器。从 mongo shell 尝试执行以下操作：
 
-```go
+```sql
 > use admin
 > show collections
 
@@ -1005,21 +1005,21 @@ Now to execute the insert again as follows, this time around it should work
 
 1.  关闭 mongo shell 或从操作系统控制台打开一个新的 shell 如下。这应该会直接将我们带到 admin 数据库：
 
-```go
+```sql
 $ mongo -u admin -p admin admin
 
 ```
 
 1.  现在在 shell 上执行以下操作。它应该会显示我们在 admin 数据库中的集合：
 
-```go
+```sql
 > show collections
 
 ```
 
 1.  尝试并执行以下操作：
 
-```go
+```sql
 > db.serverStatus()
 
 ```
@@ -1030,7 +1030,7 @@ $ mongo -u admin -p admin admin
 
 最初，服务器在没有`--auth`选项的情况下启动，因此默认情况下不会强制执行任何安全性。我们使用`db.createUser`方法创建了一个具有`db.createUser`方法的管理员用户。创建用户的方法签名是`createUser(user, writeConcern)`。第一个参数是用户，实际上是一个 JSON 文档，第二个是用于用户创建的写关注。用户的 JSON 文档具有以下格式：
 
-```go
+```sql
 {
   'user' : <user name>,
   'pwd' : <password>,
@@ -1041,14 +1041,14 @@ $ mongo -u admin -p admin admin
 
 这里提供的角色可以按如下方式提供，假设在创建用户时的当前数据库是 shell 上的测试：
 
-```go
+```sql
 [{'role' : 'read',  'db':'reports'}, 'readWrite']
 
 ```
 
 这将创建的用户对报告`db`具有读取访问权限，并对`test`数据库具有`readWrite`访问权限。让我们看看`test`用户的完整用户创建调用：
 
-```go
+```sql
 > use test
 > db.createUser({
  user:'test', pwd:'test',
@@ -1102,14 +1102,14 @@ $ mongo -u admin -p admin admin
 
 1.  让我们首先生成密钥文件。生成密钥文件并没有什么特别之处。这就像有一个包含来自`base64`字符集的 6 到 1024 个字符的文件一样简单。在 Linux 文件系统上，您可以选择使用`openssl`生成伪随机字节，并将其编码为`base64`。以下命令将生成 500 个随机字节，然后将这些字节编码为`base64`并写入文件`keyfile`：
 
-```go
+```sql
 $ openssl rand –base64 500 > keyfile
 
 ```
 
 1.  在 Unix 文件系统上，密钥文件不应该对世界和组有权限。因此，在创建后，我们应该执行以下操作：
 
-```go
+```sql
 $ chmod 400 keyfile
 
 ```
@@ -1118,7 +1118,7 @@ $ chmod 400 keyfile
 
 1.  您甚至可以选择不使用这里提到的方法（使用`openssl`）生成密钥文件，并且可以通过在任何文本编辑器或您选择的地方输入纯文本来简化。但是，请注意，mongo 会剥离字符`\r`、`\n`和空格，并将剩余文本视为密钥。例如，我们可以创建一个文件，其中包含以下内容添加到密钥文件。同样，文件将被命名为`keyfile`，内容如下：
 
-```go
+```sql
 somecontentaddedtothekeyfilefromtheeditorwithoutspaces
 ```
 
@@ -1128,35 +1128,35 @@ somecontentaddedtothekeyfilefromtheeditorwithoutspaces
 
 1.  启动第一个实例，监听端口`27000`如下：
 
-```go
+```sql
 C:\>mongod --dbpath c:\MongoDB\data\c1 --port 27000 --auth --keyFile c:\MongoDB\keyfile --replSet secureSet --smallfiles --oplogSize 100
 
 ```
 
 1.  同样，启动第二个服务器，监听端口`27001`如下：
 
-```go
+```sql
 C:\>mongod --dbpath c:\MongoDB\data\c2 --port 27001 --auth --keyFile c:\MongoDB\keyfile --replSet secureSet --smallfiles --oplogSize 100
 
 ```
 
 1.  第三个实例将启动，但不带`--auth`和`--keyFile`选项，监听端口`27002`如下：
 
-```go
+```sql
 C:\>mongod --dbpath c:\MongoDB\data\c3 --port 27002 --replSet secureSet --smallfiles --oplogSize 100
 
 ```
 
 1.  然后我们启动一个 mongo shell，并连接到端口`27000`，这是第一个启动的实例。从 mongo shell 中，我们输入：
 
-```go
+```sql
 > rs.initiate()
 
 ```
 
 1.  几秒钟后，副本集将被初始化，只有一个实例在其中。现在我们将尝试向这个副本集添加两个新实例。首先，按照以下方式添加监听端口`27001`的实例（您需要添加适当的主机名，`Amol-PC`是我的主机名）：
 
-```go
+```sql
 > rs.add({_id:1, host:'Amol-PC:27001'})
 
 ```
@@ -1165,7 +1165,7 @@ C:\>mongod --dbpath c:\MongoDB\data\c3 --port 27002 --replSet secureSet --smallf
 
 1.  现在我们将尝试最终添加一个实例，该实例是在没有`--auth`和`--keyFile`选项的情况下启动的，如下所示：
 
-```go
+```sql
 > rs.add({_id:2, host:'Amol-PC:27002'})
 
 ```
@@ -1174,7 +1174,7 @@ C:\>mongod --dbpath c:\MongoDB\data\c3 --port 27002 --replSet secureSet --smallf
 
 1.  最后，我们必须重新启动这个实例；然而，这一次我们提供`--auth`和`--keyFile`选项如下：
 
-```go
+```sql
 C:\>mongod --dbpath c:\MongoDB\data\c3 --port 27002 --replSet secureSet --smallfiles --oplogSize 100 --auth --keyFile c:\MongoDB\keyfile
 
 ```
@@ -1201,14 +1201,14 @@ C:\>mongod --dbpath c:\MongoDB\data\c3 --port 27002 --replSet secureSet --smallf
 
 1.  假设我们有一个带有 TTL 索引的集合，就像我们在第二章中看到的那样，让我们通过执行以下操作来查看索引列表：
 
-```go
+```sql
 > db.ttlTest.getIndexes()
 
 ```
 
 1.  要将到期时间从`300`毫秒更改为`800`毫秒，请执行以下操作：
 
-```go
+```sql
 > db.runCommand({collMod: 'ttlTest', index: {keyPattern: {createDate:1}, expireAfterSeconds:800}})
 
 ```
@@ -1219,14 +1219,14 @@ C:\>mongod --dbpath c:\MongoDB\data\c3 --port 27002 --replSet secureSet --smallf
 
 我们使用`collMod`进行索引操作来修改 TTL 索引。如果 TTL 索引已经创建，并且需要在创建后更改生存时间，我们使用`collMod`命令。该命令的操作特定字段如下：
 
-```go
+```sql
 {index: {keyPattern: <the field on which the index was originally created>, expireAfterSeconds:<new time to be used for TTL of the index>}}
 
 ```
 
 `keyPattern`是创建 TTL 索引的集合上的字段，`expireAfterSeconds`将包含要更改的新时间。成功执行后，我们应该在 shell 中看到以下内容：
 
-```go
+```sql
 { "expireAfterSeconds_old" : 300, "expireAfterSeconds_new" : 800, "ok" : 1 }
 
 ```
@@ -1243,7 +1243,7 @@ Windows 服务是在后台运行的长时间运行的应用程序，类似于守
 
 1.  我们首先将创建一个带有三个配置值`port`、`dbpath`和`logpath`文件的配置文件。我们将文件命名为`mongo.conf`，并将其保存在位置`c:\conf\mongo.conf`，其中包含以下三个条目（您可以选择任何路径作为配置文件位置、数据库和日志）：
 
-```go
+```sql
 port = 27000
 dbpath = c:\data\mongo\db
 logpath = c:\logs\mongo.log
@@ -1260,7 +1260,7 @@ logpath = c:\logs\mongo.log
 
 1.  在 shell 中执行以下操作：
 
-```go
+```sql
 C:\>mongod --config c:\conf\mongo.conf –install
 
 ```
@@ -1269,14 +1269,14 @@ C:\>mongod --config c:\conf\mongo.conf –install
 
 1.  可以通过以下方式从控制台启动服务：
 
-```go
+```sql
 C:\>net start MongoDB
 
 ```
 
 1.  可以通过以下方式停止服务：
 
-```go
+```sql
 C:\>net stop MongoDB
 
 ```
@@ -1287,14 +1287,14 @@ C:\>net stop MongoDB
 
 1.  要删除服务，需要从命令提示符执行以下操作：
 
-```go
+```sql
 C:\>mongod --remove
 
 ```
 
 1.  还有更多可用的选项，可用于配置服务的名称、显示名称、描述以及运行服务的用户帐户。这些可以作为命令行参数提供。执行以下操作以查看可能的选项，并查看**Windows 服务控制管理器**选项：
 
-```go
+```sql
 C:\> mongod --help
 
 ```
@@ -1333,7 +1333,7 @@ Mongo 副本集有一个主要实例和多个辅助实例。所有数据库写�
 
 从我们设置复制集的第一章开始，我们的配置与以下类似。三个成员集的基本复制集配置如下：
 
-```go
+```sql
 {
         "_id" : "replSet",
         "members" : [
@@ -1355,7 +1355,7 @@ Mongo 副本集有一个主要实例和多个辅助实例。所有数据库写�
 
 我们不会在以下步骤中重复整个配置。我们将提到的所有标志都将添加到成员数组中特定成员的文档中。在上面的例子中，如果具有`_id`为`2`的节点要成为仲裁者，我们将在先前显示的配置文档中为其添加以下配置：
 
-```go
+```sql
 {
       "_id" : 2,
       "host" : "Amol-PC:27002"
@@ -1367,28 +1367,28 @@ Mongo 副本集有一个主要实例和多个辅助实例。所有数据库写�
 
 1.  将配置文档分配给一个变量。如果复制集已经配置，可以使用 shell 中的`rs.conf()`调用来获取它。
 
-```go
+```sql
 > var conf = rs.conf()
 
 ```
 
 1.  文档中的成员字段是复制集中每个成员的文档数组。要为特定成员添加新属性，我们要做以下操作。例如，如果我们想要为复制集的第三个成员（数组中的索引 2）添加`votes`键并将其值设置为`2`，我们将执行以下操作：
 
-```go
+```sql
 > conf.members[2].votes = 2
 
 ```
 
 1.  仅仅改变 JSON 文档不会改变复制集。如果复制集已经存在，我们需要重新配置它，如下所示：
 
-```go
+```sql
 > rs.reconfig(conf)
 
 ```
 
 1.  如果是首次进行配置，我们将调用以下命令：
 
-```go
+```sql
 > rs.initiate (conf)
 
 ```
@@ -1401,14 +1401,14 @@ Mongo 副本集有一个主要实例和多个辅助实例。所有数据库写�
 
 1.  第一个配置是`arbiterOnly`选项。它用于将复制集成员配置为不持有数据，只具有投票权的成员。需要将以下键添加到将成为仲裁者的成员的配置中：
 
-```go
+```sql
 {_id: ... , 'arbiterOnly': true }
 
 ```
 
 1.  关于此配置的一点需要记住的是，一旦初始化了副本集，就无法将现有成员从非仲裁节点更改为仲裁节点，反之亦然。但是，我们可以使用助手函数`rs.addArb(<hostname>:<port>)`向现有副本集添加仲裁者。例如，向现有副本集添加一个侦听端口`27004`的仲裁者。在我的机器上执行以下操作以添加仲裁者：
 
-```go
+```sql
 > rs.addArb('Amol-PC:27004')
 
 ```
@@ -1417,7 +1417,7 @@ Mongo 副本集有一个主要实例和多个辅助实例。所有数据库写�
 
 1.  下一个选项`votes`影响成员在选举中的投票数。默认情况下，所有成员每人有一票，此选项可用于更改特定成员的投票数。可以设置如下：
 
-```go
+```sql
 {_id: ... , 'votes': <0 or 1>}
 
 ```
@@ -1428,7 +1428,7 @@ Mongo 副本集有一个主要实例和多个辅助实例。所有数据库写�
 
 1.  下一个副本集配置选项称为`priority`。它确定副本集成员成为主服务器的资格（或不成为主服务器）。该选项设置如下：
 
-```go
+```sql
 {_id: ... , 'priority': <priority number>}
 
 ```
@@ -1439,7 +1439,7 @@ Mongo 副本集有一个主要实例和多个辅助实例。所有数据库写�
 
 1.  接下来我们将看到的选项是`hidden`。将此选项的值设置为 true 可确保副本集成员处于隐藏状态。该选项设置如下：
 
-```go
+```sql
 {_id: ... , 'hidden': <true/false>}
 
 ```
@@ -1450,7 +1450,7 @@ Mongo 副本集有一个主要实例和多个辅助实例。所有数据库写�
 
 1.  现在让我们看看`slaveDelay`选项。此选项用于设置从副本集的主服务器到从服务器的时间延迟。该选项设置如下：
 
-```go
+```sql
 {_id: ... , 'slaveDelay': <number of seconds to lag>}
 
 ```
@@ -1459,7 +1459,7 @@ Mongo 副本集有一个主要实例和多个辅助实例。所有数据库写�
 
 1.  让我们看看最终的配置选项：`buildIndexes`。如果未指定，默认情况下为 true，这表示在主服务器上创建索引时，需要在从服务器上复制该索引。该选项设置如下：
 
-```go
+```sql
 {_id: ... , 'buildIndexes': <true/false>}
 
 ```
@@ -1520,21 +1520,21 @@ Mongo 副本集有一个主要实例和多个辅助实例。所有数据库写�
 
 1.  从连接到副本集成员之一的 shell 中执行以下操作，并查看当前是主要实例的哪个实例：
 
-```go
+```sql
 > rs.status()
 
 ```
 
 1.  从 mongo shell 连接到主实例，并在 shell 上执行以下操作：
 
-```go
+```sql
 > rs.stepDown()
 
 ```
 
 1.  shell 应该重新连接，您应该看到连接到并最初是主要实例的实例现在变为辅助实例。从 shell 执行以下操作，以便现在重新选举一个新的主要实例：
 
-```go
+```sql
 > rs.status()
 
 ```
@@ -1563,7 +1563,7 @@ Mongo 副本集有一个主要实例和多个辅助实例。所有数据库写�
 
 1.  打开 shell 后，首先切换到`local`数据库，然后按以下方式查看`local`数据库中的集合：
 
-```go
+```sql
 > use local
 switched to db local
 > show collections
@@ -1572,7 +1572,7 @@ switched to db local
 
 1.  您应该找到一个名为`me`的集合。查询此集合应该显示一个文档，其中包含我们当前连接到的服务器的主机名：
 
-```go
+```sql
 >db.me.findOne()
 
 ```
@@ -1581,7 +1581,7 @@ switched to db local
 
 1.  查看`replset.minvalid`集合。您将需要从 shell 连接到次要成员才能执行以下查询。首先切换到`local`数据库：
 
-```go
+```sql
 > use local
 switched to db local
 > db.replset.minvalid.find()
@@ -1592,7 +1592,7 @@ switched to db local
 
 1.  从主要的 shell 中，在任何集合中插入一个文档。我们将使用数据库作为测试。从主要成员的 shell 中执行以下操作：
 
-```go
+```sql
 > use test
 switched to db test
 > db.replTest.insert({i:1})
@@ -1601,7 +1601,7 @@ switched to db test
 
 1.  再次查询次要，如下所示：
 
-```go
+```sql
 > db.replset.minvalid.find()
 
 ```
@@ -1610,14 +1610,14 @@ switched to db test
 
 1.  最后，我们将看到`system.replset`集合。这个集合是存储副本集配置的地方。执行以下操作：
 
-```go
+```sql
 > db.system.replset.find().pretty()
 
 ```
 
 1.  实际上，当我们执行`rs.conf()`时，将执行以下查询：
 
-```go
+```sql
 db.getSisterDB("local").system.replset.findOne()
 
 ```
@@ -1650,7 +1650,7 @@ Oplog 是一个受限集合，存在于名为**local**的非复制数据库中�
 
 1.  连接到 shell 后，执行以下步骤以获取 oplog 中存在的最后一个操作的时间戳。我们对此时间之后的操作感兴趣。
 
-```go
+```sql
 > use test
 > local = db.getSisterDB('local')
 > var cutoff = local.oplog.rs.find().sort({ts:-1}).limit(1).next().ts
@@ -1659,35 +1659,35 @@ Oplog 是一个受限集合，存在于名为**local**的非复制数据库中�
 
 1.  从 shell 中执行以下操作。保留 shell 中的输出或将其复制到其他地方。我们稍后会对其进行分析：
 
-```go
+```sql
 > local.system.namespaces.findOne({name:'local.oplog.rs'})
 
 ```
 
 1.  按以下方式插入 10 个文档：
 
-```go
+```sql
 > for(i = 0; i < 10; i++) db.oplogTest.insert({'i':i})
 
 ```
 
 1.  执行以下更新，为所有值大于`5`的文档设置一个字符串值，即我们的情况下的 6、7、8 和 9。这将是一个多更新操作：
 
-```go
+```sql
 > db.oplogTest.update({i:{$gt:5}}, {$set:{val:'str'}}, false, true)
 
 ```
 
 1.  现在，按照以下步骤创建索引：
 
-```go
+```sql
 > db.oplogTest.ensureIndex({i:1}, {background:1})
 
 ```
 
 1.  在 oplog 上执行以下查询：
 
-```go
+```sql
 > local.oplog.rs.find({ts:{$gt:cutoff}}).pretty()
 
 ```
@@ -1702,7 +1702,7 @@ Oplog 是一个受限集合，存在于名为**local**的非复制数据库中�
 
 我们执行了一些操作，比如插入 10 个文档，使用多次更新更新了四个文档，并创建了一个索引。如果我们查询截止日期后的 oplog 条目，我们计算出 10 个文档，每个插入一个。文档看起来像这样：
 
-```go
+```sql
 {
         "ts" : Timestamp(1392402144, 1),
         "h" : NumberLong("-4661965417977826137"),
@@ -1717,7 +1717,7 @@ Oplog 是一个受限集合，存在于名为**local**的非复制数据库中�
 
 正如我们所看到的，我们首先看三个字段：`op`，`ns`和`o`。这些代表操作，被插入数据的集合的完全限定名称，以及要插入的实际对象。操作`i`代表插入操作。请注意，`o`的值，即要插入的文档，包含在主键上生成的`_id`字段。我们应该看到 10 个这样的文档，每个插入一个。有趣的是在多次更新操作中发生了什么。主键为每个受影响的文档放入了四个文档。在这种情况下，值`op`是`u`，表示更新，用于匹配文档的查询与我们在更新函数中给出的查询不同，但是是一个基于`_id`字段唯一找到文档的查询。由于`_id`字段已经存在索引（每个集合自动创建），因此查找要更新的文档的操作并不昂贵。字段`o`的值是我们从 shell 中传递给更新函数的相同文档。更新的 oplog 中的示例文档如下：
 
-```go
+```sql
 {
     "ts" : Timestamp(1392402620, 1),
     "h" : NumberLong("-7543933489976433166"),
@@ -1739,14 +1739,14 @@ oplog 中的更新与我们提供的更新相同。这是因为`$set`操作是�
 
 但是，使用`$inc`运算符的更新不是幂等的。让我们执行以下更新：
 
-```go
+```sql
 > db.oplogTest.update({i:9}, {$inc:{i:1}})
 
 ```
 
 在这种情况下，oplog 将具有以下值作为`o`的值。
 
-```go
+```sql
 "o" : {
     "$set" : {
            "i" : 10
@@ -1796,7 +1796,7 @@ oplog 中的更新与我们提供的更新相同。这是因为`$set`操作是�
 
 1.  在复制集启动后，我们将为其添加标签并重新配置如下。以下命令从 mongo shell 中执行：
 
-```go
+```sql
 > var conf = rs.conf()
 > conf.members[0].tags = {'datacentre': 'dc1', 'rack': 'rack-dc1-1'}
 > conf.members[1].tags = {'datacentre': 'dc1', 'rack': 'rack-dc1-2'}
@@ -1807,7 +1807,7 @@ oplog 中的更新与我们提供的更新相同。这是因为`$set`操作是�
 
 1.  设置了复制集标签后（注意我们尚未重新配置复制集），我们需要定义一些自定义写关注。首先，我们定义一个可以确保数据至少被复制到每个数据中心中的一个服务器的写关注。再次在 mongo shell 中执行以下操作：
 
-```go
+```sql
 > conf.settings = {'getLastErrorModes' : {'MultiDC':{datacentre : 2}}}
 > rs.reconfig(conf)
 
@@ -1815,7 +1815,7 @@ oplog 中的更新与我们提供的更新相同。这是因为`$set`操作是�
 
 1.  启动 Python shell 并执行以下操作：
 
-```go
+```sql
 >>> import pymongo
 >>> client = pymongo.MongoClient('localhost:27000,localhost:27001', replicaSet='replSetTest')
 >>> db = client.test
@@ -1824,7 +1824,7 @@ oplog 中的更新与我们提供的更新相同。这是因为`$set`操作是�
 
 1.  我们现在将执行以下插入操作：
 
-```go
+```sql
 >>>db.multiDCTest.insert({'i':1}, w='MultiDC', wtimeout=5000)
 
 ```
@@ -1835,7 +1835,7 @@ oplog 中的更新与我们提供的更新相同。这是因为`$set`操作是�
 
 1.  一旦服务器停止（您可以使用 mongo shell 中的`rs.status()`辅助函数进行确认），再次执行以下插入操作，这次应该会出现错误：
 
-```go
+```sql
 >>>db.multiDCTest.insert({'i':2}, w='MultiDC', wtimeout=5000)
 
 ```
@@ -1844,14 +1844,14 @@ oplog 中的更新与我们提供的更新相同。这是因为`$set`操作是�
 
 1.  类似地，我们可以通过定义一个新的配置来确保写入至少传播到两个机架（在任何数据中心中）来实现机架感知。从 mongo shell 中执行以下操作：
 
-```go
+```sql
 {'MultiRack':{rack : 2}}
 
 ```
 
 1.  然后，conf 对象的设置值将如下所示。设置后，再次使用 mongo shell 中的`rs.reconfig(conf)`重新配置复制集：
 
-```go
+```sql
 {
    'getLastErrorModes' : {
            'MultiDC':{datacentre : 2}, 
@@ -1866,7 +1866,7 @@ oplog 中的更新与我们提供的更新相同。这是因为`$set`操作是�
 
 1.  从 mongo shell 中执行以下步骤重新配置集合：
 
-```go
+```sql
 > var conf = rs.conf()
 > conf.members[2].tags.type = 'reports'
 > rs.reconfig(conf)
@@ -1877,7 +1877,7 @@ oplog 中的更新与我们提供的更新相同。这是因为`$set`操作是�
 
 1.  现在我们回到 Python shell 并执行以下步骤：
 
-```go
+```sql
 >>> curs = db.multiDCTest.find(read_preference=pymongo.ReadPreference.SECONDARY,
  tag_sets=[{'type':'reports'}])
 >>> curs.next()
@@ -1888,7 +1888,7 @@ oplog 中的更新与我们提供的更新相同。这是因为`$set`操作是�
 
 1.  停止我们标记为报告的实例，即在端口`27002`上监听连接的服务器，并再次在 Python shell 上执行以下操作：
 
-```go
+```sql
 >>> curs = db.multiDCTest.find(read_preference=pymongo.ReadPreference.SECONDARY,
  tag_sets=[{'type':'reports'}])
 >>> curs.next()
@@ -1931,7 +1931,7 @@ oplog 中的更新与我们提供的更新相同。这是因为`$set`操作是�
 
 我们需要在这个教程中使用`test`数据库，并且必须在其上启用分片。如果没有启用，则需要在连接到 mongos 进程的 shell 上执行以下操作：
 
-```go
+```sql
 mongos> use test
 mongos> sh.enableSharding('test')
 
@@ -1941,7 +1941,7 @@ mongos> sh.enableSharding('test')
 
 1.  从连接到 mongos 进程的 shell 中，执行以下两个命令：
 
-```go
+```sql
 mongos> db.testCol.insert({i : 1})
 mongos> sh.status()
 
@@ -1949,7 +1949,7 @@ mongos> sh.status()
 
 1.  在数据库中，查找`test`数据库，并记下`primary`。假设以下是`sh.status()`输出的一部分（仅显示数据库部分）：
 
-```go
+```sql
 databases:
  {  "_id" : "admin",  "partitioned" : false,  "primary" : "config" }
  {  "_id" : "test",  "partitioned" : true,  "primary" : "shard0000" }
@@ -1960,14 +1960,14 @@ databases:
 
 1.  在我们的情况下，主分片是`shard0000`，是监听端口`27000`的 mongod 进程。打开连接到此进程的 shell，并在其中执行以下操作：
 
-```go
+```sql
 > db.testCol.find()
 
 ```
 
 1.  现在，连接到另一个监听端口`27001`的 mongod 进程，并再次执行以下查询：
 
-```go
+```sql
 > db.testCol.find()
 
 ```
@@ -1976,7 +1976,7 @@ databases:
 
 1.  从 mongos shell 执行以下命令：
 
-```go
+```sql
 mongos> use admin
 mongos> db.runCommand({movePrimary:'test', to:'shard0001'})
 
@@ -1984,14 +1984,14 @@ mongos> db.runCommand({movePrimary:'test', to:'shard0001'})
 
 1.  从连接到 mongos 进程的 mongo shell 执行以下命令：
 
-```go
+```sql
 mongos> sh.status()
 
 ```
 
 1.  从运行在端口`27000`和`27001`的 mongos 进程连接的 shell 中，执行以下查询：
 
-```go
+```sql
 > db.testCol.find()
 
 ```
@@ -2002,7 +2002,7 @@ mongos> sh.status()
 
 当我们将数据添加到非分片集合时，只能在主分片上看到。执行`sh.status()`告诉我们主分片。要更改主分片，我们需要从连接到 mongos 进程的 shell 中的 admin 数据库执行命令。命令如下：
 
-```go
+```sql
 db.runCommand({movePrimary:'<database whose primary shard is to be changed>', to:'<target shard>'})
 
 ```
@@ -2023,7 +2023,7 @@ db.runCommand({movePrimary:'<database whose primary shard is to be changed>', to
 
 1.  从 mongo shell 连接到 mongos 进程，并按以下方式在`test`数据库和`splitAndMoveTest`集合上启用分片：
 
-```go
+```sql
 > sh.enableSharding('test')
 > sh.shardCollection('test.splitAndMoveTest', {_id:1}, false)
 
@@ -2031,14 +2031,14 @@ db.runCommand({movePrimary:'<database whose primary shard is to be changed>', to
 
 1.  让我们按照以下方式在集合中加载数据：
 
-```go
+```sql
 > for(i = 1; i <= 10000 ; i++) db.splitAndMoveTest.insert({_id : i})
 
 ```
 
 1.  一旦数据加载完成，执行以下操作：
 
-```go
+```sql
 > db. splitAndMoveTest.find().explain()
 
 ```
@@ -2047,7 +2047,7 @@ db.runCommand({movePrimary:'<database whose primary shard is to be changed>', to
 
 1.  执行以下命令以查看集合的拆分：
 
-```go
+```sql
 > config = db.getSisterDB('config')
 > config.chunks.find({ns:'test.splitAndMoveTest'}).pretty()
 
@@ -2055,35 +2055,35 @@ db.runCommand({movePrimary:'<database whose primary shard is to be changed>', to
 
 1.  在`5000`处将块拆分为两个部分：
 
-```go
+```sql
 > sh.splitAt('test.splitAndMoveTest', {_id:5000})
 
 ```
 
 1.  拆分它不会将其迁移到第二个服务器。通过再次执行以下查询来查看块的确切情况：
 
-```go
+```sql
 > config.chunks.find({ns:'test.splitAndMoveTest'}).pretty()
 
 ```
 
 1.  现在我们将第二个块移动到第二个分片：
 
-```go
+```sql
 > sh.moveChunk('test.splitAndMoveTest', {_id:5001}, 'shard0001')
 
 ```
 
 1.  再次执行以下查询并确认迁移：
 
-```go
+```sql
 > config.chunks.find({ns:'test.splitAndMoveTest'}).pretty()
 
 ```
 
 1.  或者，以下解释计划将显示大约 50-50 的拆分：
 
-```go
+```sql
 > db. splitAndMoveTest.find().explain()
 
 ```
@@ -2114,7 +2114,7 @@ db.runCommand({movePrimary:'<database whose primary shard is to be changed>', to
 
 1.  假设我们有三个分片正在运行，让我们执行以下操作：
 
-```go
+```sql
 mongos> sh.addShardTag('shard0000', 'Mumbai')
 mongos> sh.addShardTag('shard0001', 'Mumbai')
 mongos> sh.addShardTag('shard0002', 'Pune')
@@ -2123,7 +2123,7 @@ mongos> sh.addShardTag('shard0002', 'Pune')
 
 1.  定义了标签后，让我们定义将映射到标签的邮政编码范围：
 
-```go
+```sql
 mongos> sh.addTagRange('test.userAddress', {pincode:400001}, {pincode:400999}, 'Mumbai')
 mongos> sh.addTagRange('test.userAddress', {pincode:411001}, {pincode:411999}, 'Pune')
 
@@ -2131,7 +2131,7 @@ mongos> sh.addTagRange('test.userAddress', {pincode:411001}, {pincode:411999}, '
 
 1.  为测试数据库和`userAddress`集合启用分片，如下所示：
 
-```go
+```sql
 mongos> sh.enableSharding('test')
 mongos> sh.shardCollection('test.userAddress', {pincode:1})
 
@@ -2139,7 +2139,7 @@ mongos> sh.shardCollection('test.userAddress', {pincode:1})
 
 1.  在`userAddress`集合中插入以下文档：
 
-```go
+```sql
 mongos> db.userAddress.insert({_id:1, name: 'Varad', city: 'Pune', pincode: 411001})
 mongos> db.userAddress.insert({_id:2, name: 'Rajesh', city: 'Mumbai', pincode: 400067})
 mongos> db.userAddress.insert({_id:3, name: 'Ashish', city: 'Mumbai', pincode: 400101})
@@ -2148,7 +2148,7 @@ mongos> db.userAddress.insert({_id:3, name: 'Ashish', city: 'Mumbai', pincode: 4
 
 1.  执行以下计划：
 
-```go
+```sql
 mongos> db.userAddress.find({city:'Pune'}).explain()
 mongos> db.userAddress.find({city:'Mumbai'}).explain()
 
@@ -2176,7 +2176,7 @@ mongos> db.userAddress.find({city:'Mumbai'}).explain()
 
 1.  从连接到 mongos 进程的控制台，切换到配置数据库并执行以下操作：
 
-```go
+```sql
 mongos> use config
 mongos>show collections
 
@@ -2184,7 +2184,7 @@ mongos>show collections
 
 1.  从所有集合的列表中，我们将访问一些。我们从数据库集合开始。这会跟踪此分片上的所有数据库。在 shell 上执行以下操作：
 
-```go
+```sql
 mongos> db.databases.find()
 
 ```
@@ -2193,7 +2193,7 @@ mongos> db.databases.find()
 
 1.  接下来，我们将访问`collections`集合。在 shell 上执行以下操作：
 
-```go
+```sql
 mongos> db.collections.find().pretty()
 
 ```
@@ -2202,21 +2202,21 @@ mongos> db.collections.find().pretty()
 
 1.  接下来，我们查看`chunks`集合。在 shell 上执行以下操作。如果数据库在我们开始本教程时是干净的，那么在这里我们不会有很多数据：
 
-```go
+```sql
 mongos> db.chunks.find().pretty()
 
 ```
 
 1.  然后，我们查看 tags 集合并执行以下查询：
 
-```go
+```sql
 mongos> db.tags.find().pretty()
 
 ```
 
 1.  让我们按照以下方式查询 mongos 集合。
 
-```go
+```sql
 mongos> db.mongos.find().pretty()
 
 ```
@@ -2225,7 +2225,7 @@ mongos> db.mongos.find().pretty()
 
 1.  最后，我们查看 version 集合。执行以下查询。请注意，这与我们执行的其他查询不同：
 
-```go
+```sql
 mongos>db.getCollection('version').findOne()
 
 ```
@@ -2234,7 +2234,7 @@ mongos>db.getCollection('version').findOne()
 
 当我们查询集合和数据库集合时，它们非常简单。让我们来看看名为`chunks`的集合。这是该集合中的一个示例文档：
 
-```go
+```sql
 {
         "_id" : "test.userAddress-pincode_400001.0",
         "lastmod" : Timestamp(1, 3),

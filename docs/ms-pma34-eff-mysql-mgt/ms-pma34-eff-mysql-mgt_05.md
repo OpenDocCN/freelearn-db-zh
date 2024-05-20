@@ -18,7 +18,7 @@
 
 可以使用铅笔形状的图标**(编辑)**来编辑行，使用红色图标**(删除)**来删除行。这些控件的确切形式和位置受以下因素的影响：
 
-```go
+```sql
 $cfg['PropertiesIconic'] = 'both';
 $cfg['ModifyDeleteAtLeft'] = true;
 $cfg['ModifyDeleteAtRight'] = false;
@@ -247,7 +247,7 @@ phpMyAdmin 的界面使我们能够删除以下数据：
 
 有三个配置指令控制在**插入**或**编辑**模式下显示的**TEXT**列类型的文本区域的布局。每列的显示列数和行数由以下定义：
 
-```go
+```sql
 $cfg['TextareaCols'] = 40;
 $cfg['TextareaRows'] = 15;
 
@@ -389,7 +389,7 @@ MySQL 5.0.3 引入了真正的位列。它们在数据库中占用的空间与�
 
 phpMyAdmin 以二进制方式处理`BIT`列。例如，如果我们编辑一行并将值`101`设置为**some_bits**列的值，那么在保存时将发送以下查询：
 
-```go
+```sql
 UPDATE `marc_book`.`book` SET `some_bits` = b '101' 
 WHERE `book`.`isbn` = '1-234567-89-0' LIMIT 1;
 
@@ -447,7 +447,7 @@ WHERE `book`.`isbn` = '1-234567-89-0' LIMIT 1;
 
 假设我们想使用以下查询：
 
-```go
+```sql
 SELECT *
 FROM `book`
 WHERE author_id = 2 AND language = 'es'

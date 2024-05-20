@@ -52,7 +52,7 @@
 
 代码块设置如下：
 
-```go
+```sql
 package org.learningredis.chapter.two;
 
 public class Helloworld2  {

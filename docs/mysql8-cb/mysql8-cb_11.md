@@ -110,7 +110,7 @@ MySQL `数据字典`的限制如下：
 
 1.  检查当前文件的大小：
 
-```go
+```sql
 shell> sudo ls -lhtr /var/lib/mysql/ib_logfile*
 -rw-r-----. 1 mysql mysql 48M Oct  7 10:16 /var/lib/mysql/ib_logfile1
 -rw-r-----. 1 mysql mysql 48M Oct  7 10:18 /var/lib/mysql/ib_logfile0
@@ -118,13 +118,13 @@ shell> sudo ls -lhtr /var/lib/mysql/ib_logfile*
 
 1.  停止 MySQL 服务器，并确保它在没有错误的情况下关闭：
 
-```go
+```sql
 shell> sudo systemctl stop mysqld
 ```
 
 1.  编辑配置文件：
 
-```go
+```sql
 shell> sudo vi /etc/my.cnf
 [mysqld]
 innodb_log_file_size=128M
@@ -133,13 +133,13 @@ innodb_log_files_in_group=4
 
 1.  启动 MySQL 服务器：
 
-```go
+```sql
 shell> sudo systemctl start mysqld
 ```
 
 1.  您可以验证 MySQL 在日志文件中的操作：
 
-```go
+```sql
 shell> sudo less /var/log/mysqld.log
 2017-10-07T11:09:35.111926Z 1 [Warning] InnoDB: Resizing redo log from 2*3072 to 4*8192 pages, LSN=249633608
 2017-10-07T11:09:35.213717Z 1 [Warning] InnoDB: Starting to delete and rewrite log files.
@@ -161,7 +161,7 @@ shell> sudo less /var/log/mysqld.log
 
 1.  您还可以查看新创建的日志文件：
 
-```go
+```sql
 shell> sudo ls -lhtr /var/lib/mysql/ib_logfile*
 -rw-r-----. 1 mysql mysql 128M Oct  7 11:09 /var/lib/mysql/ib_logfile1
 -rw-r-----. 1 mysql mysql 128M Oct  7 11:09 /var/lib/mysql/ib_logfile2
@@ -175,7 +175,7 @@ shell> sudo ls -lhtr /var/lib/mysql/ib_logfile*
 
 如果要在`数据目录`中包含一个固定大小的 50MB 数据文件名为`ibdata1`和一个 50MB 自动扩展文件名为`ibdata2`的表空间，可以进行如下配置：
 
-```go
+```sql
 shell> sudo vi /etc/my.cnf
 [mysqld]
 innodb_data_file_path=ibdata1:50M;ibdata2:50M:autoextend
@@ -193,20 +193,20 @@ innodb_data_file_path=ibdata1:50M;ibdata2:50M:autoextend
 
 1.  停止 MySQL 服务器：
 
-```go
+```sql
 shell> sudo systemctl stop mysql
 ```
 
 1.  检查现有`ibdata1`文件的大小：
 
-```go
+```sql
 shell> sudo ls -lhtr /var/lib/mysql/ibdata1 
 -rw-r----- 1 mysql mysql 76M Oct  6 13:33 /var/lib/mysql/ibdata1
 ```
 
 1.  挂载新磁盘。假设它挂载在`/var/lib/mysql_extend`上，更改所有权为`mysql`；确保文件尚未创建。如果您使用 AppArmour 或 SELinux，请确保正确设置别名或上下文：
 
-```go
+```sql
 shell> sudo chown mysql:mysql /var/lib/mysql_extend
 shell> sudo chmod 750 /var/lib/mysql_extend
 shell> sudo ls -lhtr /var/lib/mysql_extend
@@ -214,7 +214,7 @@ shell> sudo ls -lhtr /var/lib/mysql_extend
 
 1.  打开`my.cnf`并添加以下内容：
 
-```go
+```sql
 shell> sudo vi /etc/my.cnf [mysqld]
 innodb_data_home_dir=
 innodb_data_file_path = ibdata1:76M;/var/lib/mysql_extend/ibdata2:50M:autoextend
@@ -222,7 +222,7 @@ innodb_data_file_path = ibdata1:76M;/var/lib/mysql_extend/ibdata2:50M:autoextend
 
 由于`ibdata1`的现有大小为 76MB，您必须选择至少 76MB 的 maxvalue。下一个`ibdata`文件将在挂载在`/var/lib/mysql_extend/`上的新磁盘上创建。应该指定`innodb_data_home_dir`选项；否则，`mysqld`会查看不同的路径并因错误而失败：
 
-```go
+```sql
 2017-10-07T06:30:00.658039Z 1 [ERROR] InnoDB: Operating system error number 2 in a file operation.
 2017-10-07T06:30:00.658084Z 1 [ERROR] InnoDB: The error means the system cannot find the path specified.
 2017-10-07T06:30:00.658088Z 1 [ERROR] InnoDB: If you are installing InnoDB, remember that you must create directories yourself, InnoDB does not create them.
@@ -231,19 +231,19 @@ innodb_data_file_path = ibdata1:76M;/var/lib/mysql_extend/ibdata2:50M:autoextend
 
 1.  启动 MySQL 服务器：
 
-```go
+```sql
 shell> sudo systemctl start mysql
 ```
 
 1.  验证新文件。由于您已将其指定为 50MB，因此文件的初始大小将为 50MB：
 
-```go
+```sql
 shell> sudo ls -lhtr /var/lib/mysql_extend/
 total 50M
 -rw-r-----. 1 mysql mysql 50M Oct  7 07:38 ibdata2
 ```
 
-```go
+```sql
 mysql> SHOW VARIABLES LIKE 'innodb_data_file_path';
 +-----------------------+----------------------------------------------------------+
 | Variable_name         | Value                                                    |
@@ -259,7 +259,7 @@ mysql> SHOW VARIABLES LIKE 'innodb_data_file_path';
 
 您可以通过查询`INFORMATION_SCHEMA`表来检查可用空间：
 
-```go
+```sql
 mysql> SELECT SUM(data_free)/1024/1024 FROM INFORMATION_SCHEMA.TABLES;
 +--------------------------+
 | sum(data_free)/1024/1024 |
@@ -271,33 +271,33 @@ mysql> SELECT SUM(data_free)/1024/1024 FROM INFORMATION_SCHEMA.TABLES;
 
 1.  停止对数据库的写入。如果是主服务器，则`mysql> SET @@GLOBAL.READ_ONLY=1;`；如果是从服务器，请停止复制并保存二进制日志坐标：
 
-```go
+```sql
 mysql> STOP SLAVE;
 mysql> SHOW SLAVE STATUS\G
 ```
 
 1.  使用`mysqldump`或`mydumper`进行完整备份，不包括`sys`数据库：
 
-```go
+```sql
 shell> mydumper -u root --password=<password> --trx-consistency-only --kill-long-queries --long-query-guard 500 --regex '^(?!sys)' --outputdir /backups
 ```
 
 1.  停止 MySQL 服务器：
 
-```go
+```sql
 shell> sudo systemctl stop mysql
 ```
 
 1.  删除所有`*.ibd`、`*.ib_log`和`ibdata`文件。如果只使用`InnoDB`表，可以清除`数据目录`和存储系统表空间的所有位置(`innodb_data_file_path`)：
 
-```go
+```sql
 shell> sudo rm -rf /var/lib/mysql/ib* /var/lib/mysql/<database directories>
 shell> sudo rm -rf /var/lib/mysql_extend/*
 ```
 
 1.  初始化`数据目录`：
 
-```go
+```sql
 shell> sudo mysqld --initialize --datadir=/var/lib/mysql
 shell> chown -R  mysql:mysql  /var/lib/mysql/
 shell> chown -R  mysql:mysql  /var/lib/mysql_extend/
@@ -305,14 +305,14 @@ shell> chown -R  mysql:mysql  /var/lib/mysql_extend/
 
 1.  获取临时密码：
 
-```go
+```sql
 shell> sudo grep "temporary password is generated" /var/log/mysql/error.log | tail -1
 2017-10-07T09:33:31.966223Z 4 [Note] A temporary password is generated for root@localhost: lI-qerr5agpa
 ```
 
 1.  启动 MySQL 并更改密码：
 
-```go
+```sql
 shell> sudo systemctl start mysqld
 shell> mysql -u root -plI-qerr5agpa
 
@@ -322,7 +322,7 @@ Query OK, 0 rows affected (0.01 sec)
 
 1.  恢复备份。使用临时密码连接到 MySQL：
 
-```go
+```sql
 shell> /opt/mydumper/myloader --directory=/backups/ --queries-per-transaction=50000 --threads=6 --user=root --password=xxxx  --overwrite-tables
 ```
 
@@ -340,14 +340,14 @@ shell> /opt/mydumper/myloader --directory=/backups/ --queries-per-transaction=50
 
 1.  挂载新磁盘并更改权限。如果您使用 AppArmour 或 SELinux，请确保正确设置别名或上下文：
 
-```go
+```sql
 shell> sudo chown -R mysql:mysql /var/lib/mysql_fast_storage
 shell> sudo chmod 750 /var/lib/mysql_fast_storage
 ```
 
 1.  创建表：
 
-```go
+```sql
 mysql> CREATE TABLE event_tracker (
 event_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 event_name varchar(10),
@@ -360,7 +360,7 @@ DATA DIRECTORY = '/var/lib/mysql_fast_storage';
 
 1.  检查在新设备上创建的`.ibd`文件：
 
-```go
+```sql
 shell> sudo ls -lhtr  /var/lib/mysql_fast_storage/employees/
 total 128K
 -rw-r-----. 1 mysql mysql 128K Oct  7 13:48 event_tracker.ibd
@@ -386,7 +386,7 @@ total 128K
 
 如果尚未创建，请创建`event_history`并插入一些行以进行演示：
 
-```go
+```sql
 mysql> USE test;
 mysql> CREATE TABLE IF NOT EXISTS `event_history`(
   `event_id` int(11) NOT NULL,
@@ -411,7 +411,7 @@ PARTITION BY RANGE (to_days(`created_at`))
  PARTITION p20171017 VALUES LESS THAN (736984) ENGINE = InnoDB);
 ```
 
-```go
+```sql
 mysql> INSERT INTO event_history VALUES
 (1,'test','2017-10-07','2017-10-08','click','test_message'),
 (2,'test','2017-10-08','2017-10-08','click','test_message'),
@@ -429,7 +429,7 @@ Records: 8  Duplicates: 0  Warnings: 0
 
 1.  **在目的地**：创建与源上相同定义的表：
 
-```go
+```sql
 mysql> USE test;
 mysql> CREATE TABLE IF NOT EXISTS `event_history`(
   `event_id` int(11) NOT NULL,
@@ -456,34 +456,34 @@ PARTITION BY RANGE (to_days(`created_at`))
 
 1.  **在目的地**：丢弃表空间：
 
-```go
+```sql
 mysql> ALTER TABLE event_history DISCARD TABLESPACE;
 Query OK, 0 rows affected (0.05 sec)
 ```
 
 1.  **在源上**：执行`FLUSH TABLES FOR EXPORT`：
 
-```go
+```sql
 mysql> FLUSH TABLES event_history FOR EXPORT;
 Query OK, 0 rows affected (0.00 sec)
 ```
 
 1.  **在源上**：从源的`数据目录`目录中复制所有与表相关的文件（`.ibd`，`.cfg`）到目的地的`数据目录`：
 
-```go
+```sql
 shell> sudo scp -i /home/mysql/.ssh/id_rsa /var/lib/mysql/test/event_history#P#* mysql@xx.xxx.xxx.xxx:/var/lib/mysql/test/
 ```
 
 1.  **在源上**：解锁表以进行写入：
 
-```go
+```sql
 mysql> UNLOCK TABLES;
 Query OK, 0 rows affected (0.00 sec)
 ```
 
 1.  **在目的地**：确保文件的所有权设置为`mysql`：
 
-```go
+```sql
 shell> sudo ls -lhtr /var/lib/mysql/test
 total 1.4M
 -rw-r----- 1 mysql mysql 128K Oct  7 17:17 event_history#P#p20171017.ibd
@@ -501,14 +501,14 @@ total 1.4M
 
 1.  **在目的地**：导入表空间。只要表定义相同，就可以忽略警告。如果您也复制了`.cfg`文件，则不会出现警告：
 
-```go
+```sql
 mysql> ALTER TABLE event_history IMPORT TABLESPACE;
 Query OK, 0 rows affected, 12 warnings (0.31 sec)
 ```
 
 1.  **在目的地**：验证数据：
 
-```go
+```sql
 mysql> SELECT * FROM event_history;
 +----------+------------+---------------------+---------------------+------------+--------------+
 | event_id | event_name | created_at          | last_updated        | event_type | msg          |
@@ -531,7 +531,7 @@ mysql> SELECT * FROM event_history;
 
 您在源上添加了`events_history`表的新分区，并且希望仅将新分区复制到目的地。为了您的理解，请在`events_history`表上创建新分区并插入一些行：
 
-```go
+```sql
 mysql> ALTER TABLE event_history ADD PARTITION
 (PARTITION p20171018 VALUES LESS THAN (736985) ENGINE = InnoDB,
  PARTITION p20171019 VALUES LESS THAN (736986) ENGINE = InnoDB);
@@ -556,7 +556,7 @@ mysql> SELECT * FROM event_history PARTITION (p20171018,p20171019);
 
 1.  **在目的地**：创建分区：
 
-```go
+```sql
 mysql> ALTER TABLE event_history ADD PARTITION
 (PARTITION p20171018 VALUES LESS THAN (736985) ENGINE = InnoDB,
  PARTITION p20171019 VALUES LESS THAN (736986) ENGINE = InnoDB);
@@ -566,21 +566,21 @@ Records: 0  Duplicates: 0  Warnings: 0
 
 1.  **在目的地**：仅丢弃要导入的分区：
 
-```go
+```sql
 mysql> ALTER TABLE event_history DISCARD PARTITION p20171018, p20171019 TABLESPACE;
  Query OK, 0 rows affected (0.06 sec)
 ```
 
 1.  **在源上**：执行`FLUSH TABLE FOR EXPORT`：
 
-```go
+```sql
 mysql> FLUSH TABLES event_history FOR EXPORT;
 Query OK, 0 rows affected (0.01 sec)
 ```
 
 1.  **在源上**：将分区的`.ibd`文件复制到目的地：
 
-```go
+```sql
 shell> sudo scp -i /home/mysql/.ssh/id_rsa \
 /var/lib/mysql/test/event_history#P#p20171018.ibd \
 /var/lib/mysql/test/event_history#P#p20171019.ibd \
@@ -590,7 +590,7 @@ event_history#P#p20171018.ibd                              100%  128KB 128.0KB/s
 
 1.  **在目的地**：确保所需分区的`.ibd`文件已复制并且所有者为`mysql`：
 
-```go
+```sql
 shell> sudo ls -lhtr /var/lib/mysql/test/event_history#P#p20171018.ibd
 -rw-r----- 1 mysql mysql 128K Oct  7 17:54 /var/lib/mysql/test/event_history#P#p20171018.ibd
 
@@ -600,14 +600,14 @@ shell> sudo ls -lhtr /var/lib/mysql/test/event_history#P#p20171019.ibd
 
 1.  **在目的地上：**执行`IMPORT PARTITION TABLESPACE`：
 
-```go
+```sql
 mysql> ALTER TABLE event_history IMPORT PARTITION p20171018, p20171019  TABLESPACE;
 Query OK, 0 rows affected, 2 warnings (0.10 sec)
 ```
 
 只要表定义相同，您可以忽略警告。如果您也复制了`.cfg`文件，则不会出现警告：
 
-```go
+```sql
 mysql> SHOW WARNINGS;
 +---------+------+----------------------------------------------------------------------------------------------------------------------------------------------------------------+
 |  Level   | Code | Message                                                                                                                                                         |
@@ -620,7 +620,7 @@ mysql> SHOW WARNINGS;
 
 1.  **在目的地上：**验证数据：
 
-```go
+```sql
 mysql> SELECT * FROM event_history PARTITION (p20171018,p20171019);
 +----------+------------+---------------------+---------------------+------------+--------------+
 | event_id | event_name | created_at          | last_updated        | event_type | msg          |
@@ -645,7 +645,7 @@ mysql> SELECT * FROM event_history PARTITION (p20171018,p20171019);
 
 验证`UNDO`日志的大小：
 
-```go
+```sql
 shell> sudo ls -lhtr /var/lib/mysql/undo_00*
 -rw-r-----. 1 mysql mysql 19M Oct  7 17:43 /var/lib/mysql/undo_002
 -rw-r-----. 1 mysql mysql 16M Oct  7 17:43 /var/lib/mysql/undo_001
@@ -655,7 +655,7 @@ shell> sudo ls -lhtr /var/lib/mysql/undo_00*
 
 1.  确保`innodb_undo_log_truncate`已启用：
 
-```go
+```sql
 mysql> SELECT @@GLOBAL.innodb_undo_log_truncate;
 +-----------------------------------+
 | @@GLOBAL.innodb_undo_log_truncate |
@@ -667,7 +667,7 @@ mysql> SELECT @@GLOBAL.innodb_undo_log_truncate;
 
 1.  将`innodb_max_undo_log_size`设置为 15MB：
 
-```go
+```sql
 mysql> SELECT @@GLOBAL.innodb_max_undo_log_size;
 +-----------------------------------+
 | @@GLOBAL.innodb_max_undo_log_size |
@@ -690,7 +690,7 @@ mysql> SELECT @@GLOBAL.innodb_max_undo_log_size;
 
 1.  直到其回滚段被释放，撤消表空间才能被截断。通常，清除系统每 128 次调用一次。为了加快撤消表空间的截断，使用`innodb_purge_rseg_truncate_frequency`选项临时增加清除系统释放回滚段的频率：
 
-```go
+```sql
 mysql> SELECT @@GLOBAL.innodb_purge_rseg_truncate_frequency;
 +-----------------------------------------------+
 | @@GLOBAL.innodb_purge_rseg_truncate_frequency |
@@ -713,7 +713,7 @@ mysql> SELECT @@GLOBAL.innodb_purge_rseg_truncate_frequency;
 
 1.  通常在繁忙的系统上，至少会启动一个清除操作，并且截断将已经开始。如果您在自己的机器上练习，可以通过创建一个大事务来启动清除：
 
-```go
+```sql
 mysql> BEGIN;
 Query OK, 0 rows affected (0.00 sec)
 
@@ -726,7 +726,7 @@ Query OK, 0 rows affected (2.38 sec)
 
 1.  在删除正在进行时，您可以观察`UNDO`日志文件的增长：
 
-```go
+```sql
 shell> sudo ls -lhtr /var/lib/mysql/undo_00*
 -rw-r-----. 1 mysql mysql 19M Oct  7 17:43 /var/lib/mysql/undo_002
 -rw-r-----. 1 mysql mysql 16M Oct  7 17:43 /var/lib/mysql/undo_001
@@ -752,7 +752,7 @@ shell> sudo ls -lhtr /var/lib/mysql/undo_00*
 
 1.  一段时间后，您可能会注意到`unod_002`也被截断为 10MB：
 
-```go
+```sql
 shell> sudo ls -lhtr /var/lib/mysql/undo_00*
 -rw-r-----. 1 mysql mysql 10M Oct  8 04:52 /var/lib/mysql/undo_001
 -rw-r-----. 1 mysql mysql 10M Oct  8 04:54 /var/lib/mysql/undo_002
@@ -760,7 +760,7 @@ shell> sudo ls -lhtr /var/lib/mysql/undo_00*
 
 1.  一旦您已经减少了`UNDO`表空间，将`innodb_purge_rseg_truncate_frequency`设置为默认值`128`：
 
-```go
+```sql
 mysql> SELECT @@GLOBAL.innodb_purge_rseg_truncate_frequency;
 +-----------------------------------------------+
 | @@GLOBAL.innodb_purge_rseg_truncate_frequency |
@@ -809,14 +809,14 @@ mysql> SELECT @@GLOBAL.innodb_purge_rseg_truncate_frequency;
 
 要在 MySQL 的`数据目录`中创建一个：
 
-```go
+```sql
 mysql> CREATE TABLESPACE `ts1` ADD DATAFILE 'ts1.ibd' Engine=InnoDB;
 Query OK, 0 rows affected (0.02 sec)
 ```
 
 要在外部创建表空间，请将新磁盘挂载到`/var/lib/mysql_general_ts`并将所有权更改为`mysql`：
 
-```go
+```sql
 shell> sudo chown mysql:mysql /var/lib/mysql_general_ts
 
 mysql> CREATE TABLESPACE `ts2` ADD DATAFILE '/var/lib/mysql_general_ts/ts2.ibd' Engine=InnoDB;Query OK, 0 rows affected (0.02 sec)
@@ -826,14 +826,14 @@ mysql> CREATE TABLESPACE `ts2` ADD DATAFILE '/var/lib/mysql_general_ts/ts2.ibd' 
 
 在创建表时，您可以将表添加到表空间中，或者可以运行`ALTER`命令将表从一个表空间移动到另一个表空间：
 
-```go
+```sql
 mysql> CREATE TABLE employees.table_gen_ts1 (id INT PRIMARY KEY) TABLESPACE ts1;
 Query OK, 0 rows affected (0.01 sec)
 ```
 
 假设您想将`employees`表移动到`TABLESPACE ts2`：
 
-```go
+```sql
 mysql> USE employees;
 Database changed
 
@@ -844,7 +844,7 @@ Records: 0  Duplicates: 0  Warnings: 0
 
 您可以注意到`ts2.ibd`文件的增加：
 
-```go
+```sql
 shell> sudo ls -lhtr /var/lib/mysql_general_ts/ts2.ibd
 -rw-r-----. 1 mysql mysql 32M Oct  8 17:07 /var/lib/mysql_general_ts/ts2.ibd
 ```
@@ -857,7 +857,7 @@ shell> sudo ls -lhtr /var/lib/mysql_general_ts/ts2.ibd
 
 假设您想将`employees`表从`ts2`移动到`ts1`：
 
-```go
+```sql
 mysql> ALTER TABLE employees TABLESPACE ts1;
 Query OK, 0 rows affected (3.83 sec)
 Records: 0  Duplicates: 0  Warnings: 0
@@ -870,7 +870,7 @@ shell> sudo ls -lhtr /var/lib/mysql/ts1.ibd
 
 假设您想将`employees`表从`ts1`移动到每个文件一个表：
 
-```go
+```sql
 mysql> ALTER TABLE employees TABLESPACE innodb_file_per_table;
 Query OK, 0 rows affected (4.05 sec)
 Records: 0  Duplicates: 0  Warnings: 0
@@ -883,7 +883,7 @@ shell> sudo ls -lhtr /var/lib/mysql/employees/employees.ibd
 
 假设您想将`employees`表从每个文件一个表移动到系统表空间：
 
-```go
+```sql
 mysql> ALTER TABLE employees TABLESPACE innodb_system;
 Query OK, 0 rows affected (5.28 sec)
 Records: 0  Duplicates: 0  Warnings: 0
@@ -893,7 +893,7 @@ Records: 0  Duplicates: 0  Warnings: 0
 
 您可以在多个表空间中创建具有分区的表：
 
-```go
+```sql
 mysql> CREATE TABLE table_gen_part_ts1 (id INT, value varchar(100)) ENGINE = InnoDB
        PARTITION BY RANGE(id) (
         PARTITION p1 VALUES LESS THAN (1000000) TABLESPACE ts1,
@@ -907,7 +907,7 @@ Query OK, 0 rows affected (0.19 sec)
 
 如果您希望在表空间之间移动分区，则需要对分区进行`REORGANIZE`。例如，您想将分区`p3`移动到`ts2`：
 
-```go
+```sql
 mysql> ALTER TABLE table_gen_part_ts1 REORGANIZE PARTITION p3 INTO (PARTITION p3 VALUES LESS THAN (3000000) TABLESPACE ts2);
 ```
 
@@ -915,14 +915,14 @@ mysql> ALTER TABLE table_gen_part_ts1 REORGANIZE PARTITION p3 INTO (PARTITION p3
 
 您可以使用`DROP TABLESPACE`命令删除表空间。但是，该表空间内的所有表应该被删除或移动：
 
-```go
+```sql
 mysql> DROP TABLESPACE ts2;
 ERROR 3120 (HY000): Tablespace `ts2` is not empty.
 ```
 
 在删除之前，您必须将`table_gen_part_ts1`表的`ts2`表空间中的分区`p2`和`p3`移动到其他表空间：
 
-```go
+```sql
 mysql> ALTER TABLE table_gen_part_ts1 REORGANIZE PARTITION p2 INTO (PARTITION p2 VALUES LESS THAN (3000000) TABLESPACE ts1);
 
 mysql> ALTER TABLE table_gen_part_ts1 REORGANIZE PARTITION p3 INTO (PARTITION p3 VALUES LESS THAN (3000000) TABLESPACE ts1);
@@ -930,7 +930,7 @@ mysql> ALTER TABLE table_gen_part_ts1 REORGANIZE PARTITION p3 INTO (PARTITION p3
 
 现在您可以删除表空间：
 
-```go
+```sql
 mysql> DROP TABLESPACE ts2;
 Query OK, 0 rows affected (0.01 sec)
 ```
@@ -961,20 +961,20 @@ Query OK, 0 rows affected (0.01 sec)
 
 1.  确保启用了`file_per_table`：
 
-```go
+```sql
 mysql> SET GLOBAL innodb_file_per_table=1;
 ```
 
 1.  在创建语句中指定`ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8`：
 
-```go
+```sql
 mysql> CREATE TABLE compressed_table (id INT PRIMARY KEY) ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
 Query OK, 0 rows affected (0.07 sec)
 ```
 
 如果表已经存在，可以执行`ALTER`：
 
-```go
+```sql
 mysql> ALTER TABLE event_history ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
 Query OK, 0 rows affected (0.67 sec)
 Records: 0  Duplicates: 0  Warnings: 0
@@ -982,7 +982,7 @@ Records: 0  Duplicates: 0  Warnings: 0
 
 如果尝试压缩位于系统表空间中的表，将会出现错误：
 
-```go
+```sql
 mysql> ALTER TABLE employees ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
 ERROR 1478 (HY000): InnoDB: Tablespace `innodb_system` cannot contain a COMPRESSED table
 ```
@@ -993,7 +993,7 @@ ERROR 1478 (HY000): InnoDB: Tablespace `innodb_system` cannot contain a COMPRESS
 
 例如，如果不希望在`event_history`表上使用压缩：
 
-```go
+```sql
 mysql> ALTER TABLE event_history ROW_FORMAT=DYNAMIC KEY_BLOCK_SIZE=0;
 Query OK, 0 rows affected (0.53 sec)
 Records: 0  Duplicates: 0  Warnings: 0
@@ -1009,7 +1009,7 @@ Records: 0  Duplicates: 0  Warnings: 0
 
 1.  创建一个通用的压缩表空间。您可以创建一个`FILE_BLOCK_SIZE`为 8k 的表空间，另一个为 4k 的表空间，并将所有`KEY_BLOCK_SIZE`为 8 的表移动到 8k，将 4 移动到 4k：
 
-```go
+```sql
 mysql> CREATE TABLESPACE `ts_8k` ADD DATAFILE 'ts_8k.ibd' FILE_BLOCK_SIZE = 8192 Engine=InnoDB;
 Query OK, 0 rows affected (0.01 sec)
 
@@ -1019,35 +1019,35 @@ Query OK, 0 rows affected (0.04 sec)
 
 1.  通过提及`ROW_FORMAT=COMPRESSED`在这些表空间中创建压缩表：
 
-```go
+```sql
 mysql> CREATE TABLE compress_table_1_8k (id INT PRIMARY KEY) TABLESPACE ts_8k ROW_FORMAT=COMPRESSED;
 Query OK, 0 rows affected (0.01 sec)
 ```
 
 如果不提及`ROW_FORMAT=COMPRESSED`，将会出现错误：
 
-```go
+```sql
 mysql> CREATE TABLE compress_table_2_8k (id INT PRIMARY KEY) TABLESPACE ts_8k;
 ERROR 1478 (HY000): InnoDB: Tablespace `ts_8k` uses block size 8192 and cannot contain a table with physical page size 16384
 ```
 
 可选地，您可以提及`KEY_BLOCK_SIZE=FILE_BLOCK_SIZE/1024`：
 
-```go
+```sql
 mysql> CREATE TABLE compress_table_8k (id INT PRIMARY KEY) TABLESPACE ts_8k ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
 Query OK, 0 rows affected (0.01 sec)
 ```
 
 如果提及的内容不是`FILE_BLOCK_SIZE/1024`，将会出现错误：
 
-```go
+```sql
 mysql> CREATE TABLE compress_table_2_8k (id INT PRIMARY KEY) TABLESPACE ts_8k ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=4;
 ERROR 1478 (HY000): InnoDB: Tablespace `ts_8k` uses block size 8192 and cannot contain a table with physical page size 4096
 ```
 
 1.  只有`KEY_BLOCK_SIZE`匹配时，才能将表从`file_per_table`表空间移动到压缩通用表空间。否则，将会出现错误：
 
-```go
+```sql
 mysql> CREATE TABLE compress_tables_4k (id INT PRIMARY KEY) TABLESPACE innodb_file_per_table ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=4;
 Query OK, 0 rows affected (0.02 sec)
 

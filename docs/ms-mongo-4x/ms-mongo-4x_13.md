@@ -190,7 +190,7 @@ Cloud Manager 在大多数方面相当于 Ops Manager 的 SaaS 版本。
 
 当我们将目录更改为我们的本地副本后，我们可以发出以下命令：
 
-```go
+```sql
 helm install helm_chart/ --name mongodb-enterprise
 ```
 
@@ -214,7 +214,7 @@ helm install helm_chart/ --name mongodb-enterprise
 
 其结构将如下所示：
 
-```go
+```sql
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -227,13 +227,13 @@ data:
 
 然后我们可以使用以下命令将此文件应用到 Kubernetes：
 
-```go
+```sql
 kubectl apply -f mongodb-project.yaml
 ```
 
 我们需要采取的最后一步是创建 Kubernetes 秘钥。可以使用以下命令来完成：
 
-```go
+```sql
 kubectl -n mongodb create secret generic <<any sample name for credentials we choos>> --from-literal="user=<<User as above>>" --from-literal="publicApiKey=<<our public api key as above>>"
 ```
 
@@ -241,7 +241,7 @@ kubectl -n mongodb create secret generic <<any sample name for credentials we ch
 
 现在我们准备使用 Kubernetes 部署我们的副本集！我们可以创建一个名为`replica-set.yaml`的文件，其结构如下：
 
-```go
+```sql
 apiVersion: mongodb.com/v1
 kind: MongoDbReplicaSet
 metadata:
@@ -257,7 +257,7 @@ credentials: <<the name of credentials secret that we chose above>>
 
 我们使用`kubectl apply`应用新配置：
 
-```go
+```sql
 kubectl apply -f replica-set.yaml
 ```
 
@@ -297,7 +297,7 @@ Mobile SDK 有两种操作模式。在本地模式下，SDK 只允许访问本�
 
 要设置 MongoDB Mobile，我们需要先下载并安装 MongoDB Stitch SDK。然后，创建和查询本地 MongoDB 数据库就像几行代码一样简单（此示例为 Android）：
 
-```go
+```sql
 Import packages:
 // Base Stitch Packages
 import com.mongodb.stitch.android.core.Stitch;
@@ -311,7 +311,7 @@ import com.mongodb.stitch.android.services.mongodb.local.LocalMongoDbService;
 
 初始化数据库如下：
 
-```go
+```sql
 // Create the default Stitch Client
 final StitchAppClient client =
   Stitch.initializeDefaultAppClient("<APP ID>");
@@ -322,20 +322,20 @@ final MongoClient mobileClient =
 
 接下来，获取对数据库的引用：
 
-```go
+```sql
 MongoCollection<Document> localCollection =
   mobileClient.getDatabase("my_db").getCollection("my_collection");
 ```
 
 插入`document`如下：
 
-```go
+```sql
 localCollection.insertOne(document);
 ```
 
 然后，使用`first()`找到第一个文档：
 
-```go
+```sql
 Document doc = localCollection.find().first();
 ```
 
@@ -367,7 +367,7 @@ MongoDB 规则是角色和分配给该角色的权限的组合。角色定义了
 
 这可以使用`%%`变量表示法来定义：
 
-```go
+```sql
 {
   "createdBy": "%%user.id"
 }
@@ -401,7 +401,7 @@ Stitch 函数可用于执行服务器端应用程序逻辑。它们是用 JavaSc
 
 Stitch 函数可以通过 CLI 或从 Stitch UI 导入。对于我们命名为`multiply`的简单函数，我们可以在 UI 中添加以下代码：
 
-```go
+```sql
 exports = function(a, b) {
  return a * b;
 };
@@ -409,13 +409,13 @@ exports = function(a, b) {
 
 然后我们可以从另一个函数、webhook 或 Stitch 中的触发器调用它：
 
-```go
+```sql
 context.functions.execute("multiply", a, b);
 ```
 
 我们还可以在 Stitch JSON 表达式中使用`%function`触发其执行：
 
-```go
+```sql
 {
  "%%true": {
    "%function": {
@@ -428,7 +428,7 @@ context.functions.execute("multiply", a, b);
 
 我们甚至可以使用 Stitch SDK（JavaScript、Android 或 macOS）从我们的客户端应用程序调用此函数：
 
-```go
+```sql
 const client = Stitch.defaultAppClient;
 client.callFunction("multiply", [3, 4]).then(result => {
 console.log(result) // Output: 12
@@ -475,7 +475,7 @@ MongoDB Stitch Mobile Sync 中的最新添加之一可以在 MongoDB Mobile 和�
 
 `ConflictHandler`有一个方法，参数是冲突本地和远程事件的`documentId`，返回冲突的解决方案，如下所示：
 
-```go
+```sql
 DocumentT resolveConflict(BsonValue documentId,
                          ChangeEvent<DocumentT> localEvent,
                          ChangeEvent<DocumentT> remoteEvent)
@@ -483,13 +483,13 @@ DocumentT resolveConflict(BsonValue documentId,
 
 `ErrorListener`不返回任何内容，并在发生`documentId`和非网络相关异常的错误时调用：
 
-```go
+```sql
 void onError(BsonValue documentId,Exception error)
 ```
 
 最后，`ChangeEventListener`也不返回任何值，并在给定`documentId`的任何更改`event`发生时调用：
 
-```go
+```sql
 void onEvent(BsonValue documentId, ChangeEvent<DocumentT> event)
 ```
 
