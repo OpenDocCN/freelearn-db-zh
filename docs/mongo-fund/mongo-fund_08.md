@@ -38,7 +38,11 @@ Node.js 已经成为基于 Web 的应用程序的主要语言之一，我们将�
 
 首先，让我们看一些示例代码：
 
-[PRE0]
+```js
+// 1_Hello_World.js
+var message = "Hello, Node!";
+console.log(message);
+```
 
 让我们详细定义前面语法中的每个术语：
 
@@ -56,25 +60,61 @@ Node.js 已经成为基于 Web 的应用程序的主要语言之一，我们将�
 
 让我们尝试运行代码示例，将该代码保存到名为`1_Hello_World.js`的文件中，保存到我们当前的目录中，然后使用以下命令在我们的终端或命令提示符中运行该命令：
 
-[PRE1]
+```js
+> node 1_Hello_World.js
+```
 
 您将看到一个看起来像这样的输出：
 
-[PRE2]
+```js
+Section1> node 1_Hello_World.js
+Hello, Node!
+Section1>
+```
 
 如您所见，运行 Node.js 脚本非常简单，因为无需构建或编译，您可以编写代码并使用`node`调用它。
 
 `var`关键字将信息存储在变量中，并在代码中稍后更改。但是，还有另一个关键字`const`，用于存储不会更改的信息。因此，在我们的示例中，我们可以用`const`关键字替换我们的`var`关键字。作为最佳实践，您可以将任何不会更改的内容声明为`const`：
 
-[PRE3]
+```js
+// 1_Hello_World.js
+const message = "Hello, Node!";
+console.log(message);
+```
 
 现在，让我们考虑函数和参数的结构。就像在 mongo shell 中的前几章查询的结构一样。首先，让我们考虑定义函数的以下示例：
 
-[PRE4]
+```js
+var printHello = function(parameter) {
+    console.log("Hello, " + parameter);
+}
+printHello("World")
+```
 
 以下是我们将在本章后面遇到的一些代码类型的预览。您可能会注意到，尽管这是一个更复杂的代码片段，但与您在早期章节（*第四章*，*查询文档*，特别是）学到的 CRUD 操作有一些共同的元素，例如`find`命令的语法和 MongoDB URI：
 
-[PRE5]
+```js
+// 3_Full_Example.js
+const Mongo = require('mongodb').MongoClient;
+const server = 'mongodb+srv://username:password@server-  abcdef.gcp.mongodb.net/test?retryWrites=true&w=majority'
+const myDB   = 'sample_mflix'
+const myColl = 'movies';
+const mongo = new Mongo(server);
+mongo.connect(function(err) {
+    console.log('Our driver has connected to MongoDB!');
+    const database = mongo.db(myDB);
+    const collection = database.collection(myColl);
+    collection.find({title: 'Blacksmith Scene'}).each(function(err, doc) {
+        if(doc) {
+            console.log('Doc returned: ')
+            console.log(doc);
+        } else {
+            mongo.close();
+            return false;
+        }
+    })
+})
+```
 
 开始时可能有点令人生畏，但随着我们深入探讨本章，这将变得更加熟悉。正如我们之前提到的，即使它们看起来有些不同，您应该能够从 mongo shell 中识别出一些元素。代码中映射到 mongo shell 元素的一些元素如下：
 
@@ -88,13 +128,22 @@ Node.js 已经成为基于 Web 的应用程序的主要语言之一，我们将�
 
 这是定义函数的代码。请注意，有两种方法可以做到这一点：您可以将函数声明为变量，也可以将函数作为参数传递给另一个函数。我们将在本章后面详细介绍这一点：
 
-[PRE6]
+```js
+// 4_Define_Function.js
+const newFunction = function(parameter1, parameter2) {
+    // Function logic goes here.
+    console.log(parameter1);
+    console.log(parameter2);
+}
+```
 
 ## 获取 Node.js 的 MongoDB 驱动程序
 
 安装 Node.js 的 MongoDB 驱动程序最简单的方法是使用`npm`。`npm`，或 node 包管理器，是一个用于添加、更新和管理 Node.js 程序中使用的不同包的包管理工具。在这种情况下，您要添加的包是 MongoDB 驱动程序，因此在存储脚本的目录中，在您的终端或命令提示符中运行以下命令：
 
-[PRE7]
+```js
+> npm install mongo --save
+```
 
 安装包后可能会看到一些输出，如下所示：
 
@@ -110,15 +159,47 @@ Node.js 已经成为基于 Web 的应用程序的主要语言之一，我们将�
 
 `MongoClient`是您在代码中必须创建的第一个对象。这代表您与 MongoDB 服务器的连接。将其视为 mongo shell 的等价物；您传入数据库的 URL 和连接参数，它将为您创建一个连接供您使用。要使用`MongoClient`，您必须在脚本顶部导入模块：
 
-[PRE8]
+```js
+// First load the Driver module.
+const Mongo = require('MongoDB').MongoClient;
+// Then define our server.
+const server = 'mongodb+srv://username:password@server-  abcdef.gcp.mongodb.net/test?retryWrites=true&w=majority';
+// Create a new client.
+const mongo = new Mongo(server);
+// Connect to our server.
+mongo.connect(function(err) {
+    // Inside this block we are connected to MongoDB.
+mongo.close(); // Close our connection at the end.
+})
+```
 
 接下来是`database`对象。就像 mongo shell 一样，一旦建立连接，您可以针对服务器中的特定数据库运行命令。这个数据库对象还将确定您可以针对哪些集合运行查询：
 
-[PRE9]
+```js
+…
+mongo.connect(function(err) {
+    // Inside this block we are connected to MongoDB.
+    // Create our database object.
+    const database = mongo.db(«sample_mflix»);
+    mongo.close(); // Close our connection at the end.
+})
+…
+```
 
 在（几乎）每个基于 MongoDB 的应用程序中使用的第三个基本对象是`collection`对象。正如在 mongo shell 中一样，大多数常见操作将针对单个集合运行：
 
-[PRE10]
+```js
+…
+mongo.connect(function(err) {
+    // Inside this block we are connected to MongoDB.
+    // Create our database object.
+    const database = mongo.db("sample_mflix");
+    // Create our collection object
+    const collection = database.collection("movies");
+    mongo.close(); // Close our connection at the end.
+})
+…
+```
 
 `database`和`collection`对象表达了与直接连接 mongo shell 相同的概念。在本章中，`MongoClient`仅用于创建和存储与服务器的连接。
 
@@ -134,19 +215,38 @@ Node.js 已经成为基于 Web 的应用程序的主要语言之一，我们将�
 
 在编写代码之前，了解如何建立到`MongoClient`的连接是很重要的。创建新客户端时只有两个参数：服务器的 URL 和任何额外的连接选项。如果需要创建客户端，连接选项是可选的，如下所示：
 
-[PRE11]
+```js
+const serverURL = 'mongodb+srv://username:password@server-  abcdef.gcp.mongodb.net/test';
+const mongo = new Mongo(serverURL);
+mongo.connect(function(err) {
+    // Inside this block we are connected to MongoDB.
+mongo.close(); // Close our connection at the end.
+})
+```
 
 注意
 
-[PRE12]
+```js
+callback. We will cover these in detail later in this chapter. For now, it is enough to use this pattern without having a more in-depth understanding.
+```
 
 与 mongo shell 一样，`serverURL`支持所有 MongoDB URI 选项，这意味着您可以在连接字符串本身中指定配置，而不是在第二个可选参数中；例如：
 
-[PRE13]
+```js
+const serverURL = 'mongodb+srv://username:password@server-  abcdef.gcp.mongodb.net/test?retryWrites=true&w=majority';
+```
 
 为了简化这个字符串，可以在创建客户端时在第二个参数中指定许多这些 URI 选项（以及其他选项，例如 SSL 设置）；例如：
 
-[PRE14]
+```js
+const mongo = new Mongo(serverURL, {
+     sslValidate: false
+});
+mongo.connect(function(err) {
+     // Inside this block we are connected to MongoDB.
+mongo.close(); // Close our connection at the end.
+})
+```
 
 与 mongo shell 一样，有许多配置选项，包括 SSL、身份验证和写入关注选项。然而，大部分超出了本章的范围。
 
@@ -162,11 +262,15 @@ Node.js 已经成为基于 Web 的应用程序的主要语言之一，我们将�
 
 1.  首先，在您当前的工作目录中，创建一个名为`Exercise8.01.js`的新 JavaScript 文件，并在您选择的文本编辑器（Visual Studio Code、Sublime 等）中打开它：
 
-[PRE15]
+```js
+    > node Exercise8.01.js
+    ```
 
 1.  通过将以下行添加到文件顶部，将 MongoDB 驱动程序库（如本章前面所述）导入到您的脚本文件中：
 
-[PRE16]
+```js
+    const MongoClient = require('mongodb').MongoClient;
+    ```
 
 注意
 
@@ -174,31 +278,60 @@ Node.js 已经成为基于 Web 的应用程序的主要语言之一，我们将�
 
 1.  创建一个包含您的 MongoDB 服务器的 URL 的新变量：
 
-[PRE17]
+```js
+    const url = 'mongodb+srv://username:password@server-  abcdef.gcp.mongodb.net/test';
+    ```
 
 1.  创建一个名为`client`的新`MongoClient`对象，使用`url`变量：
 
-[PRE18]
+```js
+    const client = new MongoClient(url);
+    ```
 
 1.  使用以下方式打开到 MongoDB 的连接`connect`函数：
 
-[PRE19]
+```js
+    client.connect(function(err) {
+         …
+    })
+    ```
 
 1.  在连接块中添加一个`console.log()`消息，以确认连接已打开：
 
-[PRE20]
+```js
+    console.log('Connected to MongoDB with NodeJS!');
+    ```
 
 1.  最后，在连接块的末尾，使用以下语法关闭连接：
 
-[PRE21]
+```js
+    client.close(); // Close our connection at the end.
+    ```
 
 您的完整脚本应如下所示：
 
-[PRE22]
+```js
+    // Import MongoDB Driver module.
+    const MongoClient = require('mongodb').MongoClient;
+    // Create a new url variable.
+    const url = 'mongodb+srv://username:password@server-  abcdef.gcp.mongodb.net/test';
+    // Create a new MongoClient.
+    const client = new MongoClient(url);
+    // Open the connection using the .connect function.
+    client.connect(function(err) {
+        // Within the connection block, add a console.log to confirm the       connection
+        console.log('Connected to MongoDB with NodeJS!');
+        client.close(); // Close our connection at the end.
+    })
+    ```
 
 使用`node Exercise8.01.js`执行代码后，将生成以下输出：
 
-[PRE23]
+```js
+    Chapter8> node Excercise8.01.js
+    Connected to MongoDB with NodeJS!
+    Chapter8>
+    ```
 
 在这个练习中，您使用 Node.js 驱动程序建立了与服务器的连接。
 
@@ -206,11 +339,15 @@ Node.js 已经成为基于 Web 的应用程序的主要语言之一，我们将�
 
 现在我们已经连接到 MongoDB，可以对数据库运行一些简单的查询。在 Node.js 驱动程序中运行查询与在 shell 中运行查询非常相似。到目前为止，您应该熟悉 shell 中的`find`命令：
 
-[PRE24]
+```js
+db.movies.findOne({})
+```
 
 以下是驱动程序中`find`命令的语法：
 
-[PRE25]
+```js
+collection.find({title: 'Blacksmith Scene'}).each(function(err, doc) { … }
+```
 
 正如您所看到的，一般结构与您在 mongo shell 中执行的`find`命令相同。在这里，我们从数据库对象中获取一个集合，然后针对该集合运行带有查询文档的`find`命令。这个过程本身很简单。主要的区别在于我们如何构造我们的命令以及如何处理驱动程序返回的结果。
 
@@ -220,23 +357,62 @@ Node.js 已经成为基于 Web 的应用程序的主要语言之一，我们将�
 
 将*Exercise 8.01*中的代码，*使用 Node.js 驱动程序创建连接*，作为参考，因为它已经包含了连接：
 
-[PRE26]
+```js
+const MongoClient = require('mongodb').MongoClient;
+// Replace this variable with the connection string for your server, provided by   MongoDB Atlas.
+const url = 'mongodb+srv://username:password@server-abcdef.gcp.mongodb.net/test';
+const client = new MongoClient(url);
+client.connect(function(err) {
+    console.log('Connected to MongoDB with NodeJS!');
+    // OUR CODE GOES BELOW HERE
+    // AND ABOVE HERE
+    client.close();
+})
+```
 
 我们的查询逻辑将在这里添加：
 
-[PRE27]
+```js
+    // OUR CODE GOES BELOW HERE
+    // AND ABOVE HERE
+```
 
 现在，我们已经连接到了 MongoDB 服务器。但是，还有两个重要的对象——`db`和`collection`。让我们创建我们的数据库对象（用于`sample_mflix`数据库），如下所示：
 
-[PRE28]
+```js
+    // OUR CODE GOES BELOW HERE
+    const database = client.db("sample_mflix")
+    // AND ABOVE HERE
+```
 
 现在我们有了我们的`database`对象。在 mongo shell 中发送查询时，您必须将文档作为命令的过滤器传递给您的文档。这在 Node.js 驱动程序中也是一样的。您可以直接传递文档。但是，建议将过滤器单独定义为变量，然后再分配一个值。您可以在以下代码片段中看到差异：
 
-[PRE29]
+```js
+// Defining filter first.
+var filter = { title: 'Blacksmith Scene'};
+database.collection("movies").find(filter).toArray(function(err, docs) { });
+// Doing everything in a single line.
+database.collection("movies").find({title: 'Blacksmith   Scene'}).toArray(function(err, docs) {});
+```
 
 与 mongo shell 一样，您可以将空文档作为参数传递以查找所有文档。您可能还注意到我们的`find`命令末尾有`toArray`。这是因为，默认情况下，`find`命令将返回一个游标。我们将在下一节中介绍游标，但与此同时，让我们看看这个完整脚本会是什么样子：
 
-[PRE30]
+```js
+const MongoClient = require('mongodb').MongoClient;
+// Replace this variable with the connection string for your server, provided by   MongoDB Atlas.
+const url = 'mongodb+srv://mike:password@myAtlas-  fawxo.gcp.mongodb.net/test?retryWrites=true&w=majority'
+const client = new MongoClient(url);
+client.connect(function(err) {
+    console.log('Connected to MongoDB with NodeJS!');
+    const database = client.db("sample_mflix");
+    var filter = { title: 'Blacksmith Scene'};
+    database.collection("movies").find(filter).toArray(function(err, docs) {
+        console.log('Docs results:');
+        console.log(docs);
+     });
+    client.close();
+})
+```
 
 如果您将此修改后的脚本保存为`2_Simple_Find.js`并使用命令`node 2_Simple_Find.js`运行它，将会得到以下输出：
 
@@ -252,17 +428,37 @@ Node.js 已经成为基于 Web 的应用程序的主要语言之一，我们将�
 
 +   `toArray`：这将获取查询的所有结果并将它们放入一个单一的数组中。这很容易使用，但当您期望从查询中获得大量结果时，效率不是很高。在以下代码中，我们针对电影集合运行`find`命令，然后使用`toArray`将数组中的第一个元素记录到控制台中：
 
-[PRE31]
+```js
+    database.collection("movies").find(filter).toArray(function(err, docsArray) {
+        console.log('Docs results as an array:');
+        console.log(docsArray[0]); // Print the first entry in the array.
+     });
+    ```
 
 +   `each`：这将逐个遍历结果集中的每个文档。如果您想要检查或使用结果中的每个文档，这是一个很好的模式。在以下代码片段中，我们针对电影集合运行`find`命令，使用`each`记录返回的每个文档，直到没有文档为止：
 
-[PRE32]
+```js
+    database.collection("movies").find(filter).each(function(err, doc) {
+        if(doc) {
+            console.log('Current doc');
+            console.log(doc);
+        } else {
+            client.close(); // Close our connection.
+            return false;   // End the each loop.
+        }
+     });
+    ```
 
 当没有更多文档返回时，文档将等于`null`。因此，每次检查新文档时，检查文档是否存在（使用`if(doc)`）是很重要的。
 
 +   `next`：这将允许你访问结果集中的下一个文档。如果你只想要一个单独的文档或结果的子集，而不必遍历整个结果，这是最好的模式。在下面的代码片段中，我们对电影集合运行了一个`find`命令，使用`next`获取返回的第一个文档，然后将该文档输出到控制台：
 
-[PRE33]
+```js
+    database.collection("movies").find(filter).next(function(err, doc) {
+        console.log("First doc in the cursor");
+        console.log(doc);
+     });
+    ```
 
 因为`next`一次只返回一个文档，在这个例子中，我们运行了三次来检查前三个文档。
 
@@ -270,7 +466,9 @@ Node.js 已经成为基于 Web 的应用程序的主要语言之一，我们将�
 
 你也可以通过在`find(…)`之后放置这些命令来实现相同的`sort`和`limit`功能，这应该是你在 shell 中以前查询时熟悉的：
 
-[PRE34]
+```js
+database.collection("movies").find(filter).limit(5).sort([['title', 1]]).next   (function(err, doc) {…}
+```
 
 ## 练习 8.02：构建一个 Node.js Driver 查询
 
@@ -286,31 +484,81 @@ Node.js 已经成为基于 Web 的应用程序的主要语言之一，我们将�
 
 1.  为了保持代码整洁，创建新的变量来存储`databaseName`和`collectionName`。记住，由于这些在整个脚本中不会改变，你必须使用`const`关键字将它们声明为常量：
 
-[PRE35]
+```js
+    const databaseName = "sample_mflix";
+    const collectionName = "movies";
+    ```
 
 1.  现在，创建一个新的`const`来存储我们的查询文档；你应该熟悉从之前的章节中创建这些：
 
-[PRE36]
+```js
+    const query = { genres: { $all: ["Romance"]} };
+    ```
 
 1.  定义好所有的变量后，创建我们的数据库对象：
 
-[PRE37]
+```js
+    const database = client.db(databaseName);
+    ```
 
 现在，你可以使用以下语法发送你的查询。使用`each`模式，传递一个回调函数来处理每个文档。如果这看起来奇怪，不要担心；你将在接下来的部分中详细了解这个。记得使用`limit`只返回两个文档和`project`只输出`title`，因为它们是我们场景的要求：
 
-[PRE38]
+```js
+    database.collection(collectionName).find(query).limit(2).project({title:   1}).each(function(err, doc) {
+        if(doc) {
+
+        } else {
+            client.close(); // Close our connection.
+            return false;   // End the each loop.
+        }
+     });
+    ```
 
 1.  在你的回调函数中，使用`console.log`输出我们的查询返回的每个文档：
 
-[PRE39]
+```js
+    if(doc){
+               console.log('Current doc');
+               console.log(doc);
+    }  
+    ```
 
 你的最终代码应该像这样：
 
-[PRE40]
+```js
+    const MongoClient = require('mongodb').MongoClient;
+    const url = 'mongodb+srv://username:password@server-  abcdef.gcp.mongodb.net/test';
+    const client = new MongoClient(url);
+    const databaseName = "sample_mflix";
+    const collectionName = "movies";
+    const query = { genres: { $all: ["Romance"]} };
+    // Open the connection using the .connect function.
+    client.connect(function(err) {
+        // Within the connection block, add a console.log to confirm the       connection
+        console.log('Connected to MongoDB with NodeJS!');
+        const database = client.db(databaseName);
+        database.collection(collectionName).find(query).limit(2).project({title:      1}).each(function(err, doc) {
+            if(doc) {
+                console.log('Current doc');
+                console.log(doc);
+            } else {
+                client.close(); // Close our connection.
+                return false;   // End the each loop.
+            }
+         });
+    })
+    ```
 
 1.  现在，使用`node Exercise8.02.js`运行脚本。你应该得到以下输出：
 
-[PRE41]
+```js
+    Connected to MongoDB with NodeJS!
+    Our database connected alright!
+    Current doc
+    { _id: 573a1390f29313caabcd548c, title: 'The Birth of a Nation' }
+    Current doc
+    { _id: 573a1390f29313caabcd5b9a, title: "Hell's Hinges" }
+    ```
 
 在这个练习中，你构建了一个 Node.js 程序，对 MongoDB 执行查询，并将结果返回到控制台。虽然这是一个小步骤，我们可以很容易地在 mongo shell 中完成，但这个脚本将作为更高级和交互式的 Node.js 应用程序的基础。
 
@@ -318,7 +566,17 @@ Node.js 已经成为基于 Web 的应用程序的主要语言之一，我们将�
 
 所以，我们已经成功打开了与 MongoDB 的连接并运行了一些简单的查询，但可能有一些代码元素看起来不太熟悉；例如，这里的语法：
 
-[PRE42]
+```js
+.each(function(err, doc) {
+        if(doc) {
+            console.log('Current doc');
+            console.log(doc);
+        } else {
+            client.close(); // Close our connection.
+            return false;   // End the each loop.
+        }
+     });
+```
 
 这就是所谓的`MongoClient`，一旦它完成了自己的内部逻辑，它应该执行我们作为第二个参数传递的函数中的代码。第二个参数被称为回调。回调是额外的函数（代码块），作为参数传递给另一个首先执行的函数。
 
@@ -342,15 +600,43 @@ Node.js 已经成为基于 Web 的应用程序的主要语言之一，我们将�
 
 您可以看到，相同的结构存在，只是回调函数的参数不同。您可能想知道我们如何知道在特定回调中使用哪些参数。答案是，我们传递给回调函数的参数由我们提供回调函数的第一个函数确定。也许这是一个令人困惑的句子，但它的意思是：当将函数 fA 作为参数传递给第二个函数 fB 时，fA 的参数由 fB 提供。让我们再次检查我们的实际示例，以确保我们理解这一点：
 
-[PRE43]
+```js
+database.collection(collectionName).find(query).limit(2).project({title: 1}).each   (function(err, doc) {
+        if(doc) {
+            console.log('Current doc');
+            console.log(doc);
+        } else {
+            client.close(); // Close our connection.
+            return false;   // End the each loop.
+        }
+     });
+```
 
 因此，我们的回调函数`function(err, doc) { … }`作为参数提供给驱动程序函数`each`。这意味着`each`将为结果集中的每个文档运行我们的回调函数，为每次执行传递`err`（错误）和`doc`（文档）参数。以下是相同的代码，但添加了一些日志以演示执行顺序：
 
-[PRE44]
+```js
+console.log('This will execute first.')
+database.collection(collectionName).find(query).limit(2).project({title: 1}).each   (function(err, doc) {
+console.log('This will execute last, once for each document in the result.')
+        if(doc) {
+        } else {
+            client.close(); // Close our connection.
+            return false;   // End the each loop.
+        }
+     });
+console.log('This will execute second.');
+```
 
 如果我们使用`node 3_Callbacks.js`运行此代码，我们可以在输出中看到执行顺序：
 
-[PRE45]
+```js
+Connected to MongoDB with NodeJS!
+This will execute first.
+This will execute second.
+This will execute last, once for each doc.
+This will execute last, once for each doc.
+This will execute last, once for each doc.
+```
 
 回调有时是复杂的模式，需要熟悉，并且越来越多地被更高级的 Node.js 模式（例如`promises`和`async/await`）所取代。熟悉这些模式的最佳方法是使用它们，因此如果您对它们还不太熟悉，不用担心。
 
@@ -360,11 +646,40 @@ Node.js 已经成为基于 Web 的应用程序的主要语言之一，我们将�
 
 例如，假设您创建了一个应用程序，将用户的电话号码输入客户数据库，两个不同的用户输入相同的电话号码。当您尝试运行插入时，MongoDB 将返回重复键错误。此时，作为 Node.js 应用程序的创建者，您有责任正确处理该错误。要检查查询中的任何错误，我们可以检查`err`是否不为`null`。您可以使用以下语法轻松检查：
 
-[PRE46]
+```js
+database.collection(collectionName).find(query).limit(2).project({title: 1}).each   (function(err, doc) {
+        if(err) {
+            console.log('Error in query.');
+            console.log(err);
+            client.close();
+            return false;
+        }
+        else if(doc) {
+            console.log('Current doc');
+            console.log(doc);
+        } else {
+            client.close(); // Close our connection.
+            return false;   // End the each loop.
+        }
+     });
+```
 
 您可能会注意到，这与我们在使用`each`时检查是否有更多文档时使用的语法相同。类似于我们检查查询的错误，我们的客户端中的`connect`函数也会向我们的`callback`函数提供一个错误，这在运行任何进一步的逻辑之前应该进行检查：
 
-[PRE47]
+```js
+// Open the connection using the .connect function.
+client.connect(function(err) {
+    if(err) {
+        console.log('Error connecting!');
+        console.log(err);
+        client.close();
+    } else {
+        // Within the connection block, add a console.log to confirm the           connection
+        console.log('Connected to MongoDB with NodeJS!');
+        client.close(); // Close our connection at the end.
+    }
+})
+```
 
 注意
 
@@ -372,7 +687,12 @@ Node.js 已经成为基于 Web 的应用程序的主要语言之一，我们将�
 
 但我们不仅可以在回调中验证代码的准确性。我们还可以检查非回调函数，以确保一切顺利，例如当我们创建我们的`database`对象时：
 
-[PRE48]
+```js
+    const database = client.db(databaseName);
+    if(database) {
+        console.log('Our database connected alright!');
+    }
+```
 
 根据您尝试使用 MongoDB 实现的目标，您的错误处理可能像前面的示例那样简单，或者您可能需要更复杂的逻辑。但是，在本章的范围内，我们只会看一下基本的错误处理。
 
@@ -386,27 +706,103 @@ Node.js 已经成为基于 Web 的应用程序的主要语言之一，我们将�
 
 1.  在连接回调中，检查`err`参数。如果您有错误，请确保使用`console.log`输出它：
 
-[PRE49]
+```js
+    client.connect(function(err) {
+        if(err) {
+            console.log('Failed to connect.');
+            console.log(err);
+            return false;
+        }
+        // Within the connection block, add a console.log to confirm the       connection
+        console.log('Connected to MongoDB with NodeJS!');
+    ```
 
 1.  在运行查询之前添加一些错误检查，以确保数据库对象已成功创建。如果您有错误，请使用`console.log`输出它。使用`!`语法来检查某些东西是否不存在：
 
-[PRE50]
+```js
+        const database = client.db(databaseName);
+        if(!database) {
+            console.log('Database object doesn't exist!');
+            return false;
+        }
+    ```
 
 1.  在`each`回调中，检查`err`参数，确保每个文档都没有错误地返回：
 
-[PRE51]
+```js
+        database.collection(collectionName).find(query).limit(2).project({title: 1}).each(function(err, doc) {
+            if(err) {
+                console.log('Query error.');
+                console.log(err);
+                client.close();
+                return false;
+            }
+            if(doc) {
+                console.log('Current doc');
+                console.log(doc);
+            } else {
+                client.close(); // Close our connection.
+                return false;   // End the each loop.
+            }
+         });
+    ```
 
 此时，您的整个代码应该如下所示：
 
-[PRE52]
+```js
+    const MongoClient = require('mongodb').MongoClient;
+    const url = 'mongodb+srv://username:password@server-  fawxo.gcp.mongodb.net/test?retryWrites=true&w=majority';
+    const client = new MongoClient(url);
+    const databaseName = "sample_mflix";
+    const collectionName = "movies";
+    const query = { genres: { $all: ["Romance"]} };
+    // Open the connection using the .connect function.
+    client.connect(function(err) {
+        if(err) {
+            console.log('Failed to connect.');
+            console.log(err);
+            return false;
+        }
+        // Within the connection block, add a console.log to confirm the       connection
+        console.log('Connected to MongoDB with NodeJS!');
+        const database = client.db(databaseName);
+        if(!database) {
+            console.log('Database object doesn't exist!');
+            return false;
+        }
+        database.collection(collectionName).find(query).limit(2).project({title:      1}).each(function(err, doc) {
+            if(err) {
+                console.log('Query error.');
+                console.log(err);
+                client.close();
+                return false;
+            }
+            if(doc) {
+                console.log('Current doc');
+                console.log(doc);
+            } else {
+                client.close(); // Close our connection.
+                return false;   // End the each loop.
+            }
+         });
+    })
+    ```
 
 1.  在添加错误之前，使用 node `Exercise8.03.js`运行脚本。您应该会得到以下输出：
 
-[PRE53]
+```js
+    Connected to MongoDB with NodeJS!
+    Current doc
+    { _id: 573a1390f29313caabcd548c, title: 'The Birth of a Nation' }
+    Current doc
+    { _id: 573a1390f29313caabcd5b9a, title: "Hell's Hinges" }
+    ```
 
 1.  修改查询以确保产生错误：
 
-[PRE54]
+```js
+    const query = { genres: { $thisIsNotAnOperator: ["Romance"]} };
+    ```
 
 1.  使用 node `Exercise8.03.js`运行脚本。您应该会得到以下输出：![图 8.6：脚本运行后的输出（为简洁起见进行了截断）](img/B15507_08_06.jpg)
 
@@ -422,11 +818,23 @@ Node.js 已经成为基于 Web 的应用程序的主要语言之一，我们将�
 
 与 mongo shell 类似，我们可以使用`insertOne`或`insertMany`函数将数据写入我们的集合。这些函数在集合对象上调用。我们需要将单个文档传递给这些函数，或者在`insertMany`的情况下，需要传递文档数组。以下是一个包含如何使用带有回调的`insertOne`和`insertMany`的代码片段。到目前为止，您应该能够认识到这是一个不完整的代码片段。要执行以下代码，您需要添加我们在本章前面学到的基本连接逻辑。现在这应该看起来非常熟悉：
 
-[PRE55]
+```js
+    database.collection(collectionName).insertOne({Hello:      "World"}, function(err, result) {
+        // Handle result.
+    })
+    database.collection(collectionName).insertMany([{Hello: "World"},       {Hello: "Mongo"}], function(err, result) {
+        // Handle result.
+    })
+```
 
 与`find`一样，我们将回调传递给这些函数以处理操作的结果。插入操作将返回一个错误（可能为`null`）和一个结果，其中详细说明了插入操作的执行方式。例如，如果我们要构建在先前练习的结果之上，并记录`insertMany`操作的结果，那么将产生以下输出：
 
-[PRE56]
+```js
+    database.collection(collectionName).insertOne({Hello: "World"},       function(err, result) {
+        console.log(result.result);
+   client.close();
+    })
+```
 
 我们可能会在输出中看到一个像*图 8.7*那样的`result`对象。
 
@@ -444,19 +852,35 @@ Node.js 已经成为基于 Web 的应用程序的主要语言之一，我们将�
 
 以下是一些示例代码的示例（也建立在我们之前的连接代码之上），用于更新文档。我们可以使用`updateOne`或`updateMany`：
 
-[PRE57]
+```js
+    database.collection(collectionName).updateOne({Hello: "World"}, {$set: {Hello       : "Earth"}}, function(err, result) {
+        console.log(result.modifiedCount);
+        client.close();
+    })
+```
 
 如果我们运行这段代码，我们的输出结果可能如下所示：
 
-[PRE58]
+```js
+Connected to MongoDB with NodeJS!
+1
+```
 
 现在，让我们看一个删除文档的示例。与我们的其他函数一样，我们可以使用`deleteOne`或`deleteMany`。请记住，此代码片段作为我们为*Exercise 8.03*创建的较大代码的一部分存在，*Node.js 驱动程序中的错误处理和回调*：
 
-[PRE59]
+```js
+    database.collection(collectionName).deleteOne({Hello: "Earth"}, function(err, result) {
+        console.log(result.deletedCount);
+        client.close();
+    })
+```
 
 如果我们运行这段代码，我们的输出将如下所示：
 
-[PRE60]
+```js
+Connected to MongoDB with NodeJS!
+1
+```
 
 正如您所看到的，所有这些操作都遵循类似的模式，并且在结构上非常接近您将发送到 mongo shell 的相同命令。主要区别在于回调，我们可以在操作结果上运行自定义逻辑。
 
@@ -468,23 +892,46 @@ Node.js 已经成为基于 Web 的应用程序的主要语言之一，我们将�
 
 让我们通过以下代码片段更好地理解这一点，该代码片段运行了三个非常相似的查询。这些查询之间唯一的区别是每个查询中的一个参数（评分）：
 
-[PRE61]
+```js
+database.collection(collectionName).find({name: "Matthew"}).each(function(err,   doc) {});
+database.collection(collectionName).find({name: "Mark"}).each(function(err, doc)   {});
+database.collection(collectionName).find({name: "Luke"}).each(function(err, doc)   {})
+```
 
 让我们尝试用一个函数简化和清理这段代码。我们使用与变量相同的语法声明一个新函数。因为这个函数不会改变，我们可以将它声明为`const`。对于函数的值，我们可以使用我们在之前的示例中（本章早期的*回调*部分的示例）已经熟悉的语法：
 
-[PRE62]
+```js
+const findByName = function(name) {
+
+}
+```
 
 现在，让我们在花括号之间为这个函数添加逻辑：
 
-[PRE63]
+```js
+const findByName = function(name) {
+    database.collection(collectionName).find({name:       name}).each(function(err, doc) {})
+}
+```
 
 但是有些地方不太对。我们在创建数据库对象之前引用了数据库对象。我们将不得不将该对象作为参数传递给这个函数，所以让我们调整我们的函数来做到这一点：
 
-[PRE64]
+```js
+const findByName = function(name, database) {
+    database.collection(collectionName).find({name: name}).each(function(err,       doc) {})
+}
+```
 
 现在，我们可以用三个函数调用来替换我们的三个查询：
 
-[PRE65]
+```js
+const findByName = function(name, database) {
+    database.collection(collectionName).find({name: name}).each(function(err, doc       ) {})
+}
+findByName("Matthew", database);
+findByName("Mark", database);
+findByName("Luke", database);
+```
 
 在本章中，为了简单起见，我们不会过多地讨论创建模块化、功能性的代码。但是，如果您想进一步改进这段代码，您可以使用数组和`for`循环来为每个值运行函数，而不必调用它三次。
 
@@ -498,37 +945,110 @@ Node.js 已经成为基于 Web 的应用程序的主要语言之一，我们将�
 
 1.  首先，确保正确的文档存在以进行更新。直接使用 mongo shell 连接到服务器，并执行以下代码片段来检查这些文档：
 
-[PRE66]
+```js
+    db.chapter8_Exercise4.find({ $or: [{name: "Ned Stark"}, {name: "Robb Stark"}, {name: "Bran Stark"}]});
+    ```
 
 1.  如果前面查询的结果为空，请使用此片段添加要更新的文档：
 
-[PRE67]
+```js
+    db.chapter8_Exercise4.insert([{name: "Ned Stark"}, {name: "Bran Stark"}, {name: "Robb Stark"}]);
+    ```
 
 1.  现在，要创建脚本，请退出 mongo shell 连接，并创建一个名为`Exercise8.04.js`的新 JavaScript 文件。这样您就不必从头开始重写所有内容，只需将`Exercise8.03.js`的内容复制到新脚本中。否则，请在新文件中重写连接代码。如果您从*Exercise 8.03*，*使用 Node.js 驱动程序处理错误和回调*中复制了代码，则删除查找查询的代码。
 
 1.  将集合从电影更改为`chapter8_Exercise4`：
 
-[PRE68]
+```js
+    const collectionName = "chapter8_Exercise4";
+    ```
 
 1.  在脚本开始之前，在连接之前，创建一个名为`updateName`的新函数。这个函数将以数据库对象、客户端对象以及`oldName`和`newName`作为参数：
 
-[PRE69]
+```js
+    const updateName = function(client, database, oldName, newName) {
+    }
+    ```
 
 1.  在`updateName`函数中，添加运行更新命令的代码，该命令将更新包含名为`oldName`的字段的文档，并将该值更新为`newName`：
 
-[PRE70]
+```js
+    const updateName = function(client, database, oldName, newName) {
+        database.collection(collectionName).updateOne({name: oldName}, {$set: {name: newName}}, function(err, result) {
+            if(err) {
+                console.log('Error updating');
+                console.log(err);
+                client.close();
+                return false;
+            }
+            console.log('Updated documents #:');
+            console.log(result.modifiedCount);
+            client.close();
+        })
+    };
+    ```
 
 1.  现在，在连接回调中，运行您的新函数三次，分别为要更新的三个名称运行一次：
 
-[PRE71]
+```js
+        updateName(client, database, "Ned Stark", "Greg Stark");
+        updateName(client, database, "Robb Stark", "Bob Stark");
+        updateName(client, database, "Bran Stark", "Brad Stark");
+    ```
 
 1.  此时，您的整个代码应该如下所示：
 
-[PRE72]
+```js
+    const MongoClient = require('mongodb').MongoClient;
+    const url = 'mongodb+srv://mike:password@myAtlas-fawxo.gcp.mongodb.net/test?retryWrites=true&w=majority';
+    const client = new MongoClient(url);
+    const databaseName = "sample_mflix";
+    const collectionName = "chapter8_Exercise4";
+    const updateName = function(client, database, oldName, newName) {
+        database.collection(collectionName).updateOne({name: oldName}, {$set: {name: newName}}, function(err, result) {
+            if(err) {
+                console.log('Error updating');
+                console.log(err);
+                client.close();
+                return false;
+            }
+            console.log('Updated documents #:');
+            console.log(result.modifiedCount);
+            client.close();
+        })
+    };
+    // Open the connection using the .connect function.
+    client.connect(function(err) {
+        if(err) {
+            console.log('Failed to connect.');
+            console.log(err);
+            return false;
+        }
+        // Within the connection block, add a console.log to confirm the connection
+        console.log('Connected to MongoDB with NodeJS!');
+        const database = client.db(databaseName);
+        if(!database) {
+            console.log('Database object doesn't exist!');
+            return false;
+        }
+
+        updateName(client, database, "Ned Stark", "Greg Stark");
+        updateName(client, database, "Robb Stark", "Bob Stark");
+        updateName(client, database, "Bran Stark", "Brad Stark");
+    })
+    ```
 
 1.  使用`node Exercise8.04.js`运行脚本。您应该会得到以下输出：
 
-[PRE73]
+```js
+    Connected to MongoDB with NodeJS!
+    Updated documents #:
+    1
+    Updated documents #:
+    1
+    Updated documents #:
+    1
+    ```
 
 在过去的四个部分中，您已经学会了如何创建一个连接到 MongoDB 的 Node.js 脚本，运行易于使用的函数进行查询，并处理我们可能遇到的任何错误。这为您搭建了一个基础，可以用它来构建许多脚本，以使用您的 MongoDB 数据库执行复杂的逻辑。然而，在我们迄今为止的示例中，我们的查询参数总是硬编码到我们的脚本中，这意味着我们的每个脚本只能满足特定的用例。
 
@@ -542,17 +1062,220 @@ Node.js 已经成为基于 Web 的应用程序的主要语言之一，我们将�
 
 在本节中，我们将从命令行获取输入。幸运的是，Node.js 为我们提供了一些简单的方法来从命令行读取输入并在我们的代码中使用它。Node.js 提供了一个名为 `readline` 的模块，它允许我们向用户请求输入、接受输入，然后使用它。您可以通过在文件顶部添加以下行来将 `readline` 加载到您的脚本中。在使用 `readline` 时，您必须始终创建一个接口：
 
-[PRE74]
+```js
+const readline = require('readline');
+const interface = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+});
+```
 
 现在，我们可以要求用户输入一些内容。 `readline` 为我们提供了多种处理输入的方式。然而，现在最简单的方法是使用 `question` 函数，就像这里的例子一样：
 
-[PRE75]
+```js
+interface.question('Hello, what is your name? ', (input) => {
+    console.log(`Hello, ${input}`);
+    interface.close();
+  });
+```
 
 注意
 
 `${input}` 语法允许我们在字符串中嵌入一个变量。在使用时，请确保使用反引号，`` ` ``（如果您不确定在标准 QWERTY 键盘上哪里可以找到它，它与`1`键左侧的`~`符号共享一个键。)
 
-[PRE88]
+如果我们运行这个示例，我们将得到类似这样的输出：
+
+```js
+Chapter_8> node example.js 
+Hello, what is your name? Michael
+Hello, Michael
+```
+
+如果你想创建一个更长的提示，最好使用`console.log`来输出大部分输出，然后只提供一个较小的`readline`问题。例如，假设我们在询问用户输入之前发送了一条长消息。我们可以将其定义为变量，并在询问问题之前记录它：
+
+```js
+const question = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum?"
+interface.question(question, (input) => {
+    console.log(`Hello, ${input}`);
+    interface.close();
+  });
+```
+
+通过这种方式，我们可以轻松地修改和在多个输入中重用我们的消息。
+
+注意
+
+在 Node.js 中处理输入有许多不同的库和模块。然而，为了简化，我们将在本章中使用`readline`。
+
+## 创建交互式循环
+
+因此，我们有一种简单的方法来询问用户问题并接受他们的输入。然而，如果每次我们想要使用它时都必须从命令行运行我们的应用程序，那么它不会非常有用。如果我们能运行一次程序，并根据不同的输入执行多次运行，那将更加有用。
+
+为此，我们可以创建一个交互式循环，即应用程序将持续请求输入，直到满足退出条件。为了确保循环持续，我们可以将提示语句放置在一个调用自身的函数中，这将使代码块内的代码一直运行，直到所述的退出条件变为`true`。这将为我们代码的用户提供更好的体验。以下是使用我们之前提到的`readline`实现交互式循环的示例：
+
+```js
+const askName = function() {
+    interface.question("Hello, what is your name?", (input) => {
+        if(input === "exit") {
+            return interface.close(); // Will kill the loop.
+        }
+        console.log(`Hello, ${input}`);
+        askName();
+
+      });
+}
+askName(); // First Run.
+```
+
+注意这里的退出条件：
+
+```js
+        if(input === "exit") {
+            return interface.close(); // Will kill the loop.
+        }
+```
+
+确保在任何循环中都设置退出条件至关重要，因为这允许用户退出应用程序。否则，他们将永远被困在循环中，这可能会消耗计算机的资源。
+
+注意
+
+在编写代码中的循环时，你可能会不小心创建一个没有退出条件的无限循环。如果确实发生了这种情况，你可能不得不终止你的 shell 或 Terminal。你可以尝试*Ctrl+C*，或在 macOS 上使用*Cmd+C*退出。
+
+如果你运行前面的示例，你将能够在退出之前多次回答问题；例如：
+
+```js
+Chapter_8> node examples.js 
+Hello, what is your name?Mike
+Hello, Mike
+Hello, what is your name?John
+Hello, John
+Hello, what is your name?Ed
+Hello, Ed
+Hello, what is your name?exit
+```
+
+## 练习 8.05：在 Node.js 中处理输入
+
+对于这个练习，你将创建一个小的 Node.js 应用程序，允许你询问用户的姓名。你可以将此视为一个基本的登录系统。此应用程序应在交互式循环中运行；用户的选择如下：
+
++   `login`（*询问并存储用户的姓名*）
+
++   `who`（*输出用户的姓名*）
+
++   `exit`（*结束应用程序*）
+
+通过执行以下步骤创建此应用程序：
+
+1.  创建一个名为`Exercise8.05.js`的新 JavaScript 文件。
+
+1.  导入`readline`模块：
+
+```js
+    const readline = require('readline');
+    const interface = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout,
+    });
+    ```
+
+1.  定义选择和用户变量。
+
+1.  现在，定义一个名为`login`的新函数，该函数接受用户作为参数。该函数首先询问用户并将其存储在变量中：
+
+```js
+    const login = function() {
+        interface.question("Hello, what is your name?", (name) => {
+            user = name;
+      prompt();
+          });
+    }
+    ```
+
+1.  创建一个名为`who`的新函数，该函数输出`user`：
+
+```js
+    const who = function () {
+        console.log(`User is ${user}`);
+        prompt();
+    }
+    ```
+
+1.  创建一个输入循环，条件是选择不等于退出：
+
+```js
+    const prompt = function() {
+        interface.question("login, who OR exit?", (input) => {
+            if(input === "exit") {
+                return interface.close(); // Will kill the loop.
+            }   
+            prompt();
+          });
+    }
+    ```
+
+1.  之后，使用 if 关键字检查他们的选择是否匹配 "`login`"。如果找到匹配项，则运行 `login` 函数：
+
+```js
+            if(input === "login") {
+                login();
+            }
+    ```
+
+1.  接着，使用 if 关键字检查他们的选择是否匹配 "`who`"。如果找到匹配项，则打印出 `user` 变量：
+
+```js
+            if(input === "who") {
+                who();
+            }
+    ```
+
+你的最终代码应该大致如下所示：
+
+```js
+    const readline = require('readline');
+    const interface = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout,
+    });
+    var choice;
+    var user;
+    var cinema;
+    const login = function() {
+        interface.question("Hello, what is your name?", (name) => {
+            user = name;
+            prompt();
+          });
+    }
+    const who = function () {
+        console.log(`User is ${user}`)
+        prompt();
+    }
+    const prompt = function() {
+        interface.question("login, who OR exit?", (input) => {
+            if(input === "exit") {
+                return interface.close(); // Will kill the loop.
+            }   
+            if(input === "login") {
+                login();
+            }
+            if(input === "who") {
+                who();
+            }
+          });
+    }
+    prompt();
+    ```
+
+1.  通过运行 `node Exercise8.05.js` 并输入一些内容来执行代码。现在，你应该能够与应用程序进行交互了。以下是一个示例：
+
+```js
+    Chapter_8> node .\Exercise8.06.js
+    login, who OR exit?login
+    Hello, what is your name?Michael
+    login, who OR exit?who
+    User is Michael
+    login, who OR exit?exit
+    ```
 
 在这个练习中，您创建了一个基本的交互式应用程序，使用 Node.js 让用户从三个输入中进行选择，并相应地输出结果。
 
