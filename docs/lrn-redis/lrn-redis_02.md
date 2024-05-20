@@ -1,4 +1,4 @@
-# 第二章。开始使用 Redis
+# 第二章：开始使用 Redis
 
 Redis 是由 Salvatore Sanfilippo 开发的基于键值的 NoSQL 数据存储，于 2009 年推出。Redis 的名称来自于**REmote DIctionary Server**。Redis 是用 C 语言编写的高性能单线程服务器。
 

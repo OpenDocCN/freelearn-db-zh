@@ -1,4 +1,4 @@
-# 第八章：8. 在 MongoDB 中编写 JavaScript 代码
+# 第八章：在 MongoDB 中编写 JavaScript 代码
 
 概述
 
