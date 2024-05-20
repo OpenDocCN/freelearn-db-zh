@@ -1,3 +1,4 @@
++   [Redis 学习手册](README.md)
 +   [前言](lrn-redis_00.md)
 +   [第一章：NoSQL 简介](lrn-redis_01.md)
 +   [第二章：开始使用 Redis](lrn-redis_02.md)

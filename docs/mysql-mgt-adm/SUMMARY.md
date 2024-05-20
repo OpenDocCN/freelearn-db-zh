@@ -1,3 +1,4 @@
++   [MySQL 管理手册](README.md)
 +   [前言](mysql-mgt-adm_0.md)
 +   [第一章：入门](mysql-mgt-adm_1.md)
 +   [第二章：与数据库一起工作](mysql-mgt-adm_2.md)

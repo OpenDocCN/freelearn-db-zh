@@ -1,3 +1,4 @@
++   [精通 PHPMyAdmin 3.4 高效 MySQL 管理](README.md)
 +   [前言](ms-pma34-eff-mysql-mgt_00.md)
 +   [第一章：开始使用 phpMyAdmin](ms-pma34-eff-mysql-mgt_01.md)
 +   [第二章：配置身份验证和安全](ms-pma34-eff-mysql-mgt_02.md)

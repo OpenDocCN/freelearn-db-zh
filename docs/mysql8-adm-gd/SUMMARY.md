@@ -1,3 +1,4 @@
++   [MySQL8 管理手册](README.md)
 +   [前言](mysql8-adm-gd_00.md)
 +   [第一章：MySQL 8 简介](mysql8-adm-gd_01.md)
 +   [第二章：安装和升级 MySQL 8](mysql8-adm-gd_02.md)

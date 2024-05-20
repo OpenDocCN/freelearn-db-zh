@@ -1,3 +1,4 @@
++   [MongoDB 秘籍](README.md)
 +   [前言](mongo-cb_00.md)
 +   [第一章：安装和启动服务器](mongo-cb_01.md)
 +   [第二章：命令行操作和索引](mongo-cb_02.md)

@@ -1,3 +1,4 @@
++   [MySQL8 秘籍](README.md)
 +   [前言](mysql8-cb_00.md)
 +   [第一章：MySQL 8-安装和升级](mysql8-cb_01.md)
 +   [第二章：使用 MySQL](mysql8-cb_02.md)
